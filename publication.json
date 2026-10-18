@@ -1,0 +1,453 @@
+{
+  "revision": "9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd",
+  "includes_working_tree": true,
+  "public_site": true,
+  "site_url": "https://cyberbotics-lab.github.io/cyber-suite-docs/",
+  "pages": [
+    {
+      "uri": "index.md",
+      "source": "docs/index.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "a6f9ccdd95aab3ab108c936a132e466d4eaba971c4a0f5e375f54ceb18b4d4b6",
+      "download": "markdown/docs/index.md.txt"
+    },
+    {
+      "uri": "docs/design/system-architecture.md",
+      "source": "docs/design/system-architecture.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "27ef04c9ea1c2bc01063dd903bf6159d568cb7a15404c667e26d2991bb587f5e",
+      "download": "markdown/docs/design/system-architecture.md.txt"
+    },
+    {
+      "uri": "docs/handbook/chapters/index.md",
+      "source": "docs/handbook/chapters/index.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "d0d94c3a06fefb4bd8c34f99de6493223f1df5465e4aaacf7071afce4d251421",
+      "download": "markdown/docs/handbook/chapters/index.md.txt"
+    },
+    {
+      "uri": "docs/setup/first-run.md",
+      "source": "docs/setup/first-run.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "f5be417bb3a6ce0f106c8bef323d19da93a7a67cd6619eebdfbc9aa2d12cb50c",
+      "download": "markdown/docs/setup/first-run.md.txt"
+    },
+    {
+      "uri": "docs/setup/student-projects.md",
+      "source": "docs/setup/student-projects.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "c65c5ec366274b50e99fe9387e6c22bf386ce04479dc713f35410dffe707cf42",
+      "download": "markdown/docs/setup/student-projects.md.txt"
+    },
+    {
+      "uri": "docs/roadmaps/learning-m0-digit-velocity.md",
+      "source": "docs/roadmaps/learning-m0-digit-velocity.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "71ae0843d159f1db3a199004f86a0050b69ffd2bc9acbfdcb3d27078d1c4c497",
+      "download": "markdown/docs/roadmaps/learning-m0-digit-velocity.md.txt"
+    },
+    {
+      "uri": "docs/design/models-and-simulation.md",
+      "source": "docs/design/models-and-simulation.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "7f7348c14fcdfc88eb6fed80860e31b4988e4725ea0bf93630665d28677b279a",
+      "download": "markdown/docs/design/models-and-simulation.md.txt"
+    },
+    {
+      "uri": "docs/design/runtime-execution.md",
+      "source": "docs/design/runtime-execution.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "3bcf0e5612243ee569818a336168a6bb67f4795af0614d06f906362570d49c7a",
+      "download": "markdown/docs/design/runtime-execution.md.txt"
+    },
+    {
+      "uri": "docs/design/model-based-walking.md",
+      "source": "docs/design/model-based-walking.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "44a89f6880de5140b7e7aa9a33fecc3ee9b54be395a15ad2b5d229e303c53b9a",
+      "download": "markdown/docs/design/model-based-walking.md.txt"
+    },
+    {
+      "uri": "docs/design/state-and-perception.md",
+      "source": "docs/design/state-and-perception.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "414edfdb9bd7d6a5d8075cc261d662ec7ec47455e5af6bad901d5a0f01d45387",
+      "download": "markdown/docs/design/state-and-perception.md.txt"
+    },
+    {
+      "uri": "docs/design/learned-policy-deployment.md",
+      "source": "docs/design/learned-policy-deployment.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "d3ceac9560c6cd9414bc4fe41c3afe58c6e8dc22b1800ce6b6bb2d5569c265b6",
+      "download": "markdown/docs/design/learned-policy-deployment.md.txt"
+    },
+    {
+      "uri": "docs/design/corta-design-specs.md",
+      "source": "docs/design/corta-design-specs.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "78b0e2f1fc6d3d42b0ff6499c568e85979e15ca7cfe9c608d2d202da2338cfd6",
+      "download": "markdown/docs/design/corta-design-specs.md.txt"
+    },
+    {
+      "uri": "docs/design/corta_adapter.md",
+      "source": "docs/design/corta_adapter.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "51aec6dcb4c245fd61b1260f36d54ed6aeca11818d0873cc813784972bef7278",
+      "download": "markdown/docs/design/corta_adapter.md.txt"
+    },
+    {
+      "uri": "docs/design/walking-coordinator-boundary.md",
+      "source": "docs/design/walking-coordinator-boundary.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "e4ca8854807e784aa22de457d7b3eb12f071ba6f55c3daf23e32291e6f5d2cba",
+      "download": "markdown/docs/design/walking-coordinator-boundary.md.txt"
+    },
+    {
+      "uri": "docs/design/alip-footstep-planner-formulation.md",
+      "source": "docs/design/alip-footstep-planner-formulation.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "aeaaf88f9598698f5995fa5d852f0a4d356aa50a2fef6f8bd8aaa13410283a57",
+      "download": "markdown/docs/design/alip-footstep-planner-formulation.md.txt"
+    },
+    {
+      "uri": "docs/design/dcm-footstep-planner-formulation.md",
+      "source": "docs/design/dcm-footstep-planner-formulation.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "38b6b65248f137acb6a794371a77d0aad35dc821ce0cab92ed040f39beda9ac4",
+      "download": "markdown/docs/design/dcm-footstep-planner-formulation.md.txt"
+    },
+    {
+      "uri": "apps/digit/walking/RUNNING.md",
+      "source": "apps/digit/walking/RUNNING.md",
+      "status": "canonical",
+      "kind": "guide",
+      "sha256": "0ccb87b80de0748e5be00f64033c1dbbb8b6945ff437e930cd63b75ca61477d0",
+      "download": "markdown/apps/digit/walking/RUNNING.md.txt"
+    },
+    {
+      "uri": "apps/unitree-g1/walking/RUNNING.md",
+      "source": "apps/unitree-g1/walking/RUNNING.md",
+      "status": "canonical",
+      "kind": "guide",
+      "sha256": "8d22d69b186258ca26a2dc60d05dcfab6ac33f6080afac12c91c08518f7347d5",
+      "download": "markdown/apps/unitree-g1/walking/RUNNING.md.txt"
+    },
+    {
+      "uri": "docs/setup/learning-workflow.md",
+      "source": "docs/setup/learning-workflow.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "c651a59045128c65d72494e75455ad8d9e60b7f60bfc7f53440e71db00ce6cb1",
+      "download": "markdown/docs/setup/learning-workflow.md.txt"
+    },
+    {
+      "uri": "docs/setup/evaluating-experiments.md",
+      "source": "docs/setup/evaluating-experiments.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "1b798b096b372c4081bfe3b6b310b509120098d971e7e0e194191541affe3770",
+      "download": "markdown/docs/setup/evaluating-experiments.md.txt"
+    },
+    {
+      "uri": "docs/setup/remote-development.md",
+      "source": "docs/setup/remote-development.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "589fd212e5102e608000530ead4debf436b75dc55ff39ad704cdb9fbf5025a6d",
+      "download": "markdown/docs/setup/remote-development.md.txt"
+    },
+    {
+      "uri": "apps/digit/learning/OSC_WORKFLOW.md",
+      "source": "apps/digit/learning/OSC_WORKFLOW.md",
+      "status": "canonical",
+      "kind": "guide",
+      "sha256": "6187216862cf15a18eea134311afc0def608ef3fdd0e48d3012ec13fcbd20285",
+      "download": "markdown/apps/digit/learning/OSC_WORKFLOW.md.txt"
+    },
+    {
+      "uri": "apps/digit/docs/overview.md",
+      "source": "apps/digit/docs/overview.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "16cc1a0f3d6c99eb5405870116b61bf4cb5db95d065c55fcc1bed7f80780be32",
+      "download": "markdown/apps/digit/docs/overview.md.txt"
+    },
+    {
+      "uri": "apps/unitree-g1/docs/overview.md",
+      "source": "apps/unitree-g1/docs/overview.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "989eb89bff2e8cb12d91152106093ee48d5546eee48e5ab8f3a7b169e604a6f7",
+      "download": "markdown/apps/unitree-g1/docs/overview.md.txt"
+    },
+    {
+      "uri": "apps/tron1/docs/overview.md",
+      "source": "apps/tron1/docs/overview.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "0aa72a63feebb409a1332c75e68a274615e9dc806765ed4b93619c0e98ecc75b",
+      "download": "markdown/apps/tron1/docs/overview.md.txt"
+    },
+    {
+      "uri": "apps/perception/mapping/docs/overview.md",
+      "source": "apps/perception/mapping/docs/overview.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "d61c54a68000d708b3c5ccbd322d67976d0e1e0ad466c133eb34e691c6a2d12e",
+      "download": "markdown/apps/perception/mapping/docs/overview.md.txt"
+    },
+    {
+      "uri": "docs/setup/development-workflow.md",
+      "source": "docs/setup/development-workflow.md",
+      "status": "canonical",
+      "kind": "guide",
+      "sha256": "a9341fac95d524027336c35d09867e25a89ca4e02e5a29cd29ef17f12fbbb67a",
+      "download": "markdown/docs/setup/development-workflow.md.txt"
+    },
+    {
+      "uri": "docs/setup/documentation-site.md",
+      "source": "docs/setup/documentation-site.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "ed185295f7c005e63a1184598fc628029d5548a6c8f4e94bfb66f04c3cbc27ab",
+      "download": "markdown/docs/setup/documentation-site.md.txt"
+    },
+    {
+      "uri": "modules/control/MODULE.md",
+      "source": "modules/control/MODULE.md",
+      "status": "candidate",
+      "kind": "module_contract",
+      "sha256": "b79497c3613fe2697ad581a7bfb4ca199578bf06c9ec10f52709c629f74e8014",
+      "download": "markdown/modules/control/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/corta/MODULE.md",
+      "source": "modules/corta/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "09c7e830d275ff953014ae3cbe1ce1645ba9d68e299381324068c859109e2811",
+      "download": "markdown/modules/corta/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/corta_adapters/MODULE.md",
+      "source": "modules/corta_adapters/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "2717587d330bdb3ea60ab0eeedc06a0351e3cddba0f460db2f625ac062018c15",
+      "download": "markdown/modules/corta_adapters/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/digit_hardware/MODULE.md",
+      "source": "modules/digit_hardware/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "6a228e9ca0ecd29118e4b183053477de4442c0a4a429bb8e800ea2c317ca3367",
+      "download": "markdown/modules/digit_hardware/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/estimation/MODULE.md",
+      "source": "modules/estimation/MODULE.md",
+      "status": "candidate",
+      "kind": "module_contract",
+      "sha256": "5d0f18303be10ac16eb00c94d4e9ebad21692fe5f1698c4f1eb3beec0723b4f6",
+      "download": "markdown/modules/estimation/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/foundation/MODULE.md",
+      "source": "modules/foundation/MODULE.md",
+      "status": "candidate",
+      "kind": "module_contract",
+      "sha256": "8edb0243dbd9b90f31907eea502a90659a473beb4f27279e0cdf669e2e8be621",
+      "download": "markdown/modules/foundation/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/locomotion/MODULE.md",
+      "source": "modules/locomotion/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "bba060e13fcee43b8e1777bc0d78184e395727fac796ac36a89f16499ca3fbc1",
+      "download": "markdown/modules/locomotion/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/logging/MODULE.md",
+      "source": "modules/logging/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "1eca44c224e2b4eaef9a21f296a05a8778bc7acf5b7fa32e6ce566f6d451df64",
+      "download": "markdown/modules/logging/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/perception/MODULE.md",
+      "source": "modules/perception/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "4ee4c88b546829875550290d4bd9c25674879ed85a9dee88aa1f369756ec10c1",
+      "download": "markdown/modules/perception/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/policy/MODULE.md",
+      "source": "modules/policy/MODULE.md",
+      "status": "experimental",
+      "kind": "module_contract",
+      "sha256": "3a6b7f7bb19f583a4bcb4bf6d31c1863af27b336dae73a3b72c918059c7ac589",
+      "download": "markdown/modules/policy/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/robot/MODULE.md",
+      "source": "modules/robot/MODULE.md",
+      "status": "candidate",
+      "kind": "module_contract",
+      "sha256": "dbb7eae6870778c99b7a2632b6702fa2df36433ea79080e970515fc8ffb2f9ac",
+      "download": "markdown/modules/robot/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/sim/MODULE.md",
+      "source": "modules/sim/MODULE.md",
+      "status": "candidate",
+      "kind": "module_contract",
+      "sha256": "11b24fc1580aa59a7a77388f2bec2d641a39bc2a77cd3793f0971866b8521f71",
+      "download": "markdown/modules/sim/MODULE.md.txt"
+    },
+    {
+      "uri": "modules/solvers/MODULE.md",
+      "source": "modules/solvers/MODULE.md",
+      "status": "candidate",
+      "kind": "module_contract",
+      "sha256": "489d42f8ce345a4383443b03ca3372ae61db20ec45b331a131cbfc8726d24c57",
+      "download": "markdown/modules/solvers/MODULE.md.txt"
+    }
+  ],
+  "module_groups": [
+    {
+      "id": "execution",
+      "title": "Execution & observability",
+      "description": "Run the composition and inspect what happened.",
+      "modules": [
+        {
+          "id": "corta",
+          "role": "Plant-paced execution",
+          "status": "experimental"
+        },
+        {
+          "id": "corta_adapters",
+          "role": "External inputs & observers",
+          "status": "experimental"
+        },
+        {
+          "id": "logging",
+          "role": "Bounded telemetry & records",
+          "status": "experimental"
+        }
+      ]
+    },
+    {
+      "id": "sensing",
+      "title": "Sensing & state",
+      "description": "Turn measurements into usable state and geometry.",
+      "modules": [
+        {
+          "id": "estimation",
+          "role": "State & contact estimation",
+          "status": "candidate"
+        },
+        {
+          "id": "perception",
+          "role": "Terrain products & queries",
+          "status": "experimental"
+        }
+      ]
+    },
+    {
+      "id": "motion",
+      "title": "Motion & control",
+      "description": "Represent motion and realize commands.",
+      "modules": [
+        {
+          "id": "locomotion",
+          "role": "Biped & contact primitives",
+          "status": "experimental"
+        },
+        {
+          "id": "control",
+          "role": "Feedback & whole-body control",
+          "status": "candidate"
+        },
+        {
+          "id": "policy",
+          "role": "Learned-policy deployment",
+          "status": "experimental"
+        }
+      ]
+    },
+    {
+      "id": "world",
+      "title": "World interfaces",
+      "description": "Exchange observations and actuator commands.",
+      "modules": [
+        {
+          "id": "sim",
+          "role": "MuJoCo, terrain & sensors",
+          "status": "candidate"
+        },
+        {
+          "id": "digit_hardware",
+          "role": "Digit low-level interface",
+          "status": "experimental"
+        }
+      ]
+    },
+    {
+      "id": "models",
+      "title": "Models & numerics",
+      "description": "Shared mathematical and computational building blocks.",
+      "modules": [
+        {
+          "id": "foundation",
+          "role": "Math, profiles & data lookup",
+          "status": "candidate"
+        },
+        {
+          "id": "robot",
+          "role": "Kinematics & dynamics",
+          "status": "candidate"
+        },
+        {
+          "id": "solvers",
+          "role": "QP problems & backends",
+          "status": "candidate"
+        }
+      ]
+    }
+  ],
+  "supporting_sources": [
+    "sources/repo--modules--control--MODULE.md.html",
+    "sources/repo--modules--corta--MODULE.md.html",
+    "sources/repo--modules--corta_adapters--MODULE.md.html",
+    "sources/repo--modules--digit_hardware--MODULE.md.html",
+    "sources/repo--modules--estimation--MODULE.md.html",
+    "sources/repo--modules--foundation--MODULE.md.html",
+    "sources/repo--modules--locomotion--MODULE.md.html",
+    "sources/repo--modules--logging--MODULE.md.html",
+    "sources/repo--modules--perception--MODULE.md.html",
+    "sources/repo--modules--policy--MODULE.md.html",
+    "sources/repo--modules--robot--MODULE.md.html",
+    "sources/repo--modules--sim--MODULE.md.html",
+    "sources/repo--modules--solvers--MODULE.md.html"
+  ]
+}

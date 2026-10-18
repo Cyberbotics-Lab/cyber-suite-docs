@@ -1,0 +1,187 @@
+---
+Status: experimental
+Owner: modules/corta
+Last verified: "2026-08-28 (Python-system native telemetry; external-boundary Slice 2: POSIX keyboard and
+  fixed-size Value ingress beyond target atomic width; Slice 1: S-28
+  identity/restart, Value/Block egress, adapter dependency boundary, and receiver
+  Value-ingress replay; V1-core Tasks 5, 6, 7, and 8B: fault/reset/
+  liveness/shutdown; the field codec, replay stream, run manifest, and
+  authoritative replay cuts; the Python frontend and interpreter-ownership
+  lifecycle; the offline telemetry loader/converter and the audited flat
+  conformance index. Task 4 core; V1-core Task 3A.2a app; reporting and
+  introspection)"
+---
+
+# CORTA
+
+## Purpose
+
+Plant-paced deterministic inline/deferred robotics execution, developed as an independent runtime rather than an extension of `modules/runtime`.
+
+## Public API
+
+- `types.hpp`: foundational IDs, tick stamps, statuses, execution kind, and compile errors.
+- `lifecycle.hpp`: the one fault, reset, and shutdown vocabulary -- `ErrorPolicy`, `FaultDirective`, `SystemState`, `ResetResult`, `JoinEscalation`, `TerminationReason`, the fault handler signature, and the worker/device shutdown contracts. Depends only on `types.hpp`, so an adapter or a report formatter can name these states without the graph surface.
+- `message_traits.hpp`: mandatory message traits and the fixed-Value helper.
+- `block.hpp`: move-only writable Block handles and immutable counted leases backed by compile-sized fixed pools.
+- `execution.hpp`: inline/deferred execution declarations, `Skip`/`Latest`, latency schedules, predicates, snapshot metadata, named-worker options with optional thread placement, tick/log-thread placement, memory locking, and optional provenance-qualified runtime cost models.
+- `ingress.hpp`: initialized, single-producer, latest-value ingress for Value and Block messages, with coalescing, nonzero clock/source identity, and one fresh `source_restarted` observation when the source instance changes. Fixed-size trivially copyable Value payloads are not restricted to one target atomic object: their copy is serialized against Runtime sampling by the existing coherent boundary cutoff.
+- `egress.hpp`: graph-owned unpaired Value/Block sinks, one claimed move-only off-thread reader, fixed-capacity drop-newest SPSC storage, publication provenance, queue statistics, and Block lease retention accounted by C16.
+- `system.hpp`, `ports.hpp`, and `graph.hpp`: typed systems, ports, graph construction, ingress/egress ownership, application-supplied Value-ingress record codecs, rate declarations, exact Block pool plans, due-set budgets, and immutable compiled descriptors.
+- `placement.hpp`: per-thread OS scheduling policy, priority, and CPU affinity; process memory locking; typed per-attribute outcomes distinguishing `Unsupported`, `Denied`, and `Failed`; and advisory-or-required enforcement. Placement is deployment, not semantics: it never enters the compiled descriptor, so it cannot change the graph fingerprint.
+- `plant.hpp`: Value/Block Plant boundaries, binding validation, lifecycle, metadata, write budgets, and safe actions.
+- `test_plants.hpp`: move-only scripted/callback Plants with move-safe traces.
+- `codec.hpp`: the `[S-25]` field-list wire codec. One declaration per message drives both directions -- `FieldWriter` and `FieldReader` satisfy the same visitor -- so encode and decode cannot drift. Framing is magic/version/kind/ length with a CRC-32 over header _and_ payload, which is what catches a corrupted length rather than only a corrupted field.
+- `record.hpp`: the replay stream. The Section 8.1 mandatory record set, a finite drop-newest queue with gap markers and `replay_complete`, sinks, and the `[S-43]` run manifest with its hard/soft compatibility classes. Registers as a `telemetry::LogDrain`, so replay and telemetry share the one log thread. Schema 2 also carries the typed payload and restart fact for graph-visible receiver Value ingress.
+- `recording.hpp`: how a graph's replay stream and replay authority are configured, including the type-erased observation/command codecs.
+- `replay.hpp`: decoding a tape, `ReplayPlant`, and the first-divergence comparators over Runtime-owned decisions and commands.
+- `telemetry.hpp`: channel handles, per-system declaration and recording, the `LogDrain` seam, and the one runtime-owned log thread. Record layout, ring, and schema are `cyber_suite::logging`'s types, not copies of them, so a CORTA artifact and a predecessor-frontend artifact are the same kind of file.
+- `runtime.hpp`: move-only hybrid Runtime, compile entry point, fixed Block pools, deferred/ingress counters, preallocated timing and thread-placement reports, command fallback, cancellation, `request_reset`, the per-system lifecycle report, worker/device shutdown reports, and the exact `[S-37]` terminal ordering.
+- `introspection.hpp`: what `compile()` decided, as text for a terminal and as the `corta.graph/1` JSON the offline visualizer reads. Pure functions of a `const CompiledGraphDescriptor`; nothing here runs on the tick thread.
+- `report.hpp`: the end-of-run summary formatter, the resource accounting it prints (threads, Block pool plan versus high-water occupancy, edge storage, ingress/egress counts, invocations), and the v0 health monitor. All pure functions of a descriptor and a `RunReport`, so they add no measurement and can be called on a cached report after the Runtime closed. `HealthFinding::code` is the stable identifier; the detail text is not. v1 adds the Task 5 state machine: a system that ended `Degraded` or `Quarantined`, or that suppressed due updates, makes a run `Unhealthy` however its outcome enum reads.
+- `corta.hpp`: the public umbrella header.
+
+### Optional Python frontend
+
+Built as separate targets. `cyber_suite_corta` keeps exactly two link edges and never gains a CPython one; the C7 rule that constrains Python systems is expressed in core through the domain-neutral `ExecutionRequirement` and `worker_affinity_group` declarations on `System`, which the adapter answers. Core enforces the rule without knowing what Python is.
+
+- `python/include/corta/python/interpreter.hpp`: process interpreter ownership. CORTA never finalizes an interpreter it did not initialize, and finalizes one it did only after every Python worker has joined. The mode -- `Embedded` or `Host` -- is decided once, on first attach, and never revised, because re-evaluating it would make ownership depend on call order. Resolves spec Section 15 open decision 2.
+- `python/include/corta/python/registry.hpp`: the message registry that lets a Python system own real typed `Input<T>`/`Output<T>` ports. Registration is an explicit C++ call naming a concrete type, not a reflection lookup.
+- `python/include/corta/python/system.hpp`: the adapter. Acquires the GIL per job rather than per thread -- holding it between jobs would block a Python main, which is the configuration Section 6.1 tells hardware applications to use -- and translates a Python exception into `[S-19]` with its traceback. `start(ctx)` also exposes the native declaration window through `ctx.telemetry(stream_name, divisor)`. A Python producer may declare fixed scalar, vector, and flat-matrix channels plus schema constants, retain their handles, and record directly in `update()`. Declaration errors fault startup; record conversion errors leave an incomplete observer row but do not fault or alter the system transaction under `[S-30]`.
+- `python/include/corta/python/bindings.hpp`: `bind_core` for the domain-neutral half, and `bind_graph`/`bind_compile` for an application's own observation/command pair. The typed half cannot be shipped, because CORTA defines no observation or command type.
+- `python/corta`: the staged in-tree package and its authoring API. A Python system is an ordinary class -- no base, no metaclass -- with `corta.Input(...)`/`corta.Output(...)` class attributes.
+
+### Offline telemetry tooling
+
+- `python/cyber_suite/corta/telemetry.py`: the Section 8.3 loader and columnar converter. `load(path)` returns each declared stream with its channels in _sample_ order beside the `tick_index` they were recorded on; `load_flat` is the literal "dict of numpy arrays" spelling. A stream records one row per accepted sample, not one per tick, so the dense tick axis is opt-in (`Stream.on_tick_axis`) and gaps are attributed rather than assumed: rate thinning is normal and leaves `sample_index` continuous, while a `[S-36]` drop breaks it. `to_npz`/`to_csv` need only numpy; `to_parquet` says what to install rather than adding a dependency for an offline convenience.
+
+`cyber_suite_corta_python` is a **static** archive on purpose. It calls `Py_Initialize`, and where those symbols come from differs by consumer: an extension gets them from its host process, a C++ `main` needs libpython linked. A shared library would have to choose, and choosing libpython crashes on import into a statically linked interpreter. The cost is that a process must load exactly one copy.
+
+## Dependencies
+
+The core target uses C++20, the standard library, `Threads::Threads`, and `cyber_suite_logging`. GoogleTest is test-only. It does not include or link another graph runtime, Python, a simulator, robot code, or vendor protocols.
+
+`cyber_suite_logging` is a standalone telemetry module needing nothing beyond the standard library and Threads, so depending on it couples no runtimes. CORTA reuses its record layout, ring, and schema so application artifacts use the same loaders and plotters. Its storage half (`cyber_suite_logging_writer`, HighFive) is deliberately _not_ linked: the runtime drains rings into whatever ring an application binds, and never learns a file format. `corta.dependency_boundary` gates that from core's own side -- core's link line and sources must stay free of the writer and HighFive -- while the application that owns storage links the writer, which is what `digit_corta_walking` does.
+
+## Offline Tooling
+
+`python/cyber_suite/corta` reads a `corta.graph/1` dump and renders it as Graphviz DOT, Mermaid, or text (`pixi run python -m cyber_suite.corta <dump.json> --format dot`). It is offline by construction: the runtime writes a file and never serves a picture, which keeps spec Section 14's in-runtime-visualization exclusion intact. The dump's field names are a cross-language contract, pinned on the producing side by `tests/test_introspection.cpp` and on the consuming side by `tests/python/test_graph_visualization.py`, which runs the real `corta_hybrid_graph` binary rather than a checked-in fixture -- a fixture would keep passing after the producer changed.
+
+## Consumers
+
+CORTA's contract/allocation tests, API smoke, manual characterization target, and thin hybrid example are core consumers. `apps/digit/simulation/digit_corta_joint_servo` is the first real application consumer: its app-private Simulator Plant composes fixed-base Digit MuJoCo and the existing joint-servo controller without adding simulator, robot, or control dependencies to this module. The strict app-private `apps/digit/walking/digit_corta_walking` consumer then composes floating-base MuJoCo, closed-loop InEKF/DSG/TAC-QP control, and DCM planning on a band whose rate comes from the app's own resolved configuration, exclusively through four CORTA Value edges.
+
+`apps/tron1/walking/tron1_corta_walking` adds an experimental point-foot consumer: logical-time MuJoCo, inline 1 kHz TAC-QP and deferred 50 Hz DCM, with an executed physical flat-ground scenario. Its named scheduling budgets are declarations only; wall-clock timing is not qualified by that scenario.
+
+All three consumers are registered in `corta.consumer_integration`. C1-C18 reject inside `compile()`, not at C++ compile time, so a consumer keeps building and linking after a public contract tightens and only fails when it is run. The gate requires every CORTA-consuming application to link CORTA and to be executed by at least one CTest entry, and it enforces the two declaration habits whose absence produced stale C14 inputs on the merge: an explicit budget on every `corta::inl()` call, since the default `InlineSpec` claims 0 ns while looking like a declaration, and a Plant `claimed_write_budget` assigned from a named constant rather than written as a literal inside `descriptor()`. Register new application consumers in `tests/python/test_consumer_integration.py`; the gate fails on any unregistered one.
+
+`apps/digit/walking/digit_corta_walking` declares honest measured budgets whose 1 kHz due-set sum does not fit the base period on the `default` preset. Under Rev 3.5 that is reported, not rejected: the app compiles, runs, reaches walking liveness, prints `fits_base_period=false`, and reports the real per-tick exceedance counts. See [the characterization entry](../../notes/journal/entries/2026-08-18-corta-digit-budget-characterization.md) and [the advisory-C14 revision](../../notes/journal/entries/2026-08-18-corta-c14-advisory-not-rejecting.md).
+
+`CallbackPlant` transitions are application-supplied code. They must be deterministic, bounded, non-blocking, allocation-free during execution, and free of wall-clock reads and hidden randomness. CORTA cannot prove those properties for an arbitrary callback.
+
+The same obligation applies to functional latency callbacks and dispatch predicates. Ingress writers are single-producer handles; copies of one writer must not be used concurrently by multiple producer threads. Every arrival supplies a nonzero clock domain, nonzero source instance, and source timestamp. Runtime uses one cutoff gate to freeze deferred completion and Value/Block ingress membership, samples each ingress once per boundary, and exposes one coherent generation to all consumers in that tick. Value payload copies are ordinary fixed-storage assignments inside that exclusion; only provenance and cutoff state need atomics, so a Value may exceed the target's native atomic width. Source timestamps are comparable only when clock domains match; a source-instance change starts a new provenance epoch and is surfaced once on the first visible generation from that source.
+
+Egress is deliberately unpaired with ingress. Runtime captures only a new generation and only after a successful ordinary Plant write, then attempts one drop-newest push without retry. Value capture is restricted to trivially copyable messages and lock-free index/counter targets. A Block queue retains leases under the compiled `egress_queue` C16 holder; an adapter's additional in-flight lease count remains an explicit `external_leases()` declaration.
+
+Authoritative replay can reproduce graph-visible Value ingress when the application registers `Graph::record_ingress_codec(...)`. The codec is application-owned because CORTA has no universal message schema. Block ingress payload injection is still refused rather than silently approximated; the receiver replay claim in this slice is Value-only.
+
+The cutoff gate contains no user callback and guards only bounded fixed-storage copies plus atomic cutoff/provenance operations, so the current allocation and coherence contracts are executable. It can still spin behind a preempted producer, however; S-23's strict hard-real-time no-blocking claim remains deferred until the cutoff uses a priority-inversion-free snapshot protocol or gains target scheduling evidence.
+
+## Owned Examples
+
+`examples/cpp/corta/hybrid_graph.cpp` compares a shared background worker with split estimation/planning workers. Both layouts must match one literal trace covering inline commands, deferred results, and Value ingress. Its `--introspect <path>` flag writes the compiled-graph JSON and prints the text dump and the end-of-run summary; the default output is unchanged without it.
+
+Nine public-API mechanism examples use deterministic arithmetic data and a `ScriptedPlant`; they are end-to-end framework checks, not robot validation:
+
+- `examples/cpp/corta/smoke_inline.cpp`: lifecycle, inline ordering, and same-tick command visibility.
+- `examples/cpp/corta/smoke_rates.cpp`: harmonic rates, freshness, and inline-only unit delay.
+- `examples/cpp/corta/smoke_async.cpp`: logical deferred execution, `Latest`, boundary commitment, and coalesced Value ingress.
+- `examples/cpp/corta/block_transport.cpp`: block-payload transport, staged lease sharing, and pool bookkeeping.
+- `examples/cpp/corta/replay_roundtrip.cpp`: record/replay compatibility, decision and command comparisons, and hard incompatibility checks.
+- `examples/cpp/corta/reset_runtime.cpp`: runtime reset request state machine, rejection reasons, and restart accounting.
+- `examples/python/corta/smoke_inline.py`: deferred Python arithmetic smoke with startup publication and deterministic lifecycle counters.
+- `examples/python/corta/smoke_rates.py`: deferred Python delayed-edge smoke for unit-delay ordering and stale sample handling.
+- `examples/python/corta/smoke_async.py`: deferred Python async-branch smoke with a background worker, `step()` + `run()` entry, and deferred accounting.
+
+Python examples live under the same mechanism set in `examples/python/corta`:
+
+- `examples/python/corta/frontend_capabilities.py`: parity against the C++ test planner, native Python telemetry declarations, inline declaration checks, and two python-worker conflict rejection.
+- `examples/python/corta/reset_runtime.py`: Python reset requests, accepted/ coalesced results, unsupported/unknown targets, and lifecycle counters.
+- `examples/python/corta/telemetry_inspect.py`: telemetry stream loader, completeness checks, and optional `to_npz`/`to_csv` conversion.
+
+## Validation
+
+```bash
+pixi run build --target cyber_suite_corta cyber_suite_corta_apicheck \
+  test_cyber_suite_corta test_cyber_suite_corta_allocation \
+  test_cyber_suite_corta_process_fatal \
+  corta_smoke_inline corta_smoke_rates corta_smoke_async \
+  corta_block_transport corta_replay_roundtrip corta_reset_runtime \
+  corta_hybrid_graph corta_fast_path_benchmark -j12
+pixi run build --target digit_corta_joint_servo -j12
+pixi run build --target digit_corta_walking -j12
+pixi run test -R '^corta\.' --output-on-failure
+build/default/modules/corta/test_cyber_suite_corta_process_fatal
+build/default/modules/corta/test_cyber_suite_corta --gtest_filter='CortaPlacement*'
+pixi run test -R cyber_suite_digit_simulation.corta_joint_servo \
+  --output-on-failure
+pixi run test -R 'cyber_suite_digit_walking\.(corta_boundary|corta_liveness)$' \
+  --output-on-failure
+python examples/python/corta/smoke_inline.py
+python examples/python/corta/smoke_rates.py
+python examples/python/corta/smoke_async.py
+pixi run py-test corta -k dependency_boundary
+pixi run test -R 'corta\.(python_frontend|python_embed)$' --output-on-failure
+pixi run test -R 'corta\.(telemetry_loader|conformance_index)$' --output-on-failure
+build/default/modules/corta/corta_telemetry_artifact /tmp/corta_probe.h5 12
+pixi run python -m cyber_suite.corta.telemetry /tmp/corta_probe.h5 --list
+pixi run py-test corta -k consumer_integration
+pixi run test -R 'corta\.graph_visualization' --output-on-failure
+build/default/modules/corta/corta_hybrid_graph --introspect /tmp/corta_graph.json
+pixi run python -m cyber_suite.corta /tmp/corta_graph.json --format dot -o /tmp/corta_graph.dot
+ctest --test-dir build/default -L smoke --output-on-failure
+# Note: CORTA smoke tests are registered under build/default. Running plain
+# `ctest` from the repo root shows "No tests were found" unless `--test-dir
+# build/default` is provided.
+build/default/modules/corta/corta_smoke_inline
+build/default/modules/corta/corta_smoke_rates
+build/default/modules/corta/corta_smoke_async
+build/default/modules/corta/corta_hybrid_graph
+build/default/modules/corta/corta_fast_path_benchmark
+build/default/modules/corta/corta_block_transport
+build/default/modules/corta/corta_replay_roundtrip
+build/default/modules/corta/corta_reset_runtime
+python3 examples/python/corta/frontend_capabilities.py
+python3 examples/python/corta/reset_runtime.py
+# optional: generate and pass a real artifact path for this script
+# python3 examples/python/corta/telemetry_inspect.py <artifact.h5> --export /tmp/corta
+pixi run audit-test
+pixi run audit
+```
+
+The dependent external-boundary Slices 1 and 2 additionally validate with `cyber_suite_corta_adapters_apicheck`, `test_cyber_suite_corta_adapters`, `corta_adapter_loopback`, `corta_adapter_keyboard`, and the `corta.adapter_dependency_boundary` CTest.
+
+The Task 4 gate includes Value and Block contracts, exact pool planning, wall/logical deferred commitment, transactional Plant/ingress boundaries, declared due-set budget arithmetic, preallocated runtime timing, and a combined 10,000-tick Block allocation probe spanning output fanout, a deferred snapshot, and active Block ingress. The characterization executable retains raw host samples but explicitly declares `qualification=none`, `wcet_claim=false`, and `gating=false`; it does not install a `RuntimeCostModel` or establish a target timing bound.
+
+The allocation evidence covers successful operation within the compiled retention bound. Pool-exhaustion diagnostics currently construct dynamic report data after startup, so the exceptional path is not allocation-qualified and S-6 remains `deferred-core`; allocation-free failure reporting belongs in a follow-up together with the later record path. Repository-wide audit results remain separate from these scoped CORTA claims.
+
+Task 3A.1 additionally proves one app-owned real Plant at 1 kHz logical time: a 1,300-tick joint-servo scenario and repeated 10,000-tick CORTA stress with exact read/write/environment/substep accounting and one non-advancing terminal-safe invocation. This is simulator/application evidence, not a new core dependency or hard-real-time qualification.
+
+Task 3A.2a proves the separate floating-base walking consumer at low speed: two identical flat `vx=0.20` runs reach closed-loop InEKF authority, 11 admitted touchdowns, upright terminal capture, exact Plant accounting, and zero Runtime fallbacks. This is scoped app liveness, not high-speed, terrain, estimator- accuracy, hardware, or hard-real-time evidence.
+
+The maintained Digit walking application also gates four estimator applications (shadow plus three applied) and their initialization policies through `corta_estimator_applications`. `corta_telemetry` and `artifact_truth_join` verify that application-owned streams, estimator diagnostics, provenance, and simulator-truth isolation survive the artifact boundary. Its Python DCM producer is the first robot consumer of the Python telemetry surface: planner-local inputs, lifecycle, kernel state, and emitted reference programs are written at the deferred job's 50 Hz trigger tick, while the Servo keeps a separate received/adopted/executed boundary stream.
+
+## Non-goals
+
+- Reintroducing or wrapping a retired graph-runtime surface.
+- Simulator, robot, application-algorithm, or vendor-protocol ownership.
+- Block payloads across the Python boundary. `[S-27]` exposes large inputs as read-only numpy arrays over a retained lease; Value inputs and outputs cross today, Block ones do not.
+- Sub-interpreters and free-threaded CPython. Section 6.3 says nothing may depend on them, and nothing does.
+- Python-implemented Plants (spec Section 15 open decision 5).
+- Wheel packaging, RPATH bundling, and clean-venv smoke. The in-tree package is staged for `PYTHONPATH`; distribution waits for an external consumer.
+- Block-payload authoritative cut injection. Value cuts are implemented; a Block cut would additionally have to acquire from the source pool before decoding, and declaring one is refused rather than silently ignored.
+- Block receiver-ingress replay injection. Application-owned Value ingress codecs and authoritative replay are implemented; Block ingress payloads remain refused until a concrete receiver needs a pool-backed codec.
+- Wait-free replay enqueue. Section 8.1 asks for it; the implemented producer takes a short mutex around a bounded ring and allocates one reserved payload per record, because a variable-length wire encoding cannot be built into fixed storage. The cost is measured and bounded (`CortaAllocation.RecordingAllocatesPerRecordAndIsBounded`), and the non-recording path is unchanged and still allocation-free.
+- In-runtime visualization. `introspection.hpp` writes a file; drawing it is `python/cyber_suite/corta`'s job, offline.
+- A calibrated runtime cost profile, WCET qualification, or a hard-real-time target claim. Declared budget arithmetic and observed host timing do not replace target-specific qualification. `placement.hpp` exposes the OS scheduling controls a target deployment needs and reports honestly whether they were acquired; acquiring them is not itself qualification, and the current evidence was produced on macOS, where CPU affinity does not exist.
+- Standalone install/export or wheel packaging.

@@ -1,0 +1,1832 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/modules/corta_adapters/MODULE.html">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>CORTA Adapters - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#corta-adapters" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CORTA Adapters
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">Lifecycle: experimental</span>
+  <span>Reviewed 2026-10-13 Linux joystick and POSIX datagram adapters and their Digit operator consumer; 2026-08-24 Slice 3 Rerun observer, Slice 2 POSIX keyboard, Slice 1 loopback/kernel, API smoke, and dependency gate</span>
+  <a href="../../markdown/modules/corta_adapters/MODULE.md.txt" download="MODULE.md">Markdown source</a>
+</div>
+
+<div class="module-contract-context"><strong>Module contract</strong> · <a href="../../docs/design/system-architecture.html#module-corta_adapters">Back to the module explanation</a><p>This page renders the owning MODULE.md. Its lifecycle and validation statements are preserved from the source.</p></div>
+
+
+
+                  
+  
+
+
+
+
+<h1 id="corta-adapters">CORTA Adapters<a class="headerlink" href="#corta-adapters" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Adapt typed CORTA ingress and egress boundaries to free-running external connections without performing transport or device work on the CORTA tick thread.</p>
+<h2 id="public-api">Public API<a class="headerlink" href="#public-api" title="Permanent link">&para;</a></h2>
+<p>The implemented Slice 1 through Slice 3 surfaces are exposed through:</p>
+<ul>
+<li><code>adapters.hpp</code>: the public umbrella header.</li>
+<li><code>session.hpp</code>: <code>AdapterSession</code>, one external connection, one SDK-owned thread, bounded stop/join, and one exported <code>corta::DeviceThread</code>;</li>
+<li><code>session.hpp</code>: <code>AdapterConfig</code> thread placement/shutdown policy, <code>AdapterReport</code> monotonic delivery/failure counters and acquired placement, and <code>AdapterContext</code> counter updates for concrete adapters;</li>
+<li><code>delivery.hpp</code>: <code>LatestState&lt;T&gt;</code>, capacity-one coalescing state;</li>
+<li><code>delivery.hpp</code>: <code>BoundedEvents&lt;Event, N&gt;</code>, a fixed rolling FIFO batch with event sequences, explicit populated count, and counted drop-oldest overflow;</li>
+<li><code>delivery.hpp</code>: <code>BoundedEventReceiver&lt;Event, N&gt;</code>, overlap de-duplication, receiver-gap detection, and source-instance sequence epochs;</li>
+<li><code>loopback.hpp</code>: <code>LoopbackAdapter</code>, one thread carrying multiple typed Value <code>corta::EgressReader&lt;T&gt;</code> to <code>corta::IngressWriter&lt;T&gt;</code> bindings; and</li>
+<li><code>keyboard.hpp</code>: <code>PosixKeyboardAdapter&lt;State, Event, N&gt;</code>, a borrowed POSIX input file descriptor, optional raw-terminal lifetime, application-owned byte mapping, latest-state publication, and bounded sequenced-event publication; and</li>
+<li><code>datagram.hpp</code>: <code>PosixDatagramAdapter&lt;State, Event, N&gt;</code>, a borrowed bound datagram socket, one application-owned mapper call per whole datagram, a size bound that counts longer datagrams as malformed, and latest-state plus bounded sequenced-event publication; and</li>
+<li><code>joystick.hpp</code>: <code>LinuxJoystickAdapter&lt;State, Event, N&gt;</code>, a borrowed descriptor carrying Linux joystick API records (<code>/dev/input/js*</code>), the device's axis/button snapshot, application-owned mapping of each change, latest-state and bounded sequenced-event publication, and an optional keepalive; and</li>
+<li><code>rerun.hpp</code>: <code>RerunObserver</code>, <code>RerunObserverConfig</code>, and explicit per-stream reports for bounded observer queues, Rerun delivery, and visualization-only drops. <code>included_streams</code> is an exact allowlist; an empty list observes all, while an excluded schema is rejected before allocating its copy queue. This header is linked through the separate compiled <code>corta::rerun</code> target rather than the generic adapter umbrella; and</li>
+<li><code>rerun_encoder.hpp</code>: <code>RerunStreamEncoder</code> and <code>RerunTelemetryBatch</code>, an optional exact-schema semantic encoding seam. At most one encoder may claim a registered stream; its static and batch callbacks run only on the observer thread and any exception is converted to observer failure accounting.</li>
+</ul>
+<p>The keyboard adapter owns one thread and reads at most 64 bytes per device burst. State replacements within that burst coalesce; events remain distinct inside the fixed <code>BoundedEventWindow&lt;Event, N&gt;</code>. Both reach the graph only via ordinary single-producer ingress writers. The adapter validates nonzero clock and source identities, counts mapper failures and disconnects, and bounds idle shutdown by requiring <code>join_timeout &gt; poll_interval</code>. Its descriptor is borrowed and is never closed by the adapter. The application must assign a clock domain that actually names the process steady-clock basis used by this adapter, and a source instance that changes when the device/session epoch restarts.</p>
+<p>The Rerun observer is observation-only. <code>TelemetryWriter</code> remains the sole consumer of every original ring, appends each batch to HDF5 first, and then offers the same staging rows to preallocated per-stream Rerun SPSC queues. The observer thread alone performs scalar conversion and Rerun SDK calls. Full queues refuse and count only the visualization copy. Existing schemas provide the demonstrated scalar/vector views, so no typed <code>VisualizationFrame</code> egress was added. The generic Rerun <code>Scalars</code> view widens numeric fields to double and flattens declared vector/matrix width. An app may instead bind one exact custom encoder that uses schema constants for static semantic objects and owns every Rerun call for that stream. HDF5 remains authoritative for exact declared types, metadata, and rows in either case.</p>
+<p>The joystick adapter follows the keyboard's contract and owns one thread. It declares the kernel's 8-byte <code>js_event</code> record itself (checked against <code>&lt;linux/joystick.h&gt;</code> where that header exists), so the header builds on any POSIX host and a pipe drives it in tests; a record split across reads is reassembled. After each record it updates a fixed <code>JoystickSnapshot</code> of up to 16 axes and 32 buttons, in the kernel's numbering and units, and calls the mapper with that snapshot and the <code>JoystickChange</code>. <code>initial</code> marks the synthetic records the driver emits on open for state already held, so a mapper can ignore a button that was down before the pad connected. The joystick API reports changes only, so a held stick is silent; a positive <code>keepalive</code> republishes the latest mapped state at that period while the descriptor stays readable, which lets a consumer tell a held stick from a lost device by ingress generation. It never invents a value: end of file, <code>ENODEV</code> or a poll error ends the thread as a counted disconnect, and publication stops. Which axis means what, deadzones, deadman semantics and loss policy remain the application's. This is a Linux joystick reader, not a universal input-device API; evdev, HID and game-controller databases are not wrapped.</p>
+<p>The datagram adapter is for an operator device that lives in another process, such as a browser page's server. It drains every queued datagram with <code>recvmsg</code> in one burst, rejects a truncated one before the mapper sees it, and publishes once per burst like its siblings. Binding, the peer address policy and the message format are the owner's; the mapper validates and throws on anything it does not accept, which the adapter counts as malformed. It is best-effort and one-way: no acknowledgement, retry, or invented value when the peer goes quiet, so a peer that must be known alive sends periodically and the consumer judges liveness from the ingress generation. An empty read ends the burst, so a closed connected peer cannot spin the thread. UDP between CORTA applications and ROS 2 are explicitly deferred for future implementation. The loopback binds Value messages only; core Block egress exists, but no Block loopback or Block receiver-ingress replay codec is claimed.</p>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<p>The kernel depends on C++20, the standard library, Threads, and <code>cyber_suite_corta</code>. The concrete keyboard header additionally depends on POSIX file-descriptor, <code>poll</code>, and terminal APIs. CORTA never depends on this module.</p>
+<p>The compiled <code>corta::rerun</code> target adds the Rerun 0.36 C++ SDK and Arrow. Its public header uses a private implementation and does not include Rerun headers, so those dependencies do not reach CORTA core, producer telemetry, the generic adapter kernel, or keyboard/loopback consumers.</p>
+<h2 id="consumers">Consumers<a class="headerlink" href="#consumers" title="Permanent link">&para;</a></h2>
+<p>Implemented consumers are the loopback conformance application, the POSIX keyboard, Linux joystick and POSIX datagram operator-input examples, the CORTA/Rerun telemetry example, and the maintained Digit CORTA walking app. Digit is the first integrated robot consumer: it uses the exact allowlist for its 1 kHz servo-state, 50 Hz planner-command, and 50 Hz Plant-scene streams and exposes only a CLI observation endpoint. Its app-owned encoder maps the exact scene schema to MuJoCo visual geometry, terrain, body transforms, and contact forces. Its Python tool owns the viewer blueprint/process, never the data path. Digit walking's <code>--operator keyboard|joystick|viser</code> is the first integrated consumer of all three input adapters, the last for its browser page over loopback UDP: each maps its device onto the same app-owned axes and request types, and an inline app supervisor holds all command authority (walking <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#live-operator-input">APP.md</a>). A two-CORTA-app UDP bridge and ROS 2 topic pub/sub are deferred until a concrete need reopens them. No hardware, network, or middleware consumer exists yet.</p>
+<h2 id="owned-examples">Owned Examples<a class="headerlink" href="#owned-examples" title="Permanent link">&para;</a></h2>
+<p><code>examples/cpp/corta/adapter_loopback.cpp</code> teaches one adapter thread carrying two deterministic arithmetic Value egress-to-ingress bindings. It owns no robot workflow, application behavior, transport framework, or private helper library.</p>
+<p><code>examples/cpp/corta/adapter_keyboard.cpp</code> teaches application-owned mapping of <code>w</code>/<code>s</code> state requests and <code>x</code>/<code>q</code> events. Its default path uses a deterministic pipe for CI; <code>--interactive</code> borrows standard input and temporarily selects raw terminal mode. It does not make the adapter a controller or safety authority.</p>
+<p><code>examples/cpp/corta/adapter_joystick.cpp</code> teaches application-owned mapping of a deadman-gated stick axis and button-press events. Its default path writes kernel-format records through a pipe for CI, splitting one record across two writes, including an initial held button that must not count as a press, and checks the keepalive and end-of-input disconnect; <code>--device /dev/input/js0</code> reads a real pad. It does not make the adapter a controller or safety authority.</p>
+<p><code>examples/cpp/corta/adapter_datagram.cpp</code> teaches an application-owned datagram format over a connected Unix datagram pair: a state message, an event message, one too short for the mapper and one longer than the size bound, both counted malformed without reaching the graph.</p>
+<p><code>examples/cpp/corta/adapter_rerun.cpp</code> attaches the observer to the same storage writer that drains CORTA telemetry. Its deterministic default writes HDF5 and <code>.rrd</code> artifacts for two eight-row streams and verifies zero observer drops; <code>--spawn</code> opens the viewer for interactive inspection. It owns no robot workflow or visualization-specific semantic egress.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<p>Contract evidence covers:</p>
+<ul>
+<li>latest-state coalescing and counters;</li>
+<li>bounded-event order, overflow, receiver gaps, and source restart;</li>
+<li>nonzero/mismatched clock and source identities;</li>
+<li>allocation-free, wait-free egress push with a negative control and a lock-free-atomic target check;</li>
+<li>Block queue plus declared in-flight lease accounting in the C16 pool plan;</li>
+<li>placement request/reporting;</li>
+<li>stop/join ordering and timeout escalation;</li>
+<li>real pipe and pseudo-terminal input, raw-mode restoration, idle bounded stop, mapper-failure accounting, and invalid keyboard configuration;</li>
+<li>datagram whole-message mapping, mapper rejection and size-bound truncation, through the deterministic example;</li>
+<li>joystick record reassembly across reads, initial-state marking, keepalive republication and end-of-input disconnect, through the deterministic example rather than a contract suite;</li>
+<li>single-consumer HDF5-first fan-out, bounded Rerun queue overflow accounting, exact pre-allocation stream selection, exact custom-encoder dispatch, final observer draining, and Rerun <code>.rrd</code> verification;</li>
+<li>dependency direction; and</li>
+<li>receiver-ingress record/replay equivalence.</li>
+</ul>
+<p>Thin smokes cover loopback, keyboard, joystick, datagram, and Rerun. No physical joystick has been read yet: the joystick evidence is kernel-format records through a pipe here and through a FIFO in the Digit operator validation. Validation is software-only and makes no hard-real-time, network-delivery, hardware, safety, or physical-behavior claim.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>cyber_suite_corta_adapters_apicheck<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>test_cyber_suite_corta_adapters<span class="w"> </span>corta_adapter_loopback<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>corta_adapter_keyboard<span class="w"> </span>corta_adapter_joystick<span class="w"> </span>corta_adapter_datagram<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>corta_adapter_rerun<span class="w"> </span>-j12
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'^corta\.(adapters|adapter_loopback|adapter_keyboard|adapter_joystick|adapter_datagram|adapter_rerun.*|adapter_dependency_boundary)$'</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--output-on-failure
+</code></pre></div>
+<h2 id="non-goals">Non-goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Owning CORTA graph, Plant, tick, port, telemetry, or replay semantics.</li>
+<li>A paired channel, universal bus, or unified Plant/adapter/telemetry endpoint.</li>
+<li>Transport discovery, QoS, RPC, authentication, or a universal message IDL.</li>
+<li>Acknowledged, lossless, blocking, or exactly-once delivery.</li>
+<li>Distributed clock synchronization or offset estimation.</li>
+<li>Application algorithms, safety authority, or command fallback.</li>
+<li>A second consumer of an SPSC telemetry ring.</li>
+<li>Exact-type artifact mirroring into Rerun. The generic fallback is numeric time-series observation, while custom encoders are schema-specific semantic projections; neither is an alternative artifact authority.</li>
+<li>A universal robot, terrain, contact, sensor, or visualization-object schema.</li>
+<li>Keyboard interpretation beyond bytes read from a POSIX descriptor: key-up, repeat, escape-sequence and application mapping semantics.</li>
+<li>Joystick interpretation beyond the Linux joystick API's records: evdev, force feedback, controller databases, deadzones and axis meaning.</li>
+<li>Datagram message formats, peer authentication or address filtering beyond what the owner's bound socket provides.</li>
+<li>Speculative hooks for ROS services/actions, ROS 1, HTTP, endpoint manifests, or unified wire envelopes.</li>
+<li>Promotion beyond experimental before two genuinely different real consumers validate the shared API.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+                
+
+<div class="document-origin">Source: <code>modules/corta_adapters/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

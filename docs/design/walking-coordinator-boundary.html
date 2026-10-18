@@ -1,0 +1,2124 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/design/walking-coordinator-boundary.html">
+      
+      
+        <link rel="prev" href="corta_adapter.html">
+      
+      
+        <link rel="next" href="alip-footstep-planner-formulation.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Walking coordinator - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#walking-coordinator-and-plannerservo-boundary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Walking coordinator
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="walking-coordinator-boundary.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-the-planner-owns-walking-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the planner owns walking decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responsibility-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responsibility boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-rate-contact-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full-rate contact evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-gait-event-per-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One gait event per step
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#admission-uses-the-installed-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admission uses the installed command
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#robot-owned-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot-owned settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standing-capture-and-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standing, capture and completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planner-and-reference-author-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planner and reference-author integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-and-design-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence and design rationale
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-the-planner-owns-walking-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the planner owns walking decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responsibility-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responsibility boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-rate-contact-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full-rate contact evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-gait-event-per-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One gait event per step
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#admission-uses-the-installed-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Admission uses the installed command
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#robot-owned-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot-owned settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standing-capture-and-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standing, capture and completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planner-and-reference-author-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planner and reference-author integration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-and-design-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence and design rationale
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">working</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../markdown/docs/design/walking-coordinator-boundary.md.txt" download="walking-coordinator-boundary.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="walking-coordinator-and-plannerservo-boundary">Walking coordinator and planner–Servo boundary<a class="headerlink" href="#walking-coordinator-and-plannerservo-boundary" title="Permanent link">&para;</a></h1>
+<p>Digit and TRON1 use <code>locomotion::walking::Coordinator</code> with both ALIP and DCM. The former <code>WalkCoordinator</code> is retired. The shared coordinator owns walking lifecycle and contact-event decisions on the planner side; Servo publishes evidence and executes authored references. This deep reference explains that division, the implemented event/clock behavior, and the differences between robot profiles.</p>
+<p>Read <a href="model-based-walking.html">model-based walking</a> first for the complete loop. The <a href="../../modules/locomotion/MODULE.html">locomotion contract</a> owns the reusable API. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md">Digit</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/tron1/walking/APP.md">TRON1</a> own their compositions; their validation records determine demonstrated behavior. Sharing a coordinator does not qualify either robot's gait or hardware operation.</p>
+<h2 id="why-the-planner-owns-walking-decisions">Why the planner owns walking decisions<a class="headerlink" href="#why-the-planner-owns-walking-decisions" title="Permanent link">&para;</a></h2>
+<p>A numerical planner chooses a landing and its timing; a reference author turns that choice into continuous task trajectories. Contact admission and support exchange must use the same step identity and clock. Splitting those decisions between a deferred planner and an independent Servo gait machine creates competing transition rules and makes delayed preview delivery difficult to interpret.</p>
+<p>The implemented boundary places lifecycle, step timing, support roles and admission in the planner system. Servo remains responsible for full-rate measurements, controller realization and safety faults. The boundary is ownership, not a requirement that every calculation run at one rate.</p>
+<pre class="mermaid"><code>flowchart TB
+  plant["Plant observation"] --&gt; servo["Servo: estimate and realize"]
+  servo --&gt; history["Contact history and delivered-reference acknowledgement"]
+  history --&gt; coord["Planner-owned coordinator"]
+  coord --&gt; kernel["ALIP or DCM solve"]
+  kernel --&gt; coord
+  coord --&gt; author["Reference author"]
+  author --&gt; preview["Timed futures and binary task targets"]
+  preview --&gt; servo
+  servo --&gt; plant</code></pre>
+<h2 id="responsibility-boundary">Responsibility boundary<a class="headerlink" href="#responsibility-boundary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Servo</th>
+<th>Planner system</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>State estimation and per-tick contact evidence</td>
+<td>Walking mode, step identity, stance and support exchange</td>
+</tr>
+<tr>
+<td>Installed-preview identity and commanded reference jets</td>
+<td>Contact admission, thresholds and dwell</td>
+</tr>
+<tr>
+<td>Reference installation, sampling and RHRS joins</td>
+<td>Numerical solve, retiming and reference authoring</td>
+</tr>
+<tr>
+<td>Applying binary activation targets through controller ramps</td>
+<td>Binary swing/support-height roles</td>
+</tr>
+<tr>
+<td>TAC-QP realization, physical constraints and controller faults</td>
+<td>Start, stop, capture assessment and recovery preparation</td>
+</tr>
+</tbody>
+</table>
+<p>A Servo must not advance gait phase, select a stance from step labels, or infer a walking transition from planned timing. It receives time-indexed references and activation commands. Delivery acknowledgement is different: it reports which opaque preview/activation identity actually arrived, without interpreting the gait.</p>
+<p>Contact force authority is also distinct from the planner's swing/support-height roles. DSG capacity and TAC-QP's contact model determine available force and release behavior at the control rate. A planner role does not certify contact or grant force authority.</p>
+<h2 id="full-rate-contact-evidence">Full-rate contact evidence<a class="headerlink" href="#full-rate-contact-evidence" title="Permanent link">&para;</a></h2>
+<p><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/locomotion/include/cyber_suite/locomotion/walking/contact_history.hpp">ContactHistory</a> is a fixed-capacity ring of 64 samples. Servo appends each tick. The planner consumes unseen samples in order, preserving the timing needed for release detection and dwell rather than receiving only a minimum, maximum or average.</p>
+<p>Each sample includes tick/time, estimated yaw, requested vertical force, per-foot capacity/support/load and allocated force, force-bound and reference-retention information, estimated foot position/velocity, and installed activation/preview acknowledgement. These are measurements or delivery facts. Thresholding, filtering and gait decisions remain on the planner side.</p>
+<p>At a configured 1 kHz Servo and 50 Hz planner, roughly 20 samples arrive per planner period. The 64-sample capacity provides bounded slack for delayed consumption, not unlimited history. The cursor detects a gap in newly consumed tick indices, non-increasing new-sample time, malformed storage and an epoch change without reset. A missing interval is an explicit failure rather than silent interpolation.</p>
+<h2 id="one-gait-event-per-step">One gait event per step<a class="headerlink" href="#one-gait-event-per-step" title="Permanent link">&para;</a></h2>
+<p>The coordinator's gait event is an admitted touchdown. It starts the next cycle on the landed foot and requests a successor solve. Until the first plan is accepted, that cycle is planless and both support-height roles remain enabled. The first accepted timing starts its execution clock and enables the next swing.</p>
+<p>Physical double support is not a separate transfer stage inserted after every touchdown. The enum value <code>DoubleSupport</code> is the preparation mode used for startup or capture recovery. During an executable step, outgoing-foot release follows the authored swing reference and controller contact mechanics; there is no coordinator liftoff event or fixed transfer timer.</p>
+<table>
+<thead>
+<tr>
+<th>State or event</th>
+<th>Implemented consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Neutral, captured startup</td>
+<td>Remain in Stand</td>
+</tr>
+<tr>
+<td>Motion request or valid capture assessment outside the standing region</td>
+<td>Enter preparation with a latched first stance</td>
+</tr>
+<tr>
+<td>Preparation ready and timing accepted</td>
+<td>Enter executable Walk</td>
+</tr>
+<tr>
+<td>Failed launch/planless successor</td>
+<td>Hold supports and retry; do not invent a successful plan</td>
+</tr>
+<tr>
+<td>Admitted touchdown</td>
+<td>Retire the outgoing cycle and request a successor</td>
+</tr>
+<tr>
+<td>Neutral touchdown gate, capture and alignment all satisfied</td>
+<td>Return to Stand</td>
+</tr>
+</tbody>
+</table>
+<p>The step clock begins at the first accepted plan, so a planless wait after touchdown is not step time. Phase advances once per planner tick and remains continuous/non-decreasing through retiming. At the configured commitment phase, ordinary replanning stops until touchdown. A failed refresh does not by itself discard an existing executable plan.</p>
+<h2 id="admission-uses-the-installed-command">Admission uses the installed command<a class="headerlink" href="#admission-uses-the-installed-command" title="Permanent link">&para;</a></h2>
+<p>Admission starts when the evidence acknowledges installation of the swing activation. It first requires the incoming foot to have unloaded to the release threshold. The landing window then opens at a fraction of the installed step duration; capacity must meet the admission threshold for the configured dwell.</p>
+<p><code>record_preview(generation)</code> retains planner-owned timing for a published preview. With delivery-aware admission enabled, an evidence sample's installed preview identity selects that timing. A newer solve must not retroactively change the landing window for samples gathered before its preview arrived. An unmapped identity fails explicitly.</p>
+<p>For example, if the planner has solved a shorter duration but Servo is still executing the previous preview, admission replays those samples using the previous duration. This preserves the distinction between solving a plan, publishing it and executing it. The acknowledgement does not move gait logic into Servo.</p>
+<h2 id="robot-owned-settings">Robot-owned settings<a class="headerlink" href="#robot-owned-settings" title="Permanent link">&para;</a></h2>
+<p>The same mechanism uses different calibration. The following values are read from the current <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/config/profiles/coordinator.yaml">Digit profile</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/tron1/walking/config/profiles/coordinator.yaml">TRON1 profile</a>; they are not universal defaults.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Digit</th>
+<th>TRON1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Release capacity threshold</td>
+<td>0.50</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>Admission capacity threshold</td>
+<td>0.50</td>
+<td>0.50</td>
+</tr>
+<tr>
+<td>Earliest contact fraction</td>
+<td>0.60</td>
+<td>0.85</td>
+</tr>
+<tr>
+<td>Capacity dwell</td>
+<td>0.005 s</td>
+<td>0.020 s</td>
+</tr>
+<tr>
+<td>Shared-load hold fraction</td>
+<td>0.0: disabled</td>
+<td>0.0: disabled</td>
+</tr>
+<tr>
+<td>Neutral touchdowns required</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Fore-aft Stand tolerance</td>
+<td>0.03 m</td>
+<td>0.03 m</td>
+</tr>
+</tbody>
+</table>
+<p>The reusable coordinator supports maintaining a dwell through a per-foot capacity dip when the pair's load exceeds a configured fraction of body weight. Both app profiles disable this exception. In Digit, the outgoing foot alone can carry body weight while the incoming foot is airborne; pair load cannot establish incoming touchdown. The old description of an active 0.85-body-weight hold is therefore not the current Digit configuration.</p>
+<p>Durations and commitment phase come from the selected planner profile; execution periods come from the app. Constructor defaults are not a substitute for the resolved application configuration.</p>
+<h2 id="standing-capture-and-completion">Standing, capture and completion<a class="headerlink" href="#standing-capture-and-completion" title="Permanent link">&para;</a></h2>
+<p>Capture assessment is planner-owned. For Digit it uses the available-foot support geometry and an inward-eroded standing region. Startup with unknown capture does not by itself leave neutral Stand. Loss of capture validity after an established captured stop can initiate recovery preparation. Preparation does not lift a foot until launch readiness and an accepted plan permit it.</p>
+<p>Returning from Walk requires the configured number of touchdowns from steps that began neutral, capture inside the standing region, and fore-aft foot alignment. The planner owns any aligned final landing request. TRON1's point feet do not certify the same standing polygon; its continuous-stepping behavior must be understood through its own app contract, not copied from Digit's Stand acceptance.</p>
+<p>Coordinator Stand is not the same as successful experiment completion. Digit continues updating standing references and permitting recovery until its app-owned measured settling gate passes. The profile currently requires planar speed at most 0.08 m/s, at least 0.15 body weight on each foot, held for one second. Physical completion and termination reasons belong to app validation.</p>
+<h2 id="planner-and-reference-author-integration">Planner and reference-author integration<a class="headerlink" href="#planner-and-reference-author-integration" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/locomotion/include/cyber_suite/locomotion/walking/coordinator.hpp">coordinator interface</a> exposes <code>update</code>, <code>plan_required</code>, <code>accept_timing</code>, <code>record_preview</code>, <code>elapsed</code> and a read-only view. A consumer answers each requested solve with valid or failed timing. It owns the numerical state, geometry, model height, command interpretation and reference futures; the coordinator owns the lifecycle and clock.</p>
+<p>DCM composes this mechanism through <code>dcm::DcmWalkingPlanner</code>. ALIP supplies its own numerical solve and delivered-state prediction. The shared mechanism does not make their optimization or swing-reference policy identical. App authors map coordinator roles to robot tasks and seed replacement references from the commanded jets appropriate to their delivery/join contract.</p>
+<p>The library remains independent of robot models, numerical solver selection, task names, perception and CORTA graph composition. It covers supported biped stepping; flight, hand contacts and arbitrary contact schedules are outside its contract.</p>
+<h2 id="evidence-and-design-rationale">Evidence and design rationale<a class="headerlink" href="#evidence-and-design-rationale" title="Permanent link">&para;</a></h2>
+<p>The migration removed parallel Servo-side admission/gait logic and retired the old <code>WalkCoordinator</code>. Its enduring decisions are planner-owned lifecycle, ordered full-rate evidence, one touchdown event per step, explicit delivery timing and no planner-owned contact-force authority. Reintroducing a transfer timer or Servo phase branch would change that boundary and needs an owner-level design review.</p>
+<p>Use the <a href="../../modules/locomotion/MODULE.html#validation">locomotion validation section</a> for mechanism checks. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">Digit validation</a> records shared-coordinator adoption and subsequent walking changes; <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/tron1/walking/VALIDATION.md">TRON1 validation</a> records its point-foot regressions and limits. Matching software transitions, an upright interval, or a shared profile does not establish physical recovery, a qualified gait or real-time deadlines.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/design/walking-coordinator-boundary.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="corta_adapter.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: CORTA adapters">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                CORTA adapters
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="alip-footstep-planner-formulation.html" class="md-footer__link md-footer__link--next" aria-label="Next: ALIP formulation">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                ALIP formulation
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

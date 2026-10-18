@@ -1,0 +1,106 @@
+---
+Status: canonical
+Owner: apps/unitree-g1/walking
+Last verified: 2026-10-18
+---
+
+# Run G1 with live visualization
+
+Run these commands on Ubuntu from the G1 project (`apps/unitree-g1`), which builds against the installed cyber-suite package; paths are relative to that folder. Simulation and the viewer server run there; your browser can run on Ubuntu or another computer. Build after changing C++ sources:
+
+```bash
+cd apps/unitree-g1
+pixi run build
+```
+
+## Viser
+
+```bash
+pixi run walk --planner alip --viser
+pixi run walk --planner dcm --viser
+pixi run stand --viser
+```
+
+Run one command at a time, then open <http://localhost:8080>. The launcher prints the run directory and URL. Live runs default to a fresh timestamped directory under `artifacts/unitree-g1/`; `--out DIR` selects an explicit fresh directory. The viewer stays open after the simulation. Ctrl+C closes only this launch's processes. If port 8080 is occupied, use `--viser-port 8081` and open <http://localhost:8081>.
+
+**Follow live** shows the newest frame. Turn it off to scrub **Time (s)** or use **Play / pause replay** and the speed selector. **Follow base** keeps the robot centered; **Contacts and forces** toggles recorded contact loads. These are observation controls; they do not pause or command the simulation. The page reports the actual acceptance outcome even when the robot remains standing.
+
+## Rerun
+
+```bash
+pixi run walk --planner alip --rerun-web
+pixi run walk --planner dcm --rerun-web
+pixi run walk --planner alip --rerun
+```
+
+Browser Rerun uses <http://localhost:9090>. It shows the G1 mesh, ground, contact forces, base velocity versus command, contact loads, torque utilization and primary-QP status. Its timeline retains the run for playback. `--rerun` opens a native Rerun window on the simulation host and needs a working display. `--viser` can be combined with either Rerun mode to view the same run in both.
+
+Only the browser port needs forwarding: Rerun's relay keeps its telemetry and asset listeners on Ubuntu loopback. Use `--web-port 9091` if the browser port is occupied, and `--port 9879` if the internal Rerun telemetry port is occupied. Existing servers are never replaced. Both viewer types bind to loopback by default; `--viser-host` or `--web-bind` can select an explicitly reachable private-network address.
+
+## Remote browser
+
+In VS Code Remote - SSH, forward **8080** for Viser or **9090** for Rerun through the Ports panel, then open that localhost URL on your Mac. Alternatively, run one of these on the Mac, substituting your SSH host alias:
+
+```bash
+ssh -N -L 8080:127.0.0.1:8080 ubuntu-workstation
+ssh -N -L 9090:127.0.0.1:9090 ubuntu-workstation
+```
+
+Use the chosen alternate port on both sides if you changed it. The Mac needs only a browser and the connection; it does not need MuJoCo, Pixi or a repository checkout. Ubuntu loopback browser rendering is verified; the Mac/SSH path has not been exercised in this session.
+
+## Recordings and headless runs
+
+```bash
+pixi run python walking/tools/view.py --run artifacts/unitree-g1/YOUR_RUN
+pixi run python walking/tools/view.py --trace artifacts/unitree-g1/final/alip/trace.csv
+pixi run walk --planner alip --headless --out artifacts/unitree-g1/headless-alip
+pixi run walk --planner alip --viser --no-keep-open
+```
+
+`--run` reopens the full scene recording in Viser, including recorded forces; it can also attach while the producer runs. Existing `--trace` CSV playback and kinematic inspection without either flag remain available. A live Rerun launch also saves a unique `view-*.rrd` in the run directory. `--no-keep-open` drains the recording and closes the viewers automatically for bounded checks. Headless/native-only launches preserve their previous behavior; add `--record-scene` to record the full scene without a live viewer.
+
+The optional recording consists of `scene.mjb`, `scene.yaml` and `scene.bin`: an exact compiled model, a versioned little-endian float64 layout, and append-only records. It contains reset/final poses plus 50 Hz qpos, generalized velocity, actuator effort/joint velocity, eight contact positions/forces, the planar command and primary-QP status. Completed launches write `viewer_result.json`; `viewer_report.json` checks received versus produced frame counts. An interrupted recording retains its complete records and an interruption marker. These display samples do not replace the 1 kHz walking metrics or establish peak impact loads.
+
+Walking uses the sensor-only CORTA runtime described in [APP.md](APP.md). A run exits with code 2 when physical acceptance fails, including a fall, fault, torque saturation or insufficient tracking/stopping. The launcher preserves that result and keeps the viewer available. See [VALIDATION.md](VALIDATION.md) for current evidence.
+
+## Walking acceptance and sensor replay
+
+```bash
+pixi run check
+pixi run walk-check
+pixi run ./build/walking/g1_sensor_replay artifacts/unitree-g1/headless-alip artifacts/unitree-g1/replay-alip --planner alip
+```
+
+`check` retains the model/standing boundary; `walk-check` evaluates both planners with fresh artifacts and does not relax walking thresholds. Build before calling the replay executable directly. Supply the original `--config` when replaying a custom profile; the complete resolved configuration must agree. Replay requires a fresh output directory and exact sensor/command row counts. It compares every torque, release/fault decision and preview/activation/step identity within 1e-10 Nm. A replay pass can reproduce a failed physical run and is not walking acceptance.
+
+The default is ALIP with a conservative 0.1 m/s forward command. That bounded flat-ground scenario passes; DCM still fails saturation acceptance. For a faster ALIP experiment, run `pixi run walk --planner alip --vx 0.3 --walk-duration 6 --duration 16 --viser`. It completes and stops in the recorded trial but still saturates actuators, so this is not a qualified speed setting. See the current contact-quality results in [VALIDATION.md](VALIDATION.md#contact-quality-correction-2026-10-18). Startup time is measured after the estimator and first preview release the simulation harness. The total duration includes estimation startup. `summary.yaml` records both milestones, run completion and physical acceptance separately. `sensors.csv` and `commands.csv` are the full-rate replay inputs; `estimates.csv` is offline diagnostic output and is never consumed by control.
+
+## Terrain and motion scenarios
+
+```bash
+pixi run walk --list-terrains
+pixi run walk --planner dcm --terrain flat --vx 0.10 --vy 0.0 --walk-duration 5 --viser
+pixi run walk --planner dcm --terrain up-slope --vx 0.10 --walk-duration 8 --duration 16 --viser
+pixi run walk --planner alip --terrain perlin --vx 0.10 --walk-duration 5 --viser
+pixi run walk --planner alip --motion walking/config/motion-example.yaml --duration 20 --viser
+```
+
+These select experiments; they do not establish that a planner can traverse the terrain or track the requested speed. Non-flat walking is currently **blind**: terrain geometry stays in Plant for physics, initialization, scoring and recording. Landing heights, foot orientation and contact normals retain the flat-ground planner/controller assumptions. Terrain-aware footholds and yaw-rate commands are not implemented. Start both feet on a common horizontal pad; missing corner support or more than 2 mm of corner-height spread rejects startup.
+
+`--terrain NAME` selects from the shared [terrain catalog](../../../modules/sim/terrains/README.md), including flat, slopes, stairs, platform, square steps, waves, Perlin and multi-sine. The `terrain` block in `config/walking.yaml` supplies `catalog` and `source` paths; a separate catalog directory can hold fully specified experimental scene files using the shared schema. The default `name: source` keeps the original G1 scene. Selecting `flat` and a non-flat scene generates both through the same composer, avoiding source-versus-generated model differences in matched comparisons. Generated MJCF/heightfield files stay under the run's `terrain/` directory. Viser and Rerun display the recorded planes, boxes and heightfield triangles using flat colors; the native MuJoCo viewer also shows catalog textures.
+
+`--vx` and `--vy` require `--walk-duration`; supplying either creates one complete planar command, with an omitted component set to zero. A duration alone retains the first configured velocity. `--duration` changes total simulation time; it must include post-release startup, all motion segments and at least two seconds for stopping, with additional room for estimator initialization and capture. Commands use the fixed initial heading frame. Negative components are accepted as experimental commands; turning is unsupported.
+
+`--motion PATH` reads a YAML sequence such as `config/motion-example.yaml`. It cannot be combined with single-segment command overrides. Each item states positive `duration_s` and finite `velocity_mps: [vx, vy]`. Segments are contiguous after `startup_s`, measured from harness release, and intervals include their start and exclude their end. Zero velocity requests capture/standing; later nonzero segments request relaunch. After the final segment the command remains zero. A profile can contain this sequence under `motion:` instead of the legacy `motion_s`/`velocity_mps` pair; combining both forms is rejected.
+
+Gait timing/step bounds, swing height, command acceleration/stopping ramps, normal touchdown braking, startup duration, centroidal/height gains, controller weights, friction assumption and estimation settings remain in the selected `--config PATH`. Terrain contact friction comes from the source MJCF/catalog; `controller.friction` is the controller's assumed coefficient and must be chosen deliberately for the experiment. Resolved configuration records the applied motion and selected terrain YAML. Replay uses the same scenario options, for example:
+
+```bash
+pixi run ./build/walking/g1_sensor_replay RUN_DIR REPLAY_DIR --planner dcm --terrain up-slope --vx 0.10 --walk-duration 8 --duration 16
+```
+
+## Contact-quality diagnostics
+
+Add `--audit` to a physical run when investigating impact, bounce or slip. `feet.csv` contains pre-interval foot/corner position and velocity, post-step physical contact force for that command interval, the executed reference and estimated capacity. `contact_slip_mps` is the normal-force-weighted tangential velocity at actual physical contact points; sole-center speed is a different quantity. `control.csv` contains full-rate task activation, reference/actual jets, desired acceleration, weight and solver cost. `support.csv` contains per-point capacity, normal force/bound and allocator target. These files are large, optional and observation-only; they remain under ignored run artifacts. Peak loads must use the 1 kHz audit/metrics, rather than the 50 Hz viewer.
+
+The selected profile brakes normal touchdown motion over 40 ms, reaching a 4 mm target depth before holding through the existing admission timeout. This fixes the earlier continued downward press; it does not guarantee load acquisition at every speed. The `controller.centroidal` block adds momentum and support-height control following Digit's composition with G1 tuning. Torque/friction/contact constraints and walking pass thresholds are unchanged.

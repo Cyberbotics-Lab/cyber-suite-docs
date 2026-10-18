@@ -1,0 +1,80 @@
+---
+Status: candidate
+Owner: repo
+---
+
+# Solvers
+
+## Purpose
+
+Stable optimization solver interfaces, problem descriptions, status reporting, and QP backend wrappers.
+
+## Public API
+
+Backend-independent APIs under `cyber_suite/solvers/`:
+
+`QPSolver::update_problem_view` is an additive combined dense matrix/vector update. Null pointers retain installed values; unchanged dimensions remain required. Its default preserves the existing matrix-then-vector behavior for other backends. Eiquadprog installs the complete update before one equality-reduction pass and defers the expanded-inequality refresh to a cold solve, forms the same H-metric equality normals directly by a triangular solve on pivot-selected original rows, and applies triangular vector solves to the RHS and equality duals. H-metric rank selection, consistency checks and sealed-workspace refusal/recovery are preserved; separate and sparse update APIs remain available. Expanded inequality coefficients are filled in column-major order; box normals are cached by their complete row/sign/index pattern while every bound value refreshes. Priming invalidates those cached normals. The normal solve factorization remains in use. The attempted upstream inverse-factor handoff failed numerical parity and was rejected; no dependency workaround is installed.
+
+- `qp_solver.hpp`: dense and sparse QP problem containers, solution/status types, and the abstract `QPSolver` workspace-preserving interface. `kQPRelaxedBound` (1e15) is the finite bound a caller uses to relax a row without changing the bound pattern; no solution is expected to reach it. All three shipped backends override `solve_in_place()` to return their own solution. The caller can consume that reference or copy into a same-shape `QPSolution`; the existing by-value `solve()` still copies its vectors. The default implementation for third-party backends does not promise zero allocation.
+- `osqp_solver.hpp`: OSQP workspace-preserving backend with dense and sparse setup/update paths.
+- `proxqp_solver.hpp`: ProxQP dense backend plus optional sparse backend.
+- `eiquadprog_solver.hpp`: Eiquadprog dense active-set backend. It keeps one eiquadprog workspace per reduced-equality and expanded-inequality count, plus fixed-shape equality-reduction storage for every rank, including zero. After `setup`, `prepare_workspaces(shapes)` allocates and primes requested and already cached shapes, then seals the cache. An update selecting an uncached shape returns false; `solve_in_place()` reports `SolverError` without growing storage. Rejected data stay installed, and updating back to a prepared shape recovers. `setup()` starts a new lifecycle. Unsealed callers retain lazy workspace creation for compatibility.
+- Eiquadprog warm start (`EiquadprogConfig::warm_start`, default `Off`). Upstream eiquadprog restarts from the unconstrained minimum on every solve, so its iteration count tracks the number of active constraints. `On` first solves the previous solve's working set as equalities, in the H metric of the equality reduction (whose orthonormal basis it builds only when warm start is enabled), and applies up to `warm_start_updates` (default 8) block updates: add every violated row, drop every row with a wrong-signed multiplier, and leave out rows linearly dependent on earlier ones. A point is returned only after a full KKT check of primal feasibility, multiplier signs and stationarity. For a strictly convex problem it is then the unique optimum, equal to the cold solve up to rounding. Otherwise the cold solve runs and its active set seeds the next solve. A failed cold solve keeps the previous working set instead, and a row at `kQPRelaxedBound` never joins the working set, so a relaxed re-solve starts warm. `solve_warm_only_in_place()` runs only the warm path and returns `MaxIterReached` with the working set restored when nothing is certified. A caller with its own fallback uses it to keep each retry bounded. TAC-QP's ordered relaxation does. `Verify` computes and certifies the warm point but returns the cold solution, and `warm_start_statistics()` records the agreement. The warm path requires positive-definite H and uses fixed-size workspaces sized at `setup()`. The expanded inequality matrix is filled only for a cold solve in every mode. The values are unchanged; certified ticks skip the fill.
+
+Python binding surface:
+
+- `cyber_suite.solvers`: thin pybind11 exposure of `QPProblem`, `QPSolution`, `QPStatus`, all backend config structs, and all backend solver classes.
+
+## Dependencies
+
+C++20 standard library, Eigen3, OSQP, ProxSuite/ProxQP, eiquadprog, pybind11, NumPy, and pytest for Python binding validation.
+
+## Owned Examples
+
+- `examples/cpp/solvers/qp_backend_demo.cpp`
+- `examples/cpp/solvers/qp_backend_benchmark.cpp`
+- `examples/python/solvers/qp_backend_demo.py`
+- `examples/python/solvers/qp_backend_benchmark.py`
+
+## Validation
+
+Contract tests live in `modules/solvers/tests` and cover the backend-independent API, OSQP, ProxQP, Eiquadprog, sparse update paths, Python bindings, and cross-backend parity.
+
+On 2026-10-12 the focused contracts added Eiquadprog warm-start parity: certified points match the cold optimum across a drifting sequence that exercises updates, dependent rows and the cold fallback; `Verify` returns the cold result exactly; a contradictory row is never certified. Removing the multiplier-sign check makes the parity tests fail. The allocation regression adds certified warm solves and cold fallbacks with zero allocations. Closed-loop Digit evidence is in the walking [validation](../../apps/digit/walking/VALIDATION.md#2026-10-12-warm-started-eiquadprog-for-tac-qp).
+
+The 2026-10-10 combined-update contracts cover all three dense backends, matrix/vector changes, finite-bound transitions and an unprepared reduced-rank refusal followed by recovery. Retained healthy Digit QPs compare the original separate preparation and combined preparation with identical solve status/primal results. A warmed Linux malloc/calloc/realloc probe with an allocating positive control exercises the installed Digit shapes; this bounded result does not qualify arbitrary shapes or complete Servo allocation behavior. Evidence and timings live under `artifacts/servo_computation_20261010/` and the composing [walking validation](../../apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization).
+
+On 2026-09-24 the focused solver contracts and macOS allocation regression passed on the RelWithDebInfo build:
+
+```bash
+pixi run build --target test_cyber_suite_solvers test_cyber_suite_solver_allocation
+pixi run test -R '^cyber_suite_solvers\.(tests|allocation)$' --output-on-failure
+```
+
+`cyber_suite_solvers.allocation` counts malloc-family calls from a separate interposer library, with a mandatory allocating positive control. It exercises prepared Eiquadprog first use, rank 0/1/2 and finite-bound transitions, unprepared shape refusal and recovery, and repeated dense OSQP/ProxQP updates and resident solves. Every guarded case measured zero allocations. Dense OSQP scans the installed sparsity map without a temporary index list; ProxQP retains the row-major matrices its API consumes. Sparse update paths, arbitrary dimensions, debug diagnostic output, and Linux allocation behavior are not qualified by this host regression. The numerical contracts include sparse backend parity.
+
+Earlier broad validation on 2026-06-21 used:
+
+- `pixi run orient`
+- `pixi run configure`
+- `pixi run build`
+- `pixi run test`
+- `pixi run test solvers`
+- `pixi run test foundation solvers`
+- `pixi run py-test`
+- `pixi run py-test solvers`
+- `./build/default/modules/solvers/solvers_qp_backend_demo`
+- `./build/default/modules/solvers/solvers_qp_backend_benchmark`
+- `pixi run python examples/python/solvers/qp_backend_demo.py`
+- `pixi run python examples/python/solvers/qp_backend_benchmark.py`
+
+## Non-goals
+
+- Robot model semantics
+- Controller task ownership
+- App-level solver tuning
+- Downstream robot app validation
+
+## Notes
+
+The backend wrappers are migrated as candidate infrastructure. Keep backend defaults and tuning policy in this module or explicit app configuration; do not hide controller-specific tuning in examples.

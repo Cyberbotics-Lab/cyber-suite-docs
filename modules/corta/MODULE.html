@@ -1,0 +1,1938 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/modules/corta/MODULE.html">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>CORTA - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#corta" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CORTA
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-python-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional Python frontend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offline-telemetry-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offline telemetry tooling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offline-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offline Tooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">Lifecycle: experimental</span>
+  <span>Reviewed 2026-08-28 (Python-system native telemetry; external-boundary Slice 2: POSIX keyboard and fixed-size Value ingress beyond target atomic width; Slice 1: S-28 identity/restart, Value/Block egress, adapter dependency boundary, and receiver Value-ingress replay; V1-core Tasks 5, 6, 7, and 8B: fault/reset/ liveness/shutdown; the field codec, replay stream, run manifest, and authoritative replay cuts; the Python frontend and interpreter-ownership lifecycle; the offline telemetry loader/converter and the audited flat conformance index. Task 4 core; V1-core Task 3A.2a app; reporting and introspection)</span>
+  <a href="../../markdown/modules/corta/MODULE.md.txt" download="MODULE.md">Markdown source</a>
+</div>
+
+<div class="module-contract-context"><strong>Module contract</strong> · <a href="../../docs/design/system-architecture.html#module-corta">Back to the module explanation</a><p>This page renders the owning MODULE.md. Its lifecycle and validation statements are preserved from the source.</p></div>
+
+
+
+                  
+  
+
+
+
+
+<h1 id="corta">CORTA<a class="headerlink" href="#corta" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Plant-paced deterministic inline/deferred robotics execution, developed as an independent runtime rather than an extension of <code>modules/runtime</code>.</p>
+<h2 id="public-api">Public API<a class="headerlink" href="#public-api" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>types.hpp</code>: foundational IDs, tick stamps, statuses, execution kind, and compile errors.</li>
+<li><code>lifecycle.hpp</code>: the one fault, reset, and shutdown vocabulary -- <code>ErrorPolicy</code>, <code>FaultDirective</code>, <code>SystemState</code>, <code>ResetResult</code>, <code>JoinEscalation</code>, <code>TerminationReason</code>, the fault handler signature, and the worker/device shutdown contracts. Depends only on <code>types.hpp</code>, so an adapter or a report formatter can name these states without the graph surface.</li>
+<li><code>message_traits.hpp</code>: mandatory message traits and the fixed-Value helper.</li>
+<li><code>block.hpp</code>: move-only writable Block handles and immutable counted leases backed by compile-sized fixed pools.</li>
+<li><code>execution.hpp</code>: inline/deferred execution declarations, <code>Skip</code>/<code>Latest</code>, latency schedules, predicates, snapshot metadata, named-worker options with optional thread placement, tick/log-thread placement, memory locking, and optional provenance-qualified runtime cost models.</li>
+<li><code>ingress.hpp</code>: initialized, single-producer, latest-value ingress for Value and Block messages, with coalescing, nonzero clock/source identity, and one fresh <code>source_restarted</code> observation when the source instance changes. Fixed-size trivially copyable Value payloads are not restricted to one target atomic object: their copy is serialized against Runtime sampling by the existing coherent boundary cutoff.</li>
+<li><code>egress.hpp</code>: graph-owned unpaired Value/Block sinks, one claimed move-only off-thread reader, fixed-capacity drop-newest SPSC storage, publication provenance, queue statistics, and Block lease retention accounted by C16.</li>
+<li><code>system.hpp</code>, <code>ports.hpp</code>, and <code>graph.hpp</code>: typed systems, ports, graph construction, ingress/egress ownership, application-supplied Value-ingress record codecs, rate declarations, exact Block pool plans, due-set budgets, and immutable compiled descriptors.</li>
+<li><code>placement.hpp</code>: per-thread OS scheduling policy, priority, and CPU affinity; process memory locking; typed per-attribute outcomes distinguishing <code>Unsupported</code>, <code>Denied</code>, and <code>Failed</code>; and advisory-or-required enforcement. Placement is deployment, not semantics: it never enters the compiled descriptor, so it cannot change the graph fingerprint.</li>
+<li><code>plant.hpp</code>: Value/Block Plant boundaries, binding validation, lifecycle, metadata, write budgets, and safe actions.</li>
+<li><code>test_plants.hpp</code>: move-only scripted/callback Plants with move-safe traces.</li>
+<li><code>codec.hpp</code>: the <code>[S-25]</code> field-list wire codec. One declaration per message drives both directions -- <code>FieldWriter</code> and <code>FieldReader</code> satisfy the same visitor -- so encode and decode cannot drift. Framing is magic/version/kind/ length with a CRC-32 over header <em>and</em> payload, which is what catches a corrupted length rather than only a corrupted field.</li>
+<li><code>record.hpp</code>: the replay stream. The Section 8.1 mandatory record set, a finite drop-newest queue with gap markers and <code>replay_complete</code>, sinks, and the <code>[S-43]</code> run manifest with its hard/soft compatibility classes. Registers as a <code>telemetry::LogDrain</code>, so replay and telemetry share the one log thread. Schema 2 also carries the typed payload and restart fact for graph-visible receiver Value ingress.</li>
+<li><code>recording.hpp</code>: how a graph's replay stream and replay authority are configured, including the type-erased observation/command codecs.</li>
+<li><code>replay.hpp</code>: decoding a tape, <code>ReplayPlant</code>, and the first-divergence comparators over Runtime-owned decisions and commands.</li>
+<li><code>telemetry.hpp</code>: channel handles, per-system declaration and recording, the <code>LogDrain</code> seam, and the one runtime-owned log thread. Record layout, ring, and schema are <code>cyber_suite::logging</code>'s types, not copies of them, so a CORTA artifact and a predecessor-frontend artifact are the same kind of file.</li>
+<li><code>runtime.hpp</code>: move-only hybrid Runtime, compile entry point, fixed Block pools, deferred/ingress counters, preallocated timing and thread-placement reports, command fallback, cancellation, <code>request_reset</code>, the per-system lifecycle report, worker/device shutdown reports, and the exact <code>[S-37]</code> terminal ordering.</li>
+<li><code>introspection.hpp</code>: what <code>compile()</code> decided, as text for a terminal and as the <code>corta.graph/1</code> JSON the offline visualizer reads. Pure functions of a <code>const CompiledGraphDescriptor</code>; nothing here runs on the tick thread.</li>
+<li><code>report.hpp</code>: the end-of-run summary formatter, the resource accounting it prints (threads, Block pool plan versus high-water occupancy, edge storage, ingress/egress counts, invocations), and the v0 health monitor. All pure functions of a descriptor and a <code>RunReport</code>, so they add no measurement and can be called on a cached report after the Runtime closed. <code>HealthFinding::code</code> is the stable identifier; the detail text is not. v1 adds the Task 5 state machine: a system that ended <code>Degraded</code> or <code>Quarantined</code>, or that suppressed due updates, makes a run <code>Unhealthy</code> however its outcome enum reads.</li>
+<li><code>corta.hpp</code>: the public umbrella header.</li>
+</ul>
+<h3 id="optional-python-frontend">Optional Python frontend<a class="headerlink" href="#optional-python-frontend" title="Permanent link">&para;</a></h3>
+<p>Built as separate targets. <code>cyber_suite_corta</code> keeps exactly two link edges and never gains a CPython one; the C7 rule that constrains Python systems is expressed in core through the domain-neutral <code>ExecutionRequirement</code> and <code>worker_affinity_group</code> declarations on <code>System</code>, which the adapter answers. Core enforces the rule without knowing what Python is.</p>
+<ul>
+<li><code>python/include/corta/python/interpreter.hpp</code>: process interpreter ownership. CORTA never finalizes an interpreter it did not initialize, and finalizes one it did only after every Python worker has joined. The mode -- <code>Embedded</code> or <code>Host</code> -- is decided once, on first attach, and never revised, because re-evaluating it would make ownership depend on call order. Resolves spec Section 15 open decision 2.</li>
+<li><code>python/include/corta/python/registry.hpp</code>: the message registry that lets a Python system own real typed <code>Input&lt;T&gt;</code>/<code>Output&lt;T&gt;</code> ports. Registration is an explicit C++ call naming a concrete type, not a reflection lookup.</li>
+<li><code>python/include/corta/python/system.hpp</code>: the adapter. Acquires the GIL per job rather than per thread -- holding it between jobs would block a Python main, which is the configuration Section 6.1 tells hardware applications to use -- and translates a Python exception into <code>[S-19]</code> with its traceback. <code>start(ctx)</code> also exposes the native declaration window through <code>ctx.telemetry(stream_name, divisor)</code>. A Python producer may declare fixed scalar, vector, and flat-matrix channels plus schema constants, retain their handles, and record directly in <code>update()</code>. Declaration errors fault startup; record conversion errors leave an incomplete observer row but do not fault or alter the system transaction under <code>[S-30]</code>.</li>
+<li><code>python/include/corta/python/bindings.hpp</code>: <code>bind_core</code> for the domain-neutral half, and <code>bind_graph</code>/<code>bind_compile</code> for an application's own observation/command pair. The typed half cannot be shipped, because CORTA defines no observation or command type.</li>
+<li><code>python/corta</code>: the staged in-tree package and its authoring API. A Python system is an ordinary class -- no base, no metaclass -- with <code>corta.Input(...)</code>/<code>corta.Output(...)</code> class attributes.</li>
+</ul>
+<h3 id="offline-telemetry-tooling">Offline telemetry tooling<a class="headerlink" href="#offline-telemetry-tooling" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>python/cyber_suite/corta/telemetry.py</code>: the Section 8.3 loader and columnar converter. <code>load(path)</code> returns each declared stream with its channels in <em>sample</em> order beside the <code>tick_index</code> they were recorded on; <code>load_flat</code> is the literal "dict of numpy arrays" spelling. A stream records one row per accepted sample, not one per tick, so the dense tick axis is opt-in (<code>Stream.on_tick_axis</code>) and gaps are attributed rather than assumed: rate thinning is normal and leaves <code>sample_index</code> continuous, while a <code>[S-36]</code> drop breaks it. <code>to_npz</code>/<code>to_csv</code> need only numpy; <code>to_parquet</code> says what to install rather than adding a dependency for an offline convenience.</li>
+</ul>
+<p><code>cyber_suite_corta_python</code> is a <strong>static</strong> archive on purpose. It calls <code>Py_Initialize</code>, and where those symbols come from differs by consumer: an extension gets them from its host process, a C++ <code>main</code> needs libpython linked. A shared library would have to choose, and choosing libpython crashes on import into a statically linked interpreter. The cost is that a process must load exactly one copy.</p>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<p>The core target uses C++20, the standard library, <code>Threads::Threads</code>, and <code>cyber_suite_logging</code>. GoogleTest is test-only. It does not include or link another graph runtime, Python, a simulator, robot code, or vendor protocols.</p>
+<p><code>cyber_suite_logging</code> is a standalone telemetry module needing nothing beyond the standard library and Threads, so depending on it couples no runtimes. CORTA reuses its record layout, ring, and schema so application artifacts use the same loaders and plotters. Its storage half (<code>cyber_suite_logging_writer</code>, HighFive) is deliberately <em>not</em> linked: the runtime drains rings into whatever ring an application binds, and never learns a file format. <code>corta.dependency_boundary</code> gates that from core's own side -- core's link line and sources must stay free of the writer and HighFive -- while the application that owns storage links the writer, which is what <code>digit_corta_walking</code> does.</p>
+<h2 id="offline-tooling">Offline Tooling<a class="headerlink" href="#offline-tooling" title="Permanent link">&para;</a></h2>
+<p><code>python/cyber_suite/corta</code> reads a <code>corta.graph/1</code> dump and renders it as Graphviz DOT, Mermaid, or text (<code>pixi run python -m cyber_suite.corta &lt;dump.json&gt; --format dot</code>). It is offline by construction: the runtime writes a file and never serves a picture, which keeps spec Section 14's in-runtime-visualization exclusion intact. The dump's field names are a cross-language contract, pinned on the producing side by <code>tests/test_introspection.cpp</code> and on the consuming side by <code>tests/python/test_graph_visualization.py</code>, which runs the real <code>corta_hybrid_graph</code> binary rather than a checked-in fixture -- a fixture would keep passing after the producer changed.</p>
+<h2 id="consumers">Consumers<a class="headerlink" href="#consumers" title="Permanent link">&para;</a></h2>
+<p>CORTA's contract/allocation tests, API smoke, manual characterization target, and thin hybrid example are core consumers. <code>apps/digit/simulation/digit_corta_joint_servo</code> is the first real application consumer: its app-private Simulator Plant composes fixed-base Digit MuJoCo and the existing joint-servo controller without adding simulator, robot, or control dependencies to this module. The strict app-private <code>apps/digit/walking/digit_corta_walking</code> consumer then composes floating-base MuJoCo, closed-loop InEKF/DSG/TAC-QP control, and DCM planning on a band whose rate comes from the app's own resolved configuration, exclusively through four CORTA Value edges.</p>
+<p><code>apps/tron1/walking/tron1_corta_walking</code> adds an experimental point-foot consumer: logical-time MuJoCo, inline 1 kHz TAC-QP and deferred 50 Hz DCM, with an executed physical flat-ground scenario. Its named scheduling budgets are declarations only; wall-clock timing is not qualified by that scenario.</p>
+<p>All three consumers are registered in <code>corta.consumer_integration</code>. C1-C18 reject inside <code>compile()</code>, not at C++ compile time, so a consumer keeps building and linking after a public contract tightens and only fails when it is run. The gate requires every CORTA-consuming application to link CORTA and to be executed by at least one CTest entry, and it enforces the two declaration habits whose absence produced stale C14 inputs on the merge: an explicit budget on every <code>corta::inl()</code> call, since the default <code>InlineSpec</code> claims 0 ns while looking like a declaration, and a Plant <code>claimed_write_budget</code> assigned from a named constant rather than written as a literal inside <code>descriptor()</code>. Register new application consumers in <code>tests/python/test_consumer_integration.py</code>; the gate fails on any unregistered one.</p>
+<p><code>apps/digit/walking/digit_corta_walking</code> declares honest measured budgets whose 1 kHz due-set sum does not fit the base period on the <code>default</code> preset. Under Rev 3.5 that is reported, not rejected: the app compiles, runs, reaches walking liveness, prints <code>fits_base_period=false</code>, and reports the real per-tick exceedance counts. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/journal/entries/2026-08-18-corta-digit-budget-characterization.md">the characterization entry</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/journal/entries/2026-08-18-corta-c14-advisory-not-rejecting.md">the advisory-C14 revision</a>.</p>
+<p><code>CallbackPlant</code> transitions are application-supplied code. They must be deterministic, bounded, non-blocking, allocation-free during execution, and free of wall-clock reads and hidden randomness. CORTA cannot prove those properties for an arbitrary callback.</p>
+<p>The same obligation applies to functional latency callbacks and dispatch predicates. Ingress writers are single-producer handles; copies of one writer must not be used concurrently by multiple producer threads. Every arrival supplies a nonzero clock domain, nonzero source instance, and source timestamp. Runtime uses one cutoff gate to freeze deferred completion and Value/Block ingress membership, samples each ingress once per boundary, and exposes one coherent generation to all consumers in that tick. Value payload copies are ordinary fixed-storage assignments inside that exclusion; only provenance and cutoff state need atomics, so a Value may exceed the target's native atomic width. Source timestamps are comparable only when clock domains match; a source-instance change starts a new provenance epoch and is surfaced once on the first visible generation from that source.</p>
+<p>Egress is deliberately unpaired with ingress. Runtime captures only a new generation and only after a successful ordinary Plant write, then attempts one drop-newest push without retry. Value capture is restricted to trivially copyable messages and lock-free index/counter targets. A Block queue retains leases under the compiled <code>egress_queue</code> C16 holder; an adapter's additional in-flight lease count remains an explicit <code>external_leases()</code> declaration.</p>
+<p>Authoritative replay can reproduce graph-visible Value ingress when the application registers <code>Graph::record_ingress_codec(...)</code>. The codec is application-owned because CORTA has no universal message schema. Block ingress payload injection is still refused rather than silently approximated; the receiver replay claim in this slice is Value-only.</p>
+<p>The cutoff gate contains no user callback and guards only bounded fixed-storage copies plus atomic cutoff/provenance operations, so the current allocation and coherence contracts are executable. It can still spin behind a preempted producer, however; S-23's strict hard-real-time no-blocking claim remains deferred until the cutoff uses a priority-inversion-free snapshot protocol or gains target scheduling evidence.</p>
+<h2 id="owned-examples">Owned Examples<a class="headerlink" href="#owned-examples" title="Permanent link">&para;</a></h2>
+<p><code>examples/cpp/corta/hybrid_graph.cpp</code> compares a shared background worker with split estimation/planning workers. Both layouts must match one literal trace covering inline commands, deferred results, and Value ingress. Its <code>--introspect &lt;path&gt;</code> flag writes the compiled-graph JSON and prints the text dump and the end-of-run summary; the default output is unchanged without it.</p>
+<p>Nine public-API mechanism examples use deterministic arithmetic data and a <code>ScriptedPlant</code>; they are end-to-end framework checks, not robot validation:</p>
+<ul>
+<li><code>examples/cpp/corta/smoke_inline.cpp</code>: lifecycle, inline ordering, and same-tick command visibility.</li>
+<li><code>examples/cpp/corta/smoke_rates.cpp</code>: harmonic rates, freshness, and inline-only unit delay.</li>
+<li><code>examples/cpp/corta/smoke_async.cpp</code>: logical deferred execution, <code>Latest</code>, boundary commitment, and coalesced Value ingress.</li>
+<li><code>examples/cpp/corta/block_transport.cpp</code>: block-payload transport, staged lease sharing, and pool bookkeeping.</li>
+<li><code>examples/cpp/corta/replay_roundtrip.cpp</code>: record/replay compatibility, decision and command comparisons, and hard incompatibility checks.</li>
+<li><code>examples/cpp/corta/reset_runtime.cpp</code>: runtime reset request state machine, rejection reasons, and restart accounting.</li>
+<li><code>examples/python/corta/smoke_inline.py</code>: deferred Python arithmetic smoke with startup publication and deterministic lifecycle counters.</li>
+<li><code>examples/python/corta/smoke_rates.py</code>: deferred Python delayed-edge smoke for unit-delay ordering and stale sample handling.</li>
+<li><code>examples/python/corta/smoke_async.py</code>: deferred Python async-branch smoke with a background worker, <code>step()</code> + <code>run()</code> entry, and deferred accounting.</li>
+</ul>
+<p>Python examples live under the same mechanism set in <code>examples/python/corta</code>:</p>
+<ul>
+<li><code>examples/python/corta/frontend_capabilities.py</code>: parity against the C++ test planner, native Python telemetry declarations, inline declaration checks, and two python-worker conflict rejection.</li>
+<li><code>examples/python/corta/reset_runtime.py</code>: Python reset requests, accepted/ coalesced results, unsupported/unknown targets, and lifecycle counters.</li>
+<li><code>examples/python/corta/telemetry_inspect.py</code>: telemetry stream loader, completeness checks, and optional <code>to_npz</code>/<code>to_csv</code> conversion.</li>
+</ul>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>cyber_suite_corta<span class="w"> </span>cyber_suite_corta_apicheck<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>test_cyber_suite_corta<span class="w"> </span>test_cyber_suite_corta_allocation<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>test_cyber_suite_corta_process_fatal<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>corta_smoke_inline<span class="w"> </span>corta_smoke_rates<span class="w"> </span>corta_smoke_async<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>corta_block_transport<span class="w"> </span>corta_replay_roundtrip<span class="w"> </span>corta_reset_runtime<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>corta_hybrid_graph<span class="w"> </span>corta_fast_path_benchmark<span class="w"> </span>-j12
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>digit_corta_joint_servo<span class="w"> </span>-j12
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>digit_corta_walking<span class="w"> </span>-j12
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'^corta\.'</span><span class="w"> </span>--output-on-failure
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>build/default/modules/corta/test_cyber_suite_corta_process_fatal
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>build/default/modules/corta/test_cyber_suite_corta<span class="w"> </span>--gtest_filter<span class="o">=</span><span class="s1">'CortaPlacement*'</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span>cyber_suite_digit_simulation.corta_joint_servo<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span>--output-on-failure
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'cyber_suite_digit_walking\.(corta_boundary|corta_liveness)$'</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span>--output-on-failure
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>python<span class="w"> </span>examples/python/corta/smoke_inline.py
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>python<span class="w"> </span>examples/python/corta/smoke_rates.py
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>python<span class="w"> </span>examples/python/corta/smoke_async.py
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>pixi<span class="w"> </span>run<span class="w"> </span>py-test<span class="w"> </span>corta<span class="w"> </span>-k<span class="w"> </span>dependency_boundary
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'corta\.(python_frontend|python_embed)$'</span><span class="w"> </span>--output-on-failure
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'corta\.(telemetry_loader|conformance_index)$'</span><span class="w"> </span>--output-on-failure
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>build/default/modules/corta/corta_telemetry_artifact<span class="w"> </span>/tmp/corta_probe.h5<span class="w"> </span><span class="m">12</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>cyber_suite.corta.telemetry<span class="w"> </span>/tmp/corta_probe.h5<span class="w"> </span>--list
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>pixi<span class="w"> </span>run<span class="w"> </span>py-test<span class="w"> </span>corta<span class="w"> </span>-k<span class="w"> </span>consumer_integration
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'corta\.graph_visualization'</span><span class="w"> </span>--output-on-failure
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>build/default/modules/corta/corta_hybrid_graph<span class="w"> </span>--introspect<span class="w"> </span>/tmp/corta_graph.json
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>cyber_suite.corta<span class="w"> </span>/tmp/corta_graph.json<span class="w"> </span>--format<span class="w"> </span>dot<span class="w"> </span>-o<span class="w"> </span>/tmp/corta_graph.dot
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build/default<span class="w"> </span>-L<span class="w"> </span>smoke<span class="w"> </span>--output-on-failure
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="c1"># Note: CORTA smoke tests are registered under build/default. Running plain</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="c1"># `ctest` from the repo root shows "No tests were found" unless `--test-dir</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="c1"># build/default` is provided.</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>build/default/modules/corta/corta_smoke_inline
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>build/default/modules/corta/corta_smoke_rates
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>build/default/modules/corta/corta_smoke_async
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>build/default/modules/corta/corta_hybrid_graph
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>build/default/modules/corta/corta_fast_path_benchmark
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>build/default/modules/corta/corta_block_transport
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>build/default/modules/corta/corta_replay_roundtrip
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>build/default/modules/corta/corta_reset_runtime
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>python3<span class="w"> </span>examples/python/corta/frontend_capabilities.py
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>python3<span class="w"> </span>examples/python/corta/reset_runtime.py
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="c1"># optional: generate and pass a real artifact path for this script</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="c1"># python3 examples/python/corta/telemetry_inspect.py &lt;artifact.h5&gt; --export /tmp/corta</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>pixi<span class="w"> </span>run<span class="w"> </span>audit-test
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>pixi<span class="w"> </span>run<span class="w"> </span>audit
+</code></pre></div>
+<p>The dependent external-boundary Slices 1 and 2 additionally validate with <code>cyber_suite_corta_adapters_apicheck</code>, <code>test_cyber_suite_corta_adapters</code>, <code>corta_adapter_loopback</code>, <code>corta_adapter_keyboard</code>, and the <code>corta.adapter_dependency_boundary</code> CTest.</p>
+<p>The Task 4 gate includes Value and Block contracts, exact pool planning, wall/logical deferred commitment, transactional Plant/ingress boundaries, declared due-set budget arithmetic, preallocated runtime timing, and a combined 10,000-tick Block allocation probe spanning output fanout, a deferred snapshot, and active Block ingress. The characterization executable retains raw host samples but explicitly declares <code>qualification=none</code>, <code>wcet_claim=false</code>, and <code>gating=false</code>; it does not install a <code>RuntimeCostModel</code> or establish a target timing bound.</p>
+<p>The allocation evidence covers successful operation within the compiled retention bound. Pool-exhaustion diagnostics currently construct dynamic report data after startup, so the exceptional path is not allocation-qualified and S-6 remains <code>deferred-core</code>; allocation-free failure reporting belongs in a follow-up together with the later record path. Repository-wide audit results remain separate from these scoped CORTA claims.</p>
+<p>Task 3A.1 additionally proves one app-owned real Plant at 1 kHz logical time: a 1,300-tick joint-servo scenario and repeated 10,000-tick CORTA stress with exact read/write/environment/substep accounting and one non-advancing terminal-safe invocation. This is simulator/application evidence, not a new core dependency or hard-real-time qualification.</p>
+<p>Task 3A.2a proves the separate floating-base walking consumer at low speed: two identical flat <code>vx=0.20</code> runs reach closed-loop InEKF authority, 11 admitted touchdowns, upright terminal capture, exact Plant accounting, and zero Runtime fallbacks. This is scoped app liveness, not high-speed, terrain, estimator- accuracy, hardware, or hard-real-time evidence.</p>
+<p>The maintained Digit walking application also gates four estimator applications (shadow plus three applied) and their initialization policies through <code>corta_estimator_applications</code>. <code>corta_telemetry</code> and <code>artifact_truth_join</code> verify that application-owned streams, estimator diagnostics, provenance, and simulator-truth isolation survive the artifact boundary. Its Python DCM producer is the first robot consumer of the Python telemetry surface: planner-local inputs, lifecycle, kernel state, and emitted reference programs are written at the deferred job's 50 Hz trigger tick, while the Servo keeps a separate received/adopted/executed boundary stream.</p>
+<h2 id="non-goals">Non-goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Reintroducing or wrapping a retired graph-runtime surface.</li>
+<li>Simulator, robot, application-algorithm, or vendor-protocol ownership.</li>
+<li>Block payloads across the Python boundary. <code>[S-27]</code> exposes large inputs as read-only numpy arrays over a retained lease; Value inputs and outputs cross today, Block ones do not.</li>
+<li>Sub-interpreters and free-threaded CPython. Section 6.3 says nothing may depend on them, and nothing does.</li>
+<li>Python-implemented Plants (spec Section 15 open decision 5).</li>
+<li>Wheel packaging, RPATH bundling, and clean-venv smoke. The in-tree package is staged for <code>PYTHONPATH</code>; distribution waits for an external consumer.</li>
+<li>Block-payload authoritative cut injection. Value cuts are implemented; a Block cut would additionally have to acquire from the source pool before decoding, and declaring one is refused rather than silently ignored.</li>
+<li>Block receiver-ingress replay injection. Application-owned Value ingress codecs and authoritative replay are implemented; Block ingress payloads remain refused until a concrete receiver needs a pool-backed codec.</li>
+<li>Wait-free replay enqueue. Section 8.1 asks for it; the implemented producer takes a short mutex around a bounded ring and allocates one reserved payload per record, because a variable-length wire encoding cannot be built into fixed storage. The cost is measured and bounded (<code>CortaAllocation.RecordingAllocatesPerRecordAndIsBounded</code>), and the non-recording path is unchanged and still allocation-free.</li>
+<li>In-runtime visualization. <code>introspection.hpp</code> writes a file; drawing it is <code>python/cyber_suite/corta</code>'s job, offline.</li>
+<li>A calibrated runtime cost profile, WCET qualification, or a hard-real-time target claim. Declared budget arithmetic and observed host timing do not replace target-specific qualification. <code>placement.hpp</code> exposes the OS scheduling controls a target deployment needs and reports honestly whether they were acquired; acquiring them is not itself qualification, and the current evidence was produced on macOS, where CPU affinity does not exist.</li>
+<li>Standalone install/export or wheel packaging.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+                
+
+<div class="document-origin">Source: <code>modules/corta/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

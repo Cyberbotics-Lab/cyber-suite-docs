@@ -1,0 +1,2512 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/design/system-architecture.html">
+      
+      
+        <link rel="prev" href="../../index.html">
+      
+      
+        <link rel="next" href="../handbook/chapters/index.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>System architecture - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#system-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              System architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="system-architecture.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-module-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The module map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models-and-numerics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models and numerics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Models and numerics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Foundation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-robot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-solvers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solvers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensing-and-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensing and state
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sensing and state">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-estimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-perception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perception
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motion-and-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motion and control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Motion and control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-locomotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locomotion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#world-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        World interfaces
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="World interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-sim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-digit_hardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit hardware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution and observability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Execution and observability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-corta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CORTA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-corta_adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CORTA adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-package-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the package exports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boundaries-worth-understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Boundaries worth understanding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-a-single-experiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow a single experiment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-a-change-belongs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where a change belongs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-and-evidence-are-different" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation and evidence are different
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-module-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The module map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models-and-numerics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Models and numerics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Models and numerics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Foundation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-robot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Robot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-solvers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solvers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensing-and-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sensing and state
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sensing and state">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-estimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-perception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perception
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motion-and-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motion and control
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Motion and control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-locomotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locomotion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#world-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        World interfaces
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="World interfaces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-sim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-digit_hardware" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit hardware
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution and observability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Execution and observability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#module-corta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CORTA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-corta_adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CORTA adapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-package-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the package exports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boundaries-worth-understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Boundaries worth understanding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-a-single-experiment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow a single experiment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-a-change-belongs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where a change belongs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-and-evidence-are-different" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation and evidence are different
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">working</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../markdown/docs/design/system-architecture.md.txt" download="system-architecture.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="system-architecture">System architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h1>
+<p>Cyber Suite is a collection of reusable robotics mechanisms with explicit ownership boundaries. Its core package supplies models, numerical tools, sensing and state products, motion and control algorithms, world interfaces, execution and logging. Robot projects compose these capabilities into a particular behavior and evaluate that behavior under stated conditions.</p>
+<p>You can use a robot model or a numerical solver on its own. An integrated experiment adds the connections: which measurements become state, which algorithm produces commands, which world receives them, and how the result is recorded.</p>
+<h2 id="the-module-map">The module map<a class="headerlink" href="#the-module-map" title="Permanent link">&para;</a></h2>
+<div class="module-map" role="group" aria-label="Cyber Suite module capability map"><div class="module-map-title"><strong>cyber_suite</strong> <span>13 modules · 5 capability groups</span></div><div class="module-groups">
+<section class="module-group group-execution" aria-label="Execution &amp; observability"><div class="group-heading"><strong>Execution &amp; observability</strong> <span>Run the composition and inspect what happened.</span></div><div class="module-blocks">
+<a class="module-block" data-module="corta" href="system-architecture.html#module-corta"><span class="module-name">corta<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Plant-paced execution</span> <span class="module-status">experimental</span></a>
+<a class="module-block" data-module="corta_adapters" href="system-architecture.html#module-corta_adapters"><span class="module-name">corta_adapters<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">External inputs &amp; observers</span> <span class="module-status">experimental</span></a>
+<a class="module-block" data-module="logging" href="system-architecture.html#module-logging"><span class="module-name">logging<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Bounded telemetry &amp; records</span> <span class="module-status">experimental</span></a>
+</div></section>
+<section class="module-group group-sensing" aria-label="Sensing &amp; state"><div class="group-heading"><strong>Sensing &amp; state</strong> <span>Turn measurements into usable state and geometry.</span></div><div class="module-blocks">
+<a class="module-block" data-module="estimation" href="system-architecture.html#module-estimation"><span class="module-name">estimation<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">State &amp; contact estimation</span> <span class="module-status">candidate</span></a>
+<a class="module-block" data-module="perception" href="system-architecture.html#module-perception"><span class="module-name">perception<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Terrain products &amp; queries</span> <span class="module-status">experimental</span></a>
+</div></section>
+<section class="module-group group-motion" aria-label="Motion &amp; control"><div class="group-heading"><strong>Motion &amp; control</strong> <span>Represent motion and realize commands.</span></div><div class="module-blocks">
+<a class="module-block" data-module="locomotion" href="system-architecture.html#module-locomotion"><span class="module-name">locomotion<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Biped &amp; contact primitives</span> <span class="module-status">experimental</span></a>
+<a class="module-block" data-module="control" href="system-architecture.html#module-control"><span class="module-name">control<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Feedback &amp; whole-body control</span> <span class="module-status">candidate</span></a>
+<a class="module-block" data-module="policy" href="system-architecture.html#module-policy"><span class="module-name">policy<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Learned-policy deployment</span> <span class="module-status">experimental</span></a>
+</div></section>
+<section class="module-group group-world" aria-label="World interfaces"><div class="group-heading"><strong>World interfaces</strong> <span>Exchange observations and actuator commands.</span></div><div class="module-blocks">
+<a class="module-block" data-module="sim" href="system-architecture.html#module-sim"><span class="module-name">sim<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">MuJoCo, terrain &amp; sensors</span> <span class="module-status">candidate</span></a>
+<a class="module-block" data-module="digit_hardware" href="system-architecture.html#module-digit_hardware"><span class="module-name">digit_hardware<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Digit low-level interface</span> <span class="module-status">experimental</span></a>
+</div></section>
+<section class="module-group group-models" aria-label="Models &amp; numerics"><div class="group-heading"><strong>Models &amp; numerics</strong> <span>Shared mathematical and computational building blocks.</span></div><div class="module-blocks">
+<a class="module-block" data-module="foundation" href="system-architecture.html#module-foundation"><span class="module-name">foundation<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Math, profiles &amp; data lookup</span> <span class="module-status">candidate</span></a>
+<a class="module-block" data-module="robot" href="system-architecture.html#module-robot"><span class="module-name">robot<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">Kinematics &amp; dynamics</span> <span class="module-status">candidate</span></a>
+<a class="module-block" data-module="solvers" href="system-architecture.html#module-solvers"><span class="module-name">solvers<span class="module-arrow" aria-hidden="true"></span></span> <span class="module-role">QP problems &amp; backends</span> <span class="module-status">candidate</span></a>
+</div></section>
+</div><div class="module-map-caption">Select a block to explore its responsibility and owner contract. Groups describe capabilities; placement does not imply a dependency or execution order.</div></div>
+
+<p>This capability map includes every module with a <code>MODULE.md</code> contract. The build checks that inventory and reads lifecycle labels from the contracts. The categories are a reading aid, not a strict dependency graph: both an estimator and a controller can query a robot model, and observing telemetry does not make a viewer part of the control decision.</p>
+<h2 id="models-and-numerics">Models and numerics<a class="headerlink" href="#models-and-numerics" title="Permanent link">&para;</a></h2>
+<h3 id="module-foundation">Foundation<a class="headerlink" href="#module-foundation" title="Permanent link">&para;</a></h3>
+<p>Shared mathematical utilities, strict profile reading and package-data lookup. For example, the same data resolver can locate a packaged robot asset from C++ or Python without hard-coding a neighboring source checkout. Foundation stays small; it does not own robot behavior or runtime scheduling.</p>
+<p><a href="../../modules/foundation/MODULE.html">Owner contract</a> · <a href="models-and-simulation.html">Models and simulation</a></p>
+<h3 id="module-robot">Robot<a class="headerlink" href="#module-robot" title="Permanent link">&para;</a></h3>
+<p>Robot descriptions become a computational model: joint state, coordinate conventions, kinematics and dynamics. A controller can query a frame Jacobian or a mass matrix without owning URDF loading. A simulator is a separate world interface; a model calculation alone does not advance a physical experiment.</p>
+<p><a href="../../modules/robot/MODULE.html">Owner contract</a> · <a href="models-and-simulation.html">Models and simulation</a></p>
+<h3 id="module-solvers">Solvers<a class="headerlink" href="#module-solvers" title="Permanent link">&para;</a></h3>
+<p>QP problem containers, solution status and backend wrappers provide the numerical boundary. Control code supplies the costs and constraints; the solver reports the numerical result. A feasible QP does not by itself establish tracking quality or physical success.</p>
+<p><a href="../../modules/solvers/MODULE.html">Owner contract</a> · <a href="model-based-walking.html">Model-based walking</a></p>
+<h2 id="sensing-and-state">Sensing and state<a class="headerlink" href="#sensing-and-state" title="Permanent link">&para;</a></h2>
+<h3 id="module-estimation">Estimation<a class="headerlink" href="#module-estimation" title="Permanent link">&para;</a></h3>
+<p>State and contact estimation turn measurements into evidence the control composition can use. For example, contact evidence can inform a walking composition, but the estimator does not own the decision that a foot may support the robot. Frames, timestamps and the distinction between measured and estimated quantities matter at this boundary.</p>
+<p><a href="../../modules/estimation/MODULE.html">Owner contract</a> · <a href="state-and-perception.html">State and perception</a></p>
+<h3 id="module-perception">Perception<a class="headerlink" href="#module-perception" title="Permanent link">&para;</a></h3>
+<p>Terrain products, geometric uncertainty and bounded queries describe the nearby world. The mapping application can inspect elevation or candidate support geometry without running a walking controller. Acquisition, scheduling and a planner's decision to use a product remain outside the perception core; geometric confidence alone does not certify a safe foothold.</p>
+<p><a href="../../modules/perception/MODULE.html">Owner contract</a> · <a href="state-and-perception.html">State and perception</a> · <a href="../../apps/perception/mapping/docs/overview.html">Mapping example</a></p>
+<h2 id="motion-and-control">Motion and control<a class="headerlink" href="#motion-and-control" title="Permanent link">&para;</a></h2>
+<h3 id="module-locomotion">Locomotion<a class="headerlink" href="#module-locomotion" title="Permanent link">&para;</a></h3>
+<p>Reusable biped, contact and numerical primitives support walking compositions, including reduced-order locomotion computations. A robot project connects those primitives to its state and chooses its planning policy. Robot-specific tuning, reference authoring and scenario acceptance are not hidden in a generic locomotion default.</p>
+<p><a href="../../modules/locomotion/MODULE.html">Owner contract</a> · <a href="model-based-walking.html">Model-based walking</a></p>
+<h3 id="module-control">Control<a class="headerlink" href="#module-control" title="Permanent link">&para;</a></h3>
+<p>Feedback, joint servo and the TAC-QP whole-body core realize control requests. In a model-based composition, task references and constraints produce actuator commands using the robot's state and dynamics. The app selects the tasks and their meaning; control does not decide the experiment's walking strategy.</p>
+<p><a href="../../modules/control/MODULE.html">Owner contract</a> · <a href="model-based-walking.html">Model-based walking</a></p>
+<h3 id="module-policy">Policy<a class="headerlink" href="#module-policy" title="Permanent link">&para;</a></h3>
+<p>The learned-policy deployment boundary covers observation construction, action decoding, joint-PD realization, ONNX inference and bundle/parity tooling. It preserves the meaning of a trained policy when moving between training and execution. Training recipes belong to the app's learning project; this module does not imply an estimator or safety filter around every policy.</p>
+<p><a href="../../modules/policy/MODULE.html">Owner contract</a> · <a href="learned-policy-deployment.html">Policy deployment</a> · <a href="../setup/learning-workflow.html">Learning workflow</a></p>
+<h2 id="world-interfaces">World interfaces<a class="headerlink" href="#world-interfaces" title="Permanent link">&para;</a></h2>
+<h3 id="module-sim">Simulation<a class="headerlink" href="#module-sim" title="Permanent link">&para;</a></h3>
+<p>MuJoCo simulation, the terrain catalog, simulated sensors and optional viewer helpers provide an inspectable world. An experiment can change the terrain while keeping its robot model and controller configuration fixed. Simulation owns neither the controller nor the CORTA graph that an app may use to run it.</p>
+<p><a href="../../modules/sim/MODULE.html">Owner contract</a> · <a href="models-and-simulation.html">Models and simulation</a></p>
+<h3 id="module-digit_hardware">Digit hardware<a class="headerlink" href="#module-digit_hardware" title="Permanent link">&para;</a></h3>
+<p>Digit's Agility low-level interface supplies state/command mapping, limit handling, guarded command encoding and a live link for Agility simulation or the robot. The SDK-free pieces and optional live SDK path have different build requirements. The live vendor-SDK integration is root-build functionality, not a promise that every installed package includes hardware access. Hardware qualification remains an app-level validation question.</p>
+<p><a href="../../modules/digit_hardware/MODULE.html">Owner contract</a> · <a href="../../apps/digit/docs/overview.html">Digit integration</a></p>
+<h2 id="execution-and-observability">Execution and observability<a class="headerlink" href="#execution-and-observability" title="Permanent link">&para;</a></h2>
+<h3 id="module-corta">CORTA<a class="headerlink" href="#module-corta" title="Permanent link">&para;</a></h3>
+<p>CORTA executes a Plant-paced composition with inline and deferred work, typed bounded messages, telemetry and replay mechanisms. A Plant exchanges observations and commands with the world. The runtime core stays independent of robot models, MuJoCo, Python and vendor SDKs; an app supplies the composition. Execution mechanisms do not establish hard real-time qualification on a particular machine.</p>
+<p><a href="../../modules/corta/MODULE.html">Owner contract</a> · <a href="runtime-execution.html">Runtime and execution</a></p>
+<h3 id="module-corta_adapters">CORTA adapters<a class="headerlink" href="#module-corta_adapters" title="Permanent link">&para;</a></h3>
+<p>Adapters connect typed CORTA ingress and egress to external inputs and observers, such as keyboard, joystick, datagrams or visualization. Free-running external connections stay off the control tick. Adapters depend on CORTA; CORTA does not depend on an app's chosen adapter or operator-command semantics.</p>
+<p><a href="../../modules/corta_adapters/MODULE.html">Owner contract</a> · <a href="runtime-execution.html">Runtime and execution</a></p>
+<h3 id="module-logging">Logging<a class="headerlink" href="#module-logging" title="Permanent link">&para;</a></h3>
+<p>Telemetry channels, records and bounded producer buffers make runtime behavior inspectable. File writing is separate from the producer path, so logging infrastructure need not place blocking disk I/O on a control tick. Logging records signals; scheduling and graph replay belong to the runtime.</p>
+<p><a href="../../modules/logging/MODULE.html">Owner contract</a> · <a href="runtime-execution.html">Runtime and execution</a> · <a href="../setup/evaluating-experiments.html">Evaluating experiments</a></p>
+<h2 id="what-the-package-exports">What the package exports<a class="headerlink" href="#what-the-package-exports" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>How a consumer uses it</th>
+<th>What stays with the consumer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td><code>find_package(cyber_suite)</code> and exported <code>cyber_suite::&lt;module&gt;</code> targets</td>
+<td>Composition, application policy and robot-specific configuration</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Supported <code>cyber_suite</code> bindings and native tools; the separate <code>cyber_suite_mjlab</code> learning adapter</td>
+<td>Training recipes, analysis and experiment orchestration</td>
+</tr>
+<tr>
+<td>Data</td>
+<td><code>cyber_suite::data::resolve</code> or <code>cyber_suite.data.resolve</code></td>
+<td>App calibration and local experiment assets</td>
+</tr>
+<tr>
+<td>Contracts</td>
+<td>Each module's <code>MODULE.md</code> and each app's <code>APP.md</code> / <code>VALIDATION.md</code></td>
+<td>Acceptance criteria and evidence for the intended use</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/README.md">application consumption contract</a> specifies the current build boundary. Available exports and optional dependencies vary by module; the capability map is not a promise that every module ships every interface.</p>
+<h2 id="boundaries-worth-understanding">Boundaries worth understanding<a class="headerlink" href="#boundaries-worth-understanding" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Boundary</th>
+<th>What it establishes</th>
+<th>Where to learn more</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Robot description → computations</td>
+<td>Joint names, coordinates, inertial and actuation assumptions</td>
+<td><a href="models-and-simulation.html">Models and simulation</a></td>
+</tr>
+<tr>
+<td>Measurements → estimated state</td>
+<td>What the controller knows, in which frame and at what time</td>
+<td><a href="state-and-perception.html">State and perception</a></td>
+</tr>
+<tr>
+<td>Planning → reference execution</td>
+<td>Desired motion, reference coordinates and validity</td>
+<td><a href="model-based-walking.html">Model-based walking</a></td>
+</tr>
+<tr>
+<td>Graph → execution</td>
+<td>Rates, deferred work, observation/command exchange</td>
+<td><a href="runtime-execution.html">Runtime and execution</a></td>
+</tr>
+<tr>
+<td>Training → deployed policy</td>
+<td>Observation packing, action meaning and realization</td>
+<td><a href="learned-policy-deployment.html">Policy deployment</a></td>
+</tr>
+<tr>
+<td>Experiment → conclusion</td>
+<td>Matched conditions, measurements and qualification limits</td>
+<td><a href="../setup/evaluating-experiments.html">Evaluate an experiment</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="follow-a-single-experiment">Follow a single experiment<a class="headerlink" href="#follow-a-single-experiment" title="Permanent link">&para;</a></h2>
+<p>For Digit model-based walking, a scenario selects ALIP or DCM, terrain and a velocity schedule. The app loads calibration profiles, constructs the graph and creates the Plant. Servo builds the state used by planning and control, the planner authors task references, and the whole-body controller turns them into actuator commands. The <a href="../handbook/chapters/index.html">handbook</a> follows that loop with diagrams and a measured example.</p>
+<p>Changing to a learned policy changes the control composition: inference produces actions and the policy Servo realizes them according to the bundle's contract. It is not simply another footstep planner feeding the same whole-body controller. The robot boundary and execution infrastructure can still be shared. See <a href="learned-policy-deployment.html">policy deployment</a>.</p>
+<h2 id="where-a-change-belongs">Where a change belongs<a class="headerlink" href="#where-a-change-belongs" title="Permanent link">&para;</a></h2>
+<p>A robot-neutral numerical improvement belongs in the module that owns it. A new experiment normally begins in app-owned configuration. A <a href="../setup/student-projects.html">student project</a> consumes the package through its published C++ and Python boundaries, using its own Pixi project. It should not reach into a neighboring source checkout to borrow private implementation files.</p>
+<p>Robot descriptions live under <code>assets/robots/&lt;robot&gt;/</code>; app calibration lives with the app. The shared terrain catalog is owned by simulation. Keeping these homes distinct makes a question such as “did the new controller improve tracking?” answerable: the comparison can preserve the model and world while changing the intended behavior.</p>
+<h2 id="implementation-and-evidence-are-different">Implementation and evidence are different<a class="headerlink" href="#implementation-and-evidence-are-different" title="Permanent link">&para;</a></h2>
+<p>A module contract describes the implemented surface and lifecycle. An app contract describes the composition. Its validation document records what has been demonstrated, with conditions and limitations. A historical design can explain a decision without describing today's execution.</p>
+<p>This website organizes the maintained reading paths; it does not promote modules to stable status or replace the owner contracts. The <a href="../setup/development-workflow.html">development workflow</a> explains how a change is validated and integrated.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/design/system-architecture.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../index.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cyber Suite">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Cyber Suite
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../handbook/chapters/index.html" class="md-footer__link md-footer__link--next" aria-label="Next: From command to motion">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                From command to motion
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

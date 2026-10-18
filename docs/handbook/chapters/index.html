@@ -1,0 +1,2331 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/handbook/chapters/index.html">
+      
+      
+        <link rel="prev" href="../../design/system-architecture.html">
+      
+      
+        <link rel="next" href="../../setup/first-run.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>From command to motion - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/project.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#how-a-digit-walking-command-becomes-motion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              From command to motion
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="index.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-loop-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The loop at a glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-one-walking-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow one walking command
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Follow one walking command">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-express-the-motion-you-want" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Express the motion you want
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-estimate-what-the-robot-is-doing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Estimate what the robot is doing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-plan-steps-and-author-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Plan steps and author references
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-turn-references-into-actuator-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Turn references into actuator commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-observe-the-response-and-repeat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Observe the response and repeat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-the-two-rates-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the two rates matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changes-with-a-learned-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changes with a learned policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-simulation-meets-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where simulation meets deployment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-a-real-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read a real result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-in-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Try it in simulation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#find-the-owner-of-your-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Find the owner of your change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#turn-your-question-into-an-agent-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turn your question into an agent task
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-loop-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The loop at a glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-one-walking-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow one walking command
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Follow one walking command">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-express-the-motion-you-want" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Express the motion you want
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-estimate-what-the-robot-is-doing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Estimate what the robot is doing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-plan-steps-and-author-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Plan steps and author references
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-turn-references-into-actuator-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Turn references into actuator commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-observe-the-response-and-repeat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Observe the response and repeat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-the-two-rates-matter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why the two rates matter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changes-with-a-learned-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changes with a learned policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-simulation-meets-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where simulation meets deployment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-a-real-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read a real result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-in-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Try it in simulation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#find-the-owner-of-your-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Find the owner of your change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#turn-your-question-into-an-agent-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turn your question into an agent task
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">working</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../../markdown/docs/handbook/chapters/index.md.txt" download="index.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="how-a-digit-walking-command-becomes-motion">How a Digit walking command becomes motion<a class="headerlink" href="#how-a-digit-walking-command-becomes-motion" title="Permanent link">&para;</a></h1>
+<p>You ask Digit to walk forward at 0.3 m/s. That request must become foot placements, body motion, joint torques and, eventually, new sensor readings. Follow that journey to understand where the main parts of Cyber Suite fit and where your own experiment would belong.</p>
+<p>Digit is the worked example because it connects model-based walking, learned control, CORTA execution and the Agility deployment interface. G1 is a starting project students can extend using the same ownership principles. You can follow this chapter with basic programming and robotics knowledge; the planner and controller equations can come later.</p>
+<div class="learning-goals">
+<p><strong>After this chapter, you should be able to:</strong></p>
+<ul>
+<li>Explain the difference between a motion command, a task reference and an actuator command.</li>
+<li>Trace the model-based and learned control paths without confusing their controllers.</li>
+<li>Find the owner of a proposed change and name evidence that would evaluate it.</li>
+</ul>
+</div>
+<h2 id="the-loop-at-a-glance">The loop at a glance<a class="headerlink" href="#the-loop-at-a-glance" title="Permanent link">&para;</a></h2>
+<p>Start at <strong>Desired motion</strong>, then follow the green arrows into planning, reference tracking and the Plant. Follow the blue arrows back: the robot's response changes what the controller does next. This is a simplified picture of the model-based graph, with the two feedback loops drawn explicitly.</p>
+<figure class="teaching-figure">
+<p><img alt="Model-based walking: the desired motion enters Servo; Servo exchanges estimated state and references with the planner, and actuator commands and sensor readings with the Plant." src="../../assets/handbook/control-loop.svg" /></p>
+<figcaption>Figure 1 · Structure from the reviewed code. Green arrows carry requests and commands; blue arrows return observations. The Plant may be MuJoCo or the LLAPI connection.</figcaption>
+<p><a href="../../assets/handbook/control-loop.svg">Open full-size diagram</a></p>
+</figure>
+<p>Read the same request at three levels: <strong>“travel forward at 0.3 m/s”</strong> is a motion command; <strong>“move this foot along this trajectory”</strong> is a task reference; <strong>“apply these joint torques and drive settings”</strong> is an actuator command. Each arrow has a different meaning. A correct message at one boundary does not guarantee the desired physical response at the next.</p>
+<details class="checkpoint">
+<summary>Check your understanding: the robot misses a foot target. Where would you look first?</summary>
+<p>Compare the <strong>installed foot reference with measured foot motion</strong> at the Servo boundary. If the reference itself is unsuitable, follow it upstream to the planner. If the reference looks reasonable but the foot cannot follow it, inspect state estimates, contact constraints, actuator saturation and Plant actuation. The animation alone cannot distinguish these causes.</p>
+</details>
+<p>The <strong>app</strong> assembles this particular robot behavior. Shared <strong>modules</strong> provide reusable algorithms and infrastructure. A <strong>scenario</strong> selects the planner, world and motion schedule; profiles supply calibration. An <strong>artifact</strong> records what happened in one run. These four ideas help you navigate before learning individual classes.</p>
+<h2 id="follow-one-walking-command">Follow one walking command<a class="headerlink" href="#follow-one-walking-command" title="Permanent link">&para;</a></h2>
+<h3 id="1-express-the-motion-you-want">1. Express the motion you want<a class="headerlink" href="#1-express-the-motion-you-want" title="Permanent link">&para;</a></h3>
+<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/config/scenarios/alip_walking.yaml">ALIP scenario</a> requests forward velocity <code>[0.3, 0.0]</code> m/s with zero yaw rate on flat ground. It also selects the planner and simulation settings. The app combines that scenario with its profiles and command-line overrides to produce the resolved configuration.</p>
+<p>A velocity request describes desired travel. Startup, step planning, actuator limits and the robot's actual state determine the resulting motion. An operator's keyboard or joystick can provide the command instead of a fixed schedule; that changes the command source while preserving the downstream ownership boundaries.</p>
+<h3 id="2-estimate-what-the-robot-is-doing">2. Estimate what the robot is doing<a class="headerlink" href="#2-estimate-what-the-robot-is-doing" title="Permanent link">&para;</a></h3>
+<p>The Plant supplies encoder readings and measurements from the IMU (inertial measurement unit). In the usual closed-loop simulation composition, the estimator reconstructs the floating base's orientation, velocity and position in its qualified local frame. The dynamics support gate estimates support and contact capacity. The Servo combines these with robot-model queries to prepare the state used by planning and control.</p>
+<p>The simulator also knows the exact simulated state. That truth is available for diagnostics and explicitly selected external-state modes; it is not the normal closed-loop estimator input. When comparing algorithms, preserve the state source. A controller that works on truth has demonstrated a different boundary from one that works on estimates.</p>
+<h3 id="3-plan-steps-and-author-references">3. Plan steps and author references<a class="headerlink" href="#3-plan-steps-and-author-references" title="Permanent link">&para;</a></h3>
+<p>ALIP means <strong>angular-momentum linear inverted pendulum</strong>; DCM means <strong>divergent component of motion</strong>. They use reduced models of balance to choose stepping behavior. Their app adapters turn accepted plans into executable references for the feet, pelvis and body motion.</p>
+<p>The shared walking coordinator tracks startup, walking, touchdown admission and stopping. It consumes the full-rate contact history supplied by Servo, so a 50 Hz planner can reason about contact evidence collected at 1 kHz. A reference preview contains a short future trajectory and task activation targets. It carries more than a single desired position.</p>
+<p>ALIP and DCM have different reference-coordinate contracts. Their adapters and controller task geometry must agree. Replacing a planner therefore means respecting its reference contract, even though both fit the same overall application structure.</p>
+<h3 id="4-turn-references-into-actuator-commands">4. Turn references into actuator commands<a class="headerlink" href="#4-turn-references-into-actuator-commands" title="Permanent link">&para;</a></h3>
+<p>Every millisecond, Servo samples the installed trajectories and asks the whole-body controller to realize them. TAC-QP is the repository's constrained whole-body quadratic-programming controller. It reconciles the body and foot objectives with the modeled dynamics and constraints such as contact, friction and actuator limits.</p>
+<p>The model-based planner owns the walking sequence and reference meaning. Servo owns their execution against the current estimated state. This separation matters when diagnosing a problem: an unreachable foot target, poor tracking of a feasible target and incorrect contact estimation are different causes.</p>
+<p>The outgoing command includes actuator torque and, when the drive model is active, drive-damping information. The Plant handles how that command reaches the simulated or external drives. The default MuJoCo actuation model includes drive behavior and command delay; requesting a torque does not mean it acts instantaneously.</p>
+<h3 id="5-observe-the-response-and-repeat">5. Observe the response and repeat<a class="headerlink" href="#5-observe-the-response-and-repeat" title="Permanent link">&para;</a></h3>
+<p>The Plant advances simulation or exchanges data through the low-level interface, then returns a new observation. The next Servo tick reacts to it; the next planner update can revise future motion. Startup readiness, finite reference validity and measured stopping also belong to this loop.</p>
+<p>A viewer displays selected observations. Watching the robot stay upright is useful, but does not establish velocity tracking, actuator margins or settled stopping. Use the recorded configuration and diagnostics to explain the behavior you see.</p>
+<h2 id="why-the-two-rates-matter">Why the two rates matter<a class="headerlink" href="#why-the-two-rates-matter" title="Permanent link">&para;</a></h2>
+<p>The canonical model-based composition releases the planner at 50 Hz, about once every 20 ms, while Servo executes at 1 kHz. Between planner releases, Servo keeps sampling the installed reference trajectory and reacting to fresh state. It does not wait for a new plan before every torque calculation.</p>
+<figure class="teaching-figure">
+<p><img alt="Planner releases at 0, 20 and 40 milliseconds sit above Servo ticks spaced one millisecond apart. Servo continues between planning releases." src="../../assets/handbook/update-rates.svg" /></p>
+<figcaption>Figure 2 · Scheduled rates, drawn schematically. A diamond releases planning work; it does not mean a new plan has already arrived. Reference adoption follows deferred completion.</figcaption>
+<p><a href="../../assets/handbook/update-rates.svg">Open full-size diagram</a></p>
+</figure>
+<details class="checkpoint">
+<summary>At 7 ms, there is no new planner release. What does Servo do?</summary>
+<p>It samples the installed reference at the current time, uses the fresh state and computes another actuator command. A trajectory describes how the target changes between planning updates. Holding the last torque for 20 ms would be a different controller.</p>
+</details>
+<table>
+<thead>
+<tr>
+<th>Boundary</th>
+<th>What crosses it</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plant → Servo</td>
+<td>Sensor observation</td>
+<td>Defines what the controller can know</td>
+</tr>
+<tr>
+<td>Servo → planner</td>
+<td>Command, estimated state and contact history</td>
+<td>Gives planning a coherent view of execution</td>
+</tr>
+<tr>
+<td>Planner → Servo</td>
+<td>Finite reference preview and task targets</td>
+<td>Keeps planning decisions separate from fast execution</td>
+</tr>
+<tr>
+<td>Servo → Plant</td>
+<td>Actuator command</td>
+<td>Defines how control acts on the world</td>
+</tr>
+</tbody>
+</table>
+<p>CORTA provides the runtime graph, timing declarations and bounded message exchange. The planner executes as deferred work; Servo runs inline with the Plant exchange. Copied values cross these boundaries rather than shared mutable planner/controller objects. The graph wiring is visible in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/main.cpp">application entry point</a>.</p>
+<div class="callout">
+<p><strong>A configured rate is not a measured deadline guarantee.</strong> Running a simulation with 1 ms ticks does not prove every tick finishes within 1 ms on a real robot. Timing evidence and physical behavior evidence answer separate questions.</p>
+</div>
+<h2 id="what-changes-with-a-learned-policy">What changes with a learned policy<a class="headerlink" href="#what-changes-with-a-learned-policy" title="Permanent link">&para;</a></h2>
+<p>Selecting <code>planner: policy</code> replaces both the model-based planner and its Servo with a policy inference worker and <code>PolicyServo</code>. The Plant, scenario machinery and CORTA execution framework remain shared. The normal learned path does not send its actions through the model-based whole-body controller.</p>
+<div class="policy-flow">
+<p><strong>Training → exported bundle → inference → joint targets → joint PD → Plant</strong></p>
+<p>Training is owned by <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/APP.md">Digit learning</a>. The exported bundle specifies how observations are packed and actions are decoded. Deferred inference runs at the bundle's declared rate; the shipped walking policies use 50 Hz. <code>PolicyServo</code> adopts actions and realizes joint proportional-derivative (PD) control at 1 kHz, with damping placed according to the contract and Plant.</p>
+</div>
+<p>This gives you two useful research paths. You can investigate footstep planning and whole-body objectives in the model-based composition, or investigate observations, rewards and learned behavior in the learning composition. Compare them on matched scenarios while recording the model, state source, actuation assumptions and policy bundle.</p>
+<p>Policy parity checks whether exported inference and action realization reproduce the trainer's recorded contract. Physical evaluation then asks whether the resulting robot tracks commands, respects limits and handles the tested scenarios. Passing one does not substitute for the other. See the <a href="../../design/learned-policy-deployment.html">policy deployment reference</a> for the complete chain.</p>
+<h2 id="where-simulation-meets-deployment">Where simulation meets deployment<a class="headerlink" href="#where-simulation-meets-deployment" title="Permanent link">&para;</a></h2>
+<p>The MuJoCo Plant owns the simulated world, sensors and actuation. The LLAPI Plant connects the app to Agility's low-level API. A common observation/command boundary lets the control composition reach both, but the state source, timing, command acceptance and drive behavior must still be handled explicitly.</p>
+<p>With the default LLAPI base-state selection, the app uses Agility's base estimate. The integration also handles operation-mode handover and drive damping. These details explain why a controller can behave differently after moving from the local simulator to Agility's simulator even when its planning algorithm is unchanged.</p>
+<p>Digit has recorded model-based and learned-policy operation through LLAPI against Agility's simulator, plus model and drive-alignment investigations. Those results establish specific simulation and interface evidence. They do not establish complete simulator equivalence or qualify this application for physical-hardware operation. Use the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">current validation</a> to identify the model revision, controller, conditions and remaining limitations behind any deployment claim.</p>
+<h2 id="read-a-real-result">Read a real result<a class="headerlink" href="#read-a-real-result" title="Permanent link">&para;</a></h2>
+<p><strong>Question: if a run completes, did the robot do what we asked?</strong> Here is a small example from the recorded October 1 Arena campaign. Digit was asked to move sideways at 0.200 m/s on flat ground with nominal sensor noise. The cadence policy, ALIP and DCM each ran with seeds 0, 1 and 2. All nine selected runs completed.</p>
+<figure class="teaching-figure evidence-figure">
+<p><img alt="Historical lateral-walking measurements: the cadence policy median is 0.136 m/s, ALIP is 0.198 and DCM is 0.205 for a 0.200 command. Each controller completed three out of three runs." src="../../assets/handbook/lateral-tracking.svg" /></p>
+<figcaption>Figure 3 · Recorded simulation, 2026-10-01. Each hollow circle is one run's steady-plateau velocity; each filled square is the median of three seeds. The dashed line is the command. This campaign predates the current drive model.</figcaption>
+<p><a href="../../assets/handbook/lateral-tracking.svg">Open full-size plot</a></p>
+</figure>
+<p>Read the plot in three passes:</p>
+<ol>
+<li><strong>Find the request.</strong> The dashed line marks the same 0.200 m/s lateral command for all three controllers.</li>
+<li><strong>Compare the response.</strong> The policy's median is 0.136 m/s, about 0.064 m/s below the command, or 32% slower. The ALIP and DCM medians lie closer to the command in this example.</li>
+<li><strong>Limit the conclusion.</strong> Completion and tracking are different measurements. This plot does not show transient motion, stopping, actuator margins or the cause of the policy's error. It also does not establish which controller is best on other tasks or on today's code.</li>
+</ol>
+<details class="checkpoint">
+<summary>Before changing the policy, what evidence would you request?</summary>
+<p>Request time-aligned command and measured velocity, confirm the observation/action contract and actuation model, then inspect joint targets, tracking and saturation. Check whether the shortfall persists across the chosen evaluation scenarios. The result suggests a question to investigate; it does not yet tell you whether to change rewards, inference, state estimation or the Plant.</p>
+</details>
+<details class="evidence-source">
+<summary>Inspect the numbers and reproduce the figure</summary>
+<table>
+<thead>
+<tr>
+<th>Controller</th>
+<th>Seed 0 (m/s)</th>
+<th>Seed 1 (m/s)</th>
+<th>Seed 2 (m/s)</th>
+<th>Median (m/s)</th>
+<th>Completed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cadence policy</td>
+<td>0.129616</td>
+<td>0.136660</td>
+<td>0.136238</td>
+<td>0.136238</td>
+<td>3/3</td>
+</tr>
+<tr>
+<td>ALIP</td>
+<td>0.197065</td>
+<td>0.200260</td>
+<td>0.197787</td>
+<td>0.197787</td>
+<td>3/3</td>
+</tr>
+<tr>
+<td>DCM</td>
+<td>0.197195</td>
+<td>0.208508</td>
+<td>0.205089</td>
+<td>0.205089</td>
+<td>3/3</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="../../assets/handbook/lateral-tracking.csv">published CSV</a> contains exactly the nine runs shown above, selected from the complete Arena dataset using <code>campaign=grid</code>, <code>condition=nominal</code>, <code>terrain=flat</code>, <code>motion=left_0.2</code> and <code>config=policy|alip|dcm</code>. No failed runs are removed from this selection. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-10-01-arena-one-gait/README.md">original capsule</a> and its <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-10-01-arena-one-gait/manifest.yaml">manifest</a> record the historical experiment and its source patch. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/README.md">teaching-figure capsule</a>, <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/data/inputs.json">input specification</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/scripts/render.py">renderer</a> record the selection and presentation. No simulation was rerun to make this plot.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># From the repository root; reads the retained compact data.</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>notes/evidence/2026-10-18-handbook-walking/scripts/render.py
+</code></pre></div>
+</details>
+<h2 id="try-it-in-simulation">Try it in simulation<a class="headerlink" href="#try-it-in-simulation" title="Permanent link">&para;</a></h2>
+<p>Use the Digit project on the simulation host. This exercise assumes the repository and Pixi environment are already available; the <a href="../../../apps/digit/walking/RUNNING.html">running guide</a> covers launch options and the <a href="../../setup/remote-development.html">remote guide</a> explains display and port forwarding.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>digit_corta_walking
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--print-resolved-config
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--rerun-web<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--log<span class="w"> </span>artifacts/handbook/alip-first-run.h5
+</code></pre></div>
+<p>The simulation and viewer server run on that host. For a remote session, open the viewer through the forwarding described in the remote guide. Use a fresh log name for each run. Preserve the first run as your baseline before changing configuration.</p>
+<p>Before running, predict what the measured forward velocity will do during startup, steady walking and stopping. While it runs, connect the picture to the loop:</p>
+<ol>
+<li>Identify the forward command in the resolved configuration and compare it with measured forward velocity.</li>
+<li>Watch startup, stepping and the transition back toward standing. Identify which components own those decisions.</li>
+<li>Inspect tracking, contact/support and actuator diagnostics alongside the animation. Record a failure as an outcome to investigate.</li>
+</ol>
+<p>After the run, the app-owned plotter can summarize the model-based walking log:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>plot-walking<span class="w"> </span>artifacts/handbook/alip-first-run.h5<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-o<span class="w"> </span>artifacts/handbook/alip-first-run-plots
+</code></pre></div>
+<p>Changing <code>--config</code> to <code>dcm_walking</code> selects another canonical scenario, whose motion schedule also differs. To study the planner alone, retain the ALIP scenario and select <code>--planner dcm</code>, preserve the other settings and use another log path. The planner profile and reference contract still change deliberately. A useful comparison states exactly what was held fixed.</p>
+<p>Your first deliverable can be one annotated plot of commanded versus measured velocity, with startup, steady walking and stopping marked, plus three sentences: what you expected, what happened, and which boundary you would inspect next. Record the model, state source, configuration and code revision beside it. Keep the plot in your project's ignored <code>artifacts/</code> while exploring. This makes an agent task concrete without requiring you to understand every API first.</p>
+<h2 id="find-the-owner-of-your-change">Find the owner of your change<a class="headerlink" href="#find-the-owner-of-your-change" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Your question</th>
+<th>Start here</th>
+<th>Evidence to inspect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What command or world should I test?</td>
+<td>App scenarios and resolved configuration</td>
+<td>Same scenario, seed, model and actuation assumptions</td>
+</tr>
+<tr>
+<td>Why did the planner choose this step?</td>
+<td>App planner adapter, then <code>modules/locomotion</code></td>
+<td>Plan, installed reference and touchdown history</td>
+</tr>
+<tr>
+<td>Why did the robot miss the target?</td>
+<td>Servo/reference binding, then <code>modules/control</code></td>
+<td>Reference versus actual motion, constraints and actuator saturation</td>
+</tr>
+<tr>
+<td>Is the estimated state wrong?</td>
+<td>Estimation configuration, then <code>modules/estimation</code></td>
+<td>Timestamp-matched estimate and diagnostic truth</td>
+</tr>
+<tr>
+<td>How should I change learned behavior?</td>
+<td><code>apps/digit/learning</code></td>
+<td>Fixed observation/action contract, baseline and physical evaluation</td>
+</tr>
+<tr>
+<td>Why does deployment behave differently?</td>
+<td>Plant configuration and <code>modules/digit_hardware</code></td>
+<td>State source, drive realization, timing and command acceptance</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>Open the implementation when you need the details</summary>
+<ul>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/main.cpp">Graph composition</a>: the actual systems and their connections.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/servo.cpp">Servo</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/servo_control.cpp">control transaction</a>: the fast model-based path.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/alip_planner.cpp">ALIP adapter</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/cpp_dcm.cpp">DCM adapter</a>: planner-owned behavior.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/reference_binding.cpp">Reference binding</a>: installing previews into controller tasks.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/policy_controller.cpp">Policy controller</a>: inference and policy realization.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/plant.cpp">MuJoCo Plant</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/llapi_plant.cpp">LLAPI Plant</a>: the two world boundaries.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md">App contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">validation</a>: implemented behavior and its demonstrated limits.</li>
+</ul>
+</details>
+<h2 id="turn-your-question-into-an-agent-task">Turn your question into an agent task<a class="headerlink" href="#turn-your-question-into-an-agent-task" title="Permanent link">&para;</a></h2>
+<p>Give the agent a question, an owner, a baseline, constraints and observable outcomes. You do not need to name every class before asking. You do need enough understanding to judge whether its proposed change answers your question.</p>
+<blockquote>
+<p>Help me compare ALIP and DCM on the same flat Digit scenario. Explain the current planner/Servo boundary first. Preserve the model, actuation, estimator, command schedule and shared controller calibration; record the planner-specific profiles and reference contracts that change. Reproduce the baseline, then compare tracking, actuator saturation, stopping and failures using separate artifacts. Keep the experiment in app-owned configuration and report what the results establish.</p>
+</blockquote>
+<p>Before accepting a result, ask yourself: did the agent change the component that owns the behavior, preserve the comparison, and show physical evidence for its conclusion?</p>
+<div class="next-step">
+<p><strong>Start a project with G1.</strong> Use the <a href="../../setup/student-projects.html">student-project guide</a> to create a pinned, independent project. Digit supplies the integrated example; your G1 project owns its experiments, configuration and validation. Its <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/unitree-g1/learning/APP.md">learning contract</a> is a starting point for learning work. Carry over the ownership and evaluation habits, and check which capabilities the G1 app actually implements before reusing a Digit workflow.</p>
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/handbook/chapters/index.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../design/system-architecture.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: System architecture">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                System architecture
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../setup/first-run.html" class="md-footer__link md-footer__link--next" aria-label="Next: Your first simulation">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Your first simulation
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../assets/mathjax.js"></script>
+      
+        <script src="../../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

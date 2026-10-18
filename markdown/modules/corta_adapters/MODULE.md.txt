@@ -1,0 +1,106 @@
+---
+Status: experimental
+Owner: modules/corta_adapters
+Last verified: "2026-10-13 Linux joystick and POSIX datagram adapters and
+  their Digit operator consumer; 2026-08-24 Slice 3 Rerun observer, Slice 2 POSIX keyboard,
+  Slice 1 loopback/kernel, API smoke, and dependency gate"
+---
+
+# CORTA Adapters
+
+## Purpose
+
+Adapt typed CORTA ingress and egress boundaries to free-running external connections without performing transport or device work on the CORTA tick thread.
+
+## Public API
+
+The implemented Slice 1 through Slice 3 surfaces are exposed through:
+
+- `adapters.hpp`: the public umbrella header.
+- `session.hpp`: `AdapterSession`, one external connection, one SDK-owned thread, bounded stop/join, and one exported `corta::DeviceThread`;
+- `session.hpp`: `AdapterConfig` thread placement/shutdown policy, `AdapterReport` monotonic delivery/failure counters and acquired placement, and `AdapterContext` counter updates for concrete adapters;
+- `delivery.hpp`: `LatestState<T>`, capacity-one coalescing state;
+- `delivery.hpp`: `BoundedEvents<Event, N>`, a fixed rolling FIFO batch with event sequences, explicit populated count, and counted drop-oldest overflow;
+- `delivery.hpp`: `BoundedEventReceiver<Event, N>`, overlap de-duplication, receiver-gap detection, and source-instance sequence epochs;
+- `loopback.hpp`: `LoopbackAdapter`, one thread carrying multiple typed Value `corta::EgressReader<T>` to `corta::IngressWriter<T>` bindings; and
+- `keyboard.hpp`: `PosixKeyboardAdapter<State, Event, N>`, a borrowed POSIX input file descriptor, optional raw-terminal lifetime, application-owned byte mapping, latest-state publication, and bounded sequenced-event publication; and
+- `datagram.hpp`: `PosixDatagramAdapter<State, Event, N>`, a borrowed bound datagram socket, one application-owned mapper call per whole datagram, a size bound that counts longer datagrams as malformed, and latest-state plus bounded sequenced-event publication; and
+- `joystick.hpp`: `LinuxJoystickAdapter<State, Event, N>`, a borrowed descriptor carrying Linux joystick API records (`/dev/input/js*`), the device's axis/button snapshot, application-owned mapping of each change, latest-state and bounded sequenced-event publication, and an optional keepalive; and
+- `rerun.hpp`: `RerunObserver`, `RerunObserverConfig`, and explicit per-stream reports for bounded observer queues, Rerun delivery, and visualization-only drops. `included_streams` is an exact allowlist; an empty list observes all, while an excluded schema is rejected before allocating its copy queue. This header is linked through the separate compiled `corta::rerun` target rather than the generic adapter umbrella; and
+- `rerun_encoder.hpp`: `RerunStreamEncoder` and `RerunTelemetryBatch`, an optional exact-schema semantic encoding seam. At most one encoder may claim a registered stream; its static and batch callbacks run only on the observer thread and any exception is converted to observer failure accounting.
+
+The keyboard adapter owns one thread and reads at most 64 bytes per device burst. State replacements within that burst coalesce; events remain distinct inside the fixed `BoundedEventWindow<Event, N>`. Both reach the graph only via ordinary single-producer ingress writers. The adapter validates nonzero clock and source identities, counts mapper failures and disconnects, and bounds idle shutdown by requiring `join_timeout > poll_interval`. Its descriptor is borrowed and is never closed by the adapter. The application must assign a clock domain that actually names the process steady-clock basis used by this adapter, and a source instance that changes when the device/session epoch restarts.
+
+The Rerun observer is observation-only. `TelemetryWriter` remains the sole consumer of every original ring, appends each batch to HDF5 first, and then offers the same staging rows to preallocated per-stream Rerun SPSC queues. The observer thread alone performs scalar conversion and Rerun SDK calls. Full queues refuse and count only the visualization copy. Existing schemas provide the demonstrated scalar/vector views, so no typed `VisualizationFrame` egress was added. The generic Rerun `Scalars` view widens numeric fields to double and flattens declared vector/matrix width. An app may instead bind one exact custom encoder that uses schema constants for static semantic objects and owns every Rerun call for that stream. HDF5 remains authoritative for exact declared types, metadata, and rows in either case.
+
+The joystick adapter follows the keyboard's contract and owns one thread. It declares the kernel's 8-byte `js_event` record itself (checked against `<linux/joystick.h>` where that header exists), so the header builds on any POSIX host and a pipe drives it in tests; a record split across reads is reassembled. After each record it updates a fixed `JoystickSnapshot` of up to 16 axes and 32 buttons, in the kernel's numbering and units, and calls the mapper with that snapshot and the `JoystickChange`. `initial` marks the synthetic records the driver emits on open for state already held, so a mapper can ignore a button that was down before the pad connected. The joystick API reports changes only, so a held stick is silent; a positive `keepalive` republishes the latest mapped state at that period while the descriptor stays readable, which lets a consumer tell a held stick from a lost device by ingress generation. It never invents a value: end of file, `ENODEV` or a poll error ends the thread as a counted disconnect, and publication stops. Which axis means what, deadzones, deadman semantics and loss policy remain the application's. This is a Linux joystick reader, not a universal input-device API; evdev, HID and game-controller databases are not wrapped.
+
+The datagram adapter is for an operator device that lives in another process, such as a browser page's server. It drains every queued datagram with `recvmsg` in one burst, rejects a truncated one before the mapper sees it, and publishes once per burst like its siblings. Binding, the peer address policy and the message format are the owner's; the mapper validates and throws on anything it does not accept, which the adapter counts as malformed. It is best-effort and one-way: no acknowledgement, retry, or invented value when the peer goes quiet, so a peer that must be known alive sends periodically and the consumer judges liveness from the ingress generation. An empty read ends the burst, so a closed connected peer cannot spin the thread. UDP between CORTA applications and ROS 2 are explicitly deferred for future implementation. The loopback binds Value messages only; core Block egress exists, but no Block loopback or Block receiver-ingress replay codec is claimed.
+
+## Dependencies
+
+The kernel depends on C++20, the standard library, Threads, and `cyber_suite_corta`. The concrete keyboard header additionally depends on POSIX file-descriptor, `poll`, and terminal APIs. CORTA never depends on this module.
+
+The compiled `corta::rerun` target adds the Rerun 0.36 C++ SDK and Arrow. Its public header uses a private implementation and does not include Rerun headers, so those dependencies do not reach CORTA core, producer telemetry, the generic adapter kernel, or keyboard/loopback consumers.
+
+## Consumers
+
+Implemented consumers are the loopback conformance application, the POSIX keyboard, Linux joystick and POSIX datagram operator-input examples, the CORTA/Rerun telemetry example, and the maintained Digit CORTA walking app. Digit is the first integrated robot consumer: it uses the exact allowlist for its 1 kHz servo-state, 50 Hz planner-command, and 50 Hz Plant-scene streams and exposes only a CLI observation endpoint. Its app-owned encoder maps the exact scene schema to MuJoCo visual geometry, terrain, body transforms, and contact forces. Its Python tool owns the viewer blueprint/process, never the data path. Digit walking's `--operator keyboard|joystick|viser` is the first integrated consumer of all three input adapters, the last for its browser page over loopback UDP: each maps its device onto the same app-owned axes and request types, and an inline app supervisor holds all command authority (walking [APP.md](../../apps/digit/walking/APP.md#live-operator-input)). A two-CORTA-app UDP bridge and ROS 2 topic pub/sub are deferred until a concrete need reopens them. No hardware, network, or middleware consumer exists yet.
+
+## Owned Examples
+
+`examples/cpp/corta/adapter_loopback.cpp` teaches one adapter thread carrying two deterministic arithmetic Value egress-to-ingress bindings. It owns no robot workflow, application behavior, transport framework, or private helper library.
+
+`examples/cpp/corta/adapter_keyboard.cpp` teaches application-owned mapping of `w`/`s` state requests and `x`/`q` events. Its default path uses a deterministic pipe for CI; `--interactive` borrows standard input and temporarily selects raw terminal mode. It does not make the adapter a controller or safety authority.
+
+`examples/cpp/corta/adapter_joystick.cpp` teaches application-owned mapping of a deadman-gated stick axis and button-press events. Its default path writes kernel-format records through a pipe for CI, splitting one record across two writes, including an initial held button that must not count as a press, and checks the keepalive and end-of-input disconnect; `--device /dev/input/js0` reads a real pad. It does not make the adapter a controller or safety authority.
+
+`examples/cpp/corta/adapter_datagram.cpp` teaches an application-owned datagram format over a connected Unix datagram pair: a state message, an event message, one too short for the mapper and one longer than the size bound, both counted malformed without reaching the graph.
+
+`examples/cpp/corta/adapter_rerun.cpp` attaches the observer to the same storage writer that drains CORTA telemetry. Its deterministic default writes HDF5 and `.rrd` artifacts for two eight-row streams and verifies zero observer drops; `--spawn` opens the viewer for interactive inspection. It owns no robot workflow or visualization-specific semantic egress.
+
+## Validation
+
+Contract evidence covers:
+
+- latest-state coalescing and counters;
+- bounded-event order, overflow, receiver gaps, and source restart;
+- nonzero/mismatched clock and source identities;
+- allocation-free, wait-free egress push with a negative control and a lock-free-atomic target check;
+- Block queue plus declared in-flight lease accounting in the C16 pool plan;
+- placement request/reporting;
+- stop/join ordering and timeout escalation;
+- real pipe and pseudo-terminal input, raw-mode restoration, idle bounded stop, mapper-failure accounting, and invalid keyboard configuration;
+- datagram whole-message mapping, mapper rejection and size-bound truncation, through the deterministic example;
+- joystick record reassembly across reads, initial-state marking, keepalive republication and end-of-input disconnect, through the deterministic example rather than a contract suite;
+- single-consumer HDF5-first fan-out, bounded Rerun queue overflow accounting, exact pre-allocation stream selection, exact custom-encoder dispatch, final observer draining, and Rerun `.rrd` verification;
+- dependency direction; and
+- receiver-ingress record/replay equivalence.
+
+Thin smokes cover loopback, keyboard, joystick, datagram, and Rerun. No physical joystick has been read yet: the joystick evidence is kernel-format records through a pipe here and through a FIFO in the Digit operator validation. Validation is software-only and makes no hard-real-time, network-delivery, hardware, safety, or physical-behavior claim.
+
+```bash
+pixi run build --target cyber_suite_corta_adapters_apicheck \
+  test_cyber_suite_corta_adapters corta_adapter_loopback \
+  corta_adapter_keyboard corta_adapter_joystick corta_adapter_datagram \
+  corta_adapter_rerun -j12
+pixi run test -R '^corta\.(adapters|adapter_loopback|adapter_keyboard|adapter_joystick|adapter_datagram|adapter_rerun.*|adapter_dependency_boundary)$' \
+  --output-on-failure
+```
+
+## Non-goals
+
+- Owning CORTA graph, Plant, tick, port, telemetry, or replay semantics.
+- A paired channel, universal bus, or unified Plant/adapter/telemetry endpoint.
+- Transport discovery, QoS, RPC, authentication, or a universal message IDL.
+- Acknowledged, lossless, blocking, or exactly-once delivery.
+- Distributed clock synchronization or offset estimation.
+- Application algorithms, safety authority, or command fallback.
+- A second consumer of an SPSC telemetry ring.
+- Exact-type artifact mirroring into Rerun. The generic fallback is numeric time-series observation, while custom encoders are schema-specific semantic projections; neither is an alternative artifact authority.
+- A universal robot, terrain, contact, sensor, or visualization-object schema.
+- Keyboard interpretation beyond bytes read from a POSIX descriptor: key-up, repeat, escape-sequence and application mapping semantics.
+- Joystick interpretation beyond the Linux joystick API's records: evdev, force feedback, controller databases, deadzones and axis meaning.
+- Datagram message formats, peer authentication or address filtering beyond what the owner's bound socket provides.
+- Speculative hooks for ROS services/actions, ROS 1, HTTP, endpoint manifests, or unified wire envelopes.
+- Promotion beyond experimental before two genuinely different real consumers validate the shared API.

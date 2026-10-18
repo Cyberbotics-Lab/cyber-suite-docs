@@ -1,0 +1,32 @@
+---
+Status: working
+Owner: apps/tron1
+Last reviewed: 2026-10-18
+Code anchors: apps/tron1/pixi.toml, apps/tron1/walking/APP.md, apps/tron1/learning/APP.md
+---
+
+# TRON1
+
+TRON1 explores walking and learning with six actuated joints and two point feet. It shares the project's ownership and evaluation principles, but its geometry changes what standing, stepping and landing mean. Robot-specific assumptions from Digit should be reviewed before reuse.
+
+## Two research paths
+
+The [model-based walking app](../walking/APP.md) composes sensor-shaped observations, state estimation, the shared walking coordinator, ALIP or DCM, and whole-body control. The point-foot composition uses continuous stepping; a zero velocity request should not be interpreted as a certified flat-foot standing mode.
+
+The [learning app](../learning/APP.md) owns the point-foot task, rewards, training, playback and export. Landing metrics use the foot sphere's contact geometry, rather than Digit's heel/toe corners. Cadence, body height and actuator assumptions remain robot-specific.
+
+## Work from the project
+
+```bash
+cd apps/tron1
+pixi task list
+pixi task list -e learn
+```
+
+Use the app's running instructions for the selected model-based or learned workflow. For policy inspection, the learning contract supplies a Viser command and checkpoint selection; the [remote guide](../../../docs/setup/remote-development.md) explains forwarding the browser port.
+
+## Evaluate the physical behavior
+
+Compare command tracking, direction and yaw behavior, alternation of steps, stopping and point-foot touchdown speed/load. Mean speed and upright trials alone do not establish gait quality. The [walking validation](../walking/VALIDATION.md) and [learning validation](../learning/VALIDATION.md) state the demonstrated boundaries; simulation torque settings are not verified hardware ratings.
+
+A useful contribution is a matched analysis of one of those behaviors, preserving the baseline and the robot's own action/observation contract. The [evaluation workflow](../../../docs/setup/evaluating-experiments.md) provides the comparison structure.

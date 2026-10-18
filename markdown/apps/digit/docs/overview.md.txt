@@ -1,0 +1,43 @@
+---
+Status: working
+Owner: apps/digit
+Last reviewed: 2026-10-18
+Code anchors: apps/digit/pixi.toml, apps/digit/walking/APP.md, apps/digit/learning/APP.md, apps/digit/simulation/APP.md, apps/digit/ik/APP.md
+---
+
+# Digit
+
+Digit is the integrated worked example for Cyber Suite. Its project connects robot modeling and standing IK, model-based walking, policy learning, CORTA execution, recorded analysis and the Agility low-level interface. Use it to understand how the shared pieces compose before adapting the pattern to another robot.
+
+## Choose a workflow
+
+| Goal | Start here |
+| --- | --- |
+| Understand the full loop | [Student handbook](../../../docs/handbook/chapters/index.md) |
+| Run walking with a viewer | [Digit running guide](../walking/RUNNING.md) |
+| Understand planner and controller ownership | [Model-based walking](../../../docs/design/model-based-walking.md) |
+| Train, inspect and export a policy | [Learning workflow](../../../docs/setup/learning-workflow.md) and [learning contract](../learning/APP.md) |
+| Run learning on the cluster | [OSC architecture and workflow](../learning/OSC_WORKFLOW.md) |
+| Inspect the standing solve or simple simulation composition | [IK contract](../ik/APP.md) and [simulation contract](../simulation/APP.md) |
+
+## Work from the project
+
+Run Digit tasks from `apps/digit` or select its manifest explicitly. The default environment contains the compiled package boundary; `learn` contains the training environment. Use `pixi task list` and `pixi task list -e learn` to discover current tasks.
+
+```bash
+cd apps/digit
+pixi run --locked build --target digit_corta_walking
+pixi run --locked walk --config alip_walking --rerun-web
+```
+
+For a Mac browser, forward the viewer's printed port from Ubuntu. The [remote guide](../../../docs/setup/remote-development.md) distinguishes the simulation host from the display client.
+
+## Simulation and deployment
+
+The MuJoCo Plant and LLAPI Plant let the app reach different execution environments. LLAPI is used against Agility's simulator as well as being the interface intended for a robot. State-source selection, operation-mode handover, drive damping and command delay remain explicit parts of the experiment. Simulation/interface evidence does not establish complete simulator equivalence or physical-hardware qualification.
+
+Current behavior belongs to the [walking app contract](../walking/APP.md). The [walking validation](../walking/VALIDATION.md) and [learning validation](../learning/VALIDATION.md) identify the controllers, revisions, conditions and remaining limits behind a result.
+
+## A useful first contribution
+
+Reproduce one baseline, annotate the command-versus-response plot and identify a question at one boundary: planning, reference execution, state estimation, policy realization or Plant actuation. Put robot-specific tuning and scenarios in this project. Move reusable behavior to a shared module only when its contract and consumers justify it.

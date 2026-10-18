@@ -1,0 +1,70 @@
+---
+Status: working
+Owner: repo
+Code anchors: scripts/create_g1_project.py, apps/unitree-g1/pixi.toml, python/cyber_suite/data.py
+---
+
+# G1 Student Projects
+
+Unitree G1 is the student template selected by the maintainer. The maintained source is `apps/unitree-g1`; `pixi run create-g1-project` exports a committed revision into a new, independent project. It copies the existing 23-DoF standing, walking, viewer and learning code instead of maintaining a second implementation in a template folder. The source app contracts and validation limits travel with the project.
+
+For work inside the parent repository, follow the [development and project workflow](development-workflow.md). A standalone export becomes its own repository and owns its subsequent changes, validation and task notes.
+
+## Create a project
+
+From a Cyber Suite checkout, select a committed revision that is available from the repository every student can access:
+
+```bash
+pixi run create-g1-project /path/to/g1-project --revision COMMIT
+```
+
+The destination's parent must exist; the destination must not. The default dependency is `ssh://git@github.com/ayonga/cyber-suite.git`. Both the compiled package and the Python distribution pin the same full commit. An unpushed local commit can be exported for local validation but cannot be fetched by students until it is available at that URL.
+
+For an existing student mirror, pass its Git and browser URLs explicitly:
+
+```bash
+pixi run create-g1-project /path/to/g1-project --revision COMMIT \
+  --source-url ssh://git@HOST/OWNER/cyber-suite.git \
+  --web-url https://HOST/OWNER/cyber-suite
+```
+
+The mirror must contain the selected Cyber Suite commit and its package sources. The exporter creates no remote repository and changes no visibility or access settings. Using the existing repository with authorized collaborators needs no separate mirror. Before distributing, verify collaborator access, the selected revision's availability, and the intended code/asset sharing terms. No top-level open-source license is supplied by this repository; the exporter does not invent one. Unitree's asset licenses and upstream provenance are retained verbatim.
+
+## What is exported
+
+The project contains its own `pixi.toml`, CMake source, walking and learning apps, app documentation, empty working-note home and a complete G1 asset snapshot under `assets/robots/unitree_g1`. `SOURCE.json` records the source revision, original file hashes and exported file hashes. The source lockfile is omitted because it contains monorepo path dependencies. Environments, builds, logs, checkpoints, private handoffs and Git history are excluded. Only files tracked at the selected commit are read; dirty and untracked source changes cannot silently enter an export.
+
+Project documentation links that leave the exported project point to the pinned source revision. Historical validation remains inherited evidence. A new project records its own fresh results before treating a change as accepted.
+
+## Validate and lock
+
+Run from the exported project:
+
+```bash
+pixi run check
+pixi run -e learn task-check --device cpu --num-envs 2 --steps 10 --ppo 1 \
+  --out artifacts/learning-smoke
+pixi run -e learn export-policy --checkpoint artifacts/learning-smoke/model_smoke.pt \
+  --out artifacts/learning-bundle --fixture-steps 30
+pixi run policy-parity artifacts/learning-bundle
+```
+
+Commit the generated `pixi.lock` alongside the project source and `SOURCE.json`, clone the project into a fresh directory, then repeat with `--locked`. `check` proves the installed-package C++ build, 23-DoF model parity and bounded standing acceptance. The learning smoke and policy parity check the Python-only environment, model/action/observation mapping and sampled export conventions. None qualifies a learned gait, hardware operation or real-time deadlines. Interactive standing uses `pixi run stand --viser`; see the exported running guide for local/remote viewers.
+
+## Training assets
+
+Learning does not depend on the C++ package or a nearby Cyber Suite checkout. Its G1 assets ship in the project at the same relative paths the shared resolver accepts. Pixi starts commands in the project folder, which is the first data search root. For direct invocation from another directory, set `CYBER_SUITE_DATA_PATH` to the project folder. The snapshot includes generated model views, every referenced mesh, raw upstream descriptions, licenses and checksums; it is pinned to the same source revision as the initial package dependencies.
+
+When upgrading, update both Git dependency revisions together, deliberately review any asset changes, regenerate the lockfile and rerun the checks. `SOURCE.json` describes the initial export; subsequent project commits own intentional edits. A new robot follows the same data-search contract with its own project assets or an explicit `CYBER_SUITE_DATA_PATH`.
+
+## Status and CI
+
+Each app's `APP.md` and `VALIDATION.md` remain the project status authorities. Notes are working context. There is no duplicate per-project `CURRENT.md` to synchronize. Within Cyber Suite, root orientation discovers these contracts and active handoffs.
+
+Project CI is optional. Run the standalone checks manually before integrating changes; existing root CI covers the root build and governance. A later project CI job can invoke the same `pixi run --locked check` command without introducing another acceptance definition. No CI workflow is generated by the template.
+
+## Verified boundary
+
+The 2026-10-17 Ubuntu validation exported G1 from `c366b7e`, created an independent Git project, committed its generated lockfile and ran `pixi run --locked check` from a fresh clone. Installed-package compilation, 32-sample model parity and 10 s standing acceptance passed. The Python-only learning environment passed a one-update CPU smoke, export and C++ parity using project-local assets and a non-editable Git-installed Python distribution. This first check used local `file://` Git transport.
+
+After publishing `main`, a new export pinned to `00b2d09ac4ce9da88b7ac6fe67965ec658f61a25` fetched both dependencies through the default GitHub SSH URL. A fresh clone with its committed lockfile passed the standalone C++ build, 32-sample model parity, 10 s standing acceptance and two-environment CPU learning mapping smoke. Python installation metadata confirms the remote URL and revision, and assets resolve inside that clone. This verifies remote transport with the maintainer's existing access; students still need their own repository access. Logs are under repository-root `artifacts/robot_project_phase9/g1-remote-*`; the owning [walking](../../apps/unitree-g1/walking/VALIDATION.md) and [learning](../../apps/unitree-g1/learning/VALIDATION.md) validation documents state the physical limits.

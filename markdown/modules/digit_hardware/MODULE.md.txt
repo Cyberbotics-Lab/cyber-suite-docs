@@ -1,0 +1,94 @@
+---
+Status: experimental
+Owner: modules/digit_hardware
+Last verified: "2026-10-14 live LLAPI link against Agility's ar-control 2023.01.13a; SDK-free contract tests (17/17) and C++ API smoke"
+---
+
+# Digit Hardware
+
+## Purpose
+
+Provide SDK-free Digit LLAPI mapping, copied-limit validation, and guarded vendor-command encoding contracts, and the live LLAPI link that carries them to Agility's simulator or the robot. The module owns the audited 20-actuator and 10-passive-joint ABI representation, the command-staleness safety policy, and the one connection a process may hold. It also keeps hardware-neutral plant identity distinct from hardware map identity.
+
+## Public API
+
+- `contracts.hpp`: canonical name-to-LLAPI mapping, captured-packet conversion, a Digit-sized plant description and command request, immutable validated startup binding, vendor and effective copied limits, independent authority permits, and unacknowledged vendor-command representations.
+
+  Every type is sized to Digit's 20 actuators and 10 passive joints rather than to a generic maximum, so a wrong-sized description or command cannot be constructed. The generic plant-message contract this module used to import (`cyber_suite/runtime/plant_messages.hpp`, briefly `cyber_suite/robot/plant_messages.hpp`) is gone: it validated a wire packet no producer ever built.
+- `command_staleness.hpp`: `CommandStalenessPolicy` and `CommandStalenessGate`, the link's per-send safety decision, free of sockets and clocks. A command is re-sent unchanged up to `hold` (15 ms), replaced by the damping-only safe command up to `degrade` (25 ms), and after that the robot is released (`apply_command = false`) to its fallback operation mode, inside the robot's own 50 ms client timeout. The hold must outlast ordinary control-loop hiccups: the robot itself keeps applying a client's last command, and replacing it with the safe command drops all feedforward torque. A release latches against a recovered control loop until `rearm()`.
+- `llapi_link.hpp` (live target only): `LlapiLink`, the process's one LLAPI connection on its own thread, with `LlapiObservation` (the whole vendor observation, LLAPI order, SI units, quaternions w, x, y, z), `LlapiStamp`, `LlapiSubmission` (command plus safe command, both encoded) and `LlapiLinkReport`. The header is SDK-free; only the source includes Agility's.
+
+- `agility_mode_monitor.hpp` (live target only): `AgilityModeMonitor` reads Digit's operation mode (`AgilityOperationMode`) from Agility's JSON API (`ws://<robot>:8080`, subprotocol `json-v1-agility`) on its own thread, polling `get-robot-status` every 20 ms with a minimal WebSocket client. `start()` throws unless a first status arrives within 3 s; `mode()` is an atomic read for the control loop. A lost connection reads `Unknown` and reconnects. It never changes the mode. The low-level API itself cannot say whether the robot obeys its client; this tells a Plant when an operator's switch hands it the robot. `find_json_string_field` and `parse_agility_operation_mode` are its parsing helpers, enough for the flat status fields and no more.
+
+  Agility's client keeps one global publisher and subscriber, is not thread-safe, and allocates a buffer per received packet, so one thread owns every vendor call. It drains observations into a latest-value slot stamped with a sequence and receive time, and sends on its own period (1 ms), judging the control loop's last submission with the gate. The control loop only copies: `latest`, `wait_for` and `submit` go through single-writer sequence-locked slots, never touch the socket and do not allocate. Before any submission asks for torque the link sends `apply_command = false` keepalives, so the robot stays under its own controller while the client observes. `stop()` releases, sends a few releases, joins and frees the client. A second link in one process is refused. Sends are unacknowledged, as the vendor API is.
+
+## Dependencies
+
+The default target is C++20 standard library only. The live target `cyber_suite_digit_hardware_llapi` adds Threads and Agility's C client (`lowlevelapi.c`, `libartl`, bundled zstd; MIT and BSD), compiled from the agility_resources release folder (`CYBER_SUITE_AGILITY_RESOURCES`, default `$AGILITY_RESOURCES` or `~/Projects/agility_resources/current`) rather than copied, as that repository asks. Every source is pinned to release 2023.01.13a by SHA-256 at configure time; a different release fails configuration until it is reviewed.
+
+## Consumers
+
+- `apps/digit/walking`'s `LlapiPlant` (`--llapi`), the same CORTA Plant for Agility's simulator and the robot. See its [APP.md](../../apps/digit/walking/APP.md#agilitys-low-level-api).
+
+## Owned Examples
+
+- `examples/cpp/digit_hardware/llapi_link_check.cpp` (`digit_llapi_link_check`, live target): holds a pose through the link on Agility's test stand, then stops submitting on purpose and reports how the link held, degraded and released the robot, judged from the torque the robot reports applying. It speaks LLAPI order throughout and owns no robot workflow.
+- `examples/cpp/digit_hardware/llapi_latency_probe.cpp` (`digit_llapi_latency_probe`, live target): on Agility's test stand, holds a pose with a soft PD acting on every new observation, steps a feedforward torque on one joint (`--motor`, LLAPI order; default the left elbow) and reports, from the observation each step answered, when the robot reports the new torque and when the joint starts moving. `--dump FILE` writes the samples around each step for a fit. It measured the command delay recorded in `assets/robots/digit/config/drives.yaml`.
+- `tools/agility_mode.py`: reads or sets the operation mode through Agility's JSON API (`low-level-api`, `locomotion`, `damping`, `disabled`). It needs only `websockets`, and keeps the non-real-time takeover outside the control process.
+
+Hardware workflows remain app-owned.
+
+## Validation
+
+Captured-packet mapping, limit validation, mapping-identity, authority-revocation, vendor-encoding and command-staleness contract tests. Passing them does not establish a live LLAPI connection, command acceptance, real-time behavior, or hardware safety.
+
+Command freshness belongs to the link, which owns the clock: `CommandStalenessGate` decides by submission age, and its contract test pins the hold, degrade and latched-release boundaries.
+
+The live link is validated against Agility's simulator, never yet the robot. With `ar-control-2023` (2023.01.13a) on the workstation and its LLAPI test-stand configuration, `digit_llapi_link_check` connected, read the vendor limits (joint-side: knee 231.3 N·m, hip roll 113.0), held a pose with 0 late sends in 8,123 and observations at about 2 kHz, and through a 60 ms stall, with the 15 ms / 25 ms defaults, re-sent the old command 14 times (the robot kept applying the hold's −4.5 N·m), sent the safe command 10 times (applied torque fell to about −0.3 N·m under drive damping) and then released; a recovered loop did not retake the robot. An earlier 3 ms hold turned ordinary scheduling hiccups into torque dropouts on a standing robot (walking VALIDATION.md, 2026-10-14). Walking-app evidence is in its VALIDATION.md.
+
+In the same configuration `digit_llapi_latency_probe` found the torque the robot reports changing 3.5–8.0 ms after the observation it was computed from, median 5.5 ms over 22 steps, with the joint moving from then on (walking VALIDATION.md, 2026-10-14 drive and latency model). That is the simulator's delay through this link, not the robot's.
+
+```bash
+# terminal 1, in Agility's lowlevelapi example folder
+~/Projects/ar_control/ar-control-2023 lowlevelapi_example.toml lowlevelapi_example_teststand.toml
+# terminal 2
+build/default/modules/digit_hardware/digit_llapi_link_check --hold-s 8 --stall-ms 60
+# or the latency probe instead
+build/default/modules/digit_hardware/digit_llapi_latency_probe --steps 12 --dump artifacts/llapi_probe/latency.txt
+# terminal 3, once it prints "holding"
+pixi run python modules/digit_hardware/tools/agility_mode.py low-level-api
+```
+
+Run the focused current-source contract:
+
+```bash
+pixi run build --target \
+  cyber_suite_digit_hardware_apicheck \
+  test_digit_hardware_contracts
+pixi run test -R '^cyber_suite_digit_hardware\.contracts$' --output-on-failure
+```
+
+Startup first requires a runtime-valid `PlantDescription`. Its `mapping_id` is the canonical hardware-neutral plant identity derived from ordered active and passive plant names. The Digit motor and passive `mapping_hash` values separately identify canonical-name-to-LLAPI-index bindings. Startup validates the canonical plant ID, both hardware map hashes, exact canonical actuator/passive-name order, and copied `PlantDescription` torque/velocity/damping limits against the vendor envelope independently. Vendor-limit arrays are explicitly LLAPI-motor ordered and are looked up through the validated canonical-to-LLAPI map; effective limits in the startup token remain LLAPI-motor ordered and command checks use the bound map. A nonuniform permutation regression guards that distinction. Tests also require the canonical plant ID to differ from the motor map hash.
+
+`make_digit_startup_binding()` returns a `DigitStartupBinding` only after all startup checks pass. The token has no public or default constructor and is not assignable. It copies the canonical plant ID, audited motor and passive maps, and the effective limits from the narrower runtime `PlantDescription`; later changes to free-form startup inputs cannot change the binding.
+
+`Apply` requires a current runtime-valid packet and a matching independent authority permit. Runtime validation includes source, session, estimator and command-authority epochs, canonical plant ID, time basis, issue/expiry, and a bounded maximum validity duration. Encoding takes the validated binding rather than independent map/limit arguments, rejects either the validation context or command when its mapping ID differs from the bound canonical plant ID, and enforces the bound effective limits rather than the wider raw vendor envelope. Any out-of-envelope torque, velocity, or damping produces `PlantFault::LimitExceeded`; damping must also be nonnegative, and no field is silently clipped. A valid `Disarmed` or `Fallback` heartbeat encodes non-`Apply` intent even when authority is absent.
+
+The runtime packet is the sole fallback authority: `ZeroTorque` encodes Digit `Disabled`, `Damping` encodes Digit `Damping`, and `Unspecified`, `Hold`, or an unknown value fail closed. This SDK-free contract never infers Digit `Locomotion`.
+
+## Build
+
+The default target is SDK-free: it neither includes vendor LLAPI headers nor opens UDP sockets. `CYBER_SUITE_DIGIT_HARDWARE_LIVE_LLAPI` (`AUTO`, `ON`, `OFF`; default `AUTO`) adds the live target, the link check and Agility's client when the pinned sources exist on Linux; `AUTO` skips them otherwise, so machines without Agility's release still build. Settled on 2026-10-14 against the simulator: observation fields and frames (IMU in the sensor frame, joint angles in our MJCF's convention), the receive cadence (about 2 kHz), the 50 ms client timeout and 3 s error-shutdown delay, takeover through `low-level-api`, release through `apply_command = false`, and joint-side limits. Still open: robot identity, the robot's own timing and acknowledgement semantics (none exist), and anything only hardware shows.
+
+## Non-goals
+
+- Deciding when to take over the robot; the app requests torque and an operator switches the operation mode. The mode monitor only reads it.
+- A CORTA Plant, MuJoCo endpoint, graph scheduler, servo/planner executor, or logging drain.
+- Target-host hard-real-time, deadline, or safety qualification.
+- Estimation, planning, control, standing lifecycle policy, or operator UI.
+- Python hardware control, perception, automatic operation-mode switching, and robot tuning.
+- A `Locomotion` fallback encoding: the contract still never infers Digit `Locomotion`, so a dropped client falls back to `Damping`.
+
+## Live-session Rule
+
+`LlapiLink` enforces one exclusive process-local LLAPI session and reports vendor sends as issued, never as robot-acknowledged, because the vendor send API has no acceptance return value.

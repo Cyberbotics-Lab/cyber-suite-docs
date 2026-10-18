@@ -1,0 +1,10 @@
+config,campaign,condition,terrain,motion,seed,cmd_vy,vy,completed,end_reason
+policy,grid,nominal,flat,left_0.2,0,0.2,0.129616,1,completed
+policy,grid,nominal,flat,left_0.2,1,0.2,0.13666,1,completed
+policy,grid,nominal,flat,left_0.2,2,0.2,0.136238,1,completed
+alip,grid,nominal,flat,left_0.2,0,0.2,0.197065,1,completed
+alip,grid,nominal,flat,left_0.2,1,0.2,0.20026,1,completed
+alip,grid,nominal,flat,left_0.2,2,0.2,0.197787,1,completed
+dcm,grid,nominal,flat,left_0.2,0,0.2,0.197195,1,completed
+dcm,grid,nominal,flat,left_0.2,1,0.2,0.208508,1,completed
+dcm,grid,nominal,flat,left_0.2,2,0.2,0.205089,1,completed

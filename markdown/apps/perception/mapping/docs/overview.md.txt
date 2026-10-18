@@ -1,0 +1,35 @@
+---
+Status: working
+Owner: apps/perception/mapping
+Last reviewed: 2026-10-18
+Code anchors: apps/perception/mapping/APP.md, apps/perception/mapping/VALIDATION.md, modules/perception/MODULE.md
+---
+
+# Terrain mapping
+
+The mapping app exercises sensing, registration, elevation fusion and geometric products independently of a walking controller. It is a useful place to study what the perception stack knows, where its errors come from and what a downstream consumer would receive.
+
+## What the experiment contains
+
+Sensors follow prescribed trajectories over known terrain. The app controls acquisition, injected pose errors, oracle comparisons and recorded output. Shared simulation code supplies sensor/terrain mechanisms; shared perception code supplies pose registration, fusion, geometric regions, costmaps and occupancy products.
+
+This is a root-owned validation app rather than a separate robot Pixi project. Run its documented commands from the repository root. The [app contract](../APP.md) describes the composition and output, and [validation](../VALIDATION.md) gives the build/run commands, criteria and known failing cases.
+
+## Inspect a saved result
+
+After producing an output directory with the app's validation command:
+
+```bash
+pixi run python apps/perception/mapping/tools/view_results.py \
+  artifacts/perception_mapping --scene up-stairs
+pixi run python -m cyber_suite.perception.playback \
+  artifacts/perception_mapping/up-stairs.h5 --inspect
+```
+
+The first command generates an overview and opens native Rerun on the execution host. Add `--no-viewer` when producing files remotely without a display. The second inspects the saved product timeline. Product playback preserves recorded maps; it does not rerun sensor acquisition or fusion.
+
+## Questions this app can answer
+
+Inspect observed versus oracle elevation, missing regions, registration errors, uncertainty and geometric support regions. Then check how a query behaves at observed, stale or unknown locations. Keep geometric correctness separate from contact friction/load authority and from a walking improvement.
+
+The [state and perception explanation](../../../../docs/design/state-and-perception.md) connects these boundaries. Hardware calibration, autonomous localization and controller adoption require additional evidence beyond this standalone experiment.

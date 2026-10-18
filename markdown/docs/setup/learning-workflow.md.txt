@@ -1,0 +1,71 @@
+---
+Status: working
+Owner: apps/digit/learning, apps/tron1/learning, apps/unitree-g1/learning
+Last reviewed: 2026-10-18
+Code anchors: apps/digit/pixi.toml, apps/tron1/pixi.toml, apps/unitree-g1/pixi.toml, modules/policy/MODULE.md
+---
+
+# Train, inspect and export a policy
+
+A learning experiment has several distinct outputs: a valid task, a trained checkpoint, measured behavior and a deployable bundle. Treat them as separate steps. A high reward, a successful export and good walking answer different questions.
+
+## The experiment chain
+
+```mermaid
+flowchart TB
+    accTitle: From a learning task to deployment evaluation
+    accDescr: Check the task and model, train a checkpoint, inspect and evaluate it, export a bundle, check replay parity, then evaluate in the target Plant.
+    T["Check task and model"] --> R["Train a checkpoint"]
+    R --> E["Inspect and evaluate"]
+    E --> B["Export a bundle"]
+    B --> P["Check replay parity"]
+    P --> S["Evaluate in the target Plant"]
+```
+
+Training is owned by the robot app, using its `learn` environment. The default project environment supplies compiled deployment tools. The bundle records what observations mean, how actions become references and how references become actuator commands. The [deployment design](../design/learned-policy-deployment.md) explains why those links must remain explicit.
+
+## Choose a robot-specific starting point
+
+| Project | Starting point | Preserve when making a comparison |
+| --- | --- | --- |
+| G1 | The 23-DoF velocity task | Joint layout, model fingerprint, observation/action contract and timing |
+| Digit | The task matching your intended actuation model | Robot revision, ideal/drive assumptions, state source and policy contract |
+| TRON1 | Point-foot learning configuration | Robot cadence, contact geometry and point-foot landing metrics |
+
+Read the owning learning contract before choosing a task: [G1](../../apps/unitree-g1/learning/APP.md), [Digit](../../apps/digit/learning/APP.md) or [TRON1](../../apps/tron1/learning/APP.md). A robot's gains, cadence and foot objectives should not transfer merely because another robot's recipe worked.
+
+## A bounded G1 pipeline exercise
+
+From the repository root, run this in a fresh output directory:
+
+```bash
+cd apps/unitree-g1
+pixi run --locked -e learn task-check --device cpu --num-envs 2 \
+  --steps 10 --ppo 1 --out artifacts/learning-smoke
+pixi run --locked -e learn export-policy \
+  --checkpoint artifacts/learning-smoke/model_smoke.pt \
+  --out artifacts/learning-bundle --fixture-steps 30
+pixi run --locked policy-parity artifacts/learning-bundle
+```
+
+This exercise checks the task, a small update, export and sampled convention parity. It is not enough training to produce a useful gait. The [G1 learning validation](../../apps/unitree-g1/learning/VALIDATION.md) describes the tested boundary and missing physical qualification.
+
+For a substantive run, inspect the app's training options and resource requirements first:
+
+```bash
+pixi run --locked -e learn train --help
+pixi run --locked -e learn evaluate --help
+pixi run --locked -e learn play --help
+```
+
+Digit's [OSC workflow](../../apps/digit/learning/OSC_WORKFLOW.md) explains container, scheduler and checkpoint ownership for cluster training. A submitted job or successful container startup is environment evidence, not a learning result.
+
+## Preserve the comparison
+
+Keep the baseline checkpoint, effective environment and agent configuration, source revision, model identity and evaluation schedule. For reward work, preserve the observation, action and PD contracts unless changing one is the explicit experiment. Use fixed evaluation conditions and report failures as well as tracking, stopping, effort and landing behavior.
+
+An exporter can reject an old run because today's model or contract differs from the saved training configuration. Reproduce export from the matching source revision or deliberately reconcile the difference; do not remove the check just to obtain an ONNX file.
+
+## What parity does and does not establish
+
+Replay parity compares the trainer's recorded observation, inference, decoding and action-realization chain with deployment. It catches frame, ordering, scaling and control-law mismatches. Physical evaluation asks whether the target Plant receives suitable commands and achieves the behavior under its timing and actuation assumptions. Both are needed before making a deployment claim.

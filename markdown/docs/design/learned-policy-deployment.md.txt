@@ -1,0 +1,75 @@
+---
+Status: working
+Owner: modules/policy
+Last verified: 2026-10-15
+Code anchors: modules/policy/MODULE.md, modules/policy/include/cyber_suite/policy/contract.hpp,
+  modules/policy/include/cyber_suite/policy/joint_pd.hpp, python/cyber_suite/policy/bundle.py,
+  python/cyber_suite/policy/parity.py, python/cyber_suite_mjlab/export.py,
+  apps/digit/learning/digit_learning/contract.py, modules/digit_hardware/MODULE.md
+Supersedes: none
+Superseded by: none
+---
+
+# Deploying A Learned Policy
+
+Any project, for any robot, can train a policy its own way and deploy it with the controller it chooses. The repository holds every project to two things: the robot's plant command boundary, and replay parity between what training computed and what deployment computes. Everything else here is a library a project may use, never a framework it must fit. The module contract is [`modules/policy/MODULE.md`](../../modules/policy/MODULE.md); the plan that produced this design is [the deployment-layer plan](../../notes/plans/2026-10-15-policy-deployment-layer.md).
+
+## The Chain
+
+A deployed learned controller is a chain of links. Each link has a kind, and the kind's owner implements it in both training and deployment.
+
+| Link | What it does | Implemented now | Owner |
+| --- | --- | --- | --- |
+| Plant boundary | Reads sensors; enforces command limits, authority and staleness | `modules/digit_hardware` | The robot's hardware module (required) |
+| State source | Supplies base and joint state | MuJoCo truth, the InEKF | Project |
+| Observation | Turns state and commands into model inputs | Seven proprioceptive terms and the velocity command | `modules/policy` for these terms; project terms are reserved |
+| Model | Evaluates the network | One ONNX model, [1, N] to [1, M] | `modules/policy` runtime |
+| Decode | Turns model output into references | `joint_affine` (joint targets) | Module for `joint_affine`, project for its own |
+| Realization | Turns references into actuator commands | `joint_pd`, with each term placed in the controller or the actuator | Module for `joint_pd`, project for its own (a posture task in TAC-QP, a task-space QP) |
+| Deployment additions | Anything training never saw | The TAC-QP torque filter (Experiment 0) | Project, never in the contract |
+
+Four rules follow:
+
+1. **The contract describes training as it was.** It records every link from observation to realization as training computed it. A deployment-only addition, such as a safety filter, is the deploying app's choice; its scenarios validate it, not parity.
+2. **The module is a library.** `modules/policy` implements common kinds and never calls project code. A project's controller calls the library; there is no registry, plug-in loader or base class to inherit.
+3. **Kinds are namespaced by owner.** A bare kind (`joint_pd`) belongs to the module. A dotted kind (`digit.pose_task`) belongs to the project named before the dot: the loader keeps its parameters as YAML text, and its project parses and implements it.
+4. **A kind moves into the module when a second project deploys it**, the learning roadmap's rule that a contract stays `candidate` until a second consumer uses it, applied per kind.
+
+## What A Project Must Do
+
+1. **Command through the robot's plant boundary.** Every controller, learned or not, ends in the robot's hardware module, which owns the plant description, limits, authority and command staleness. A new robot's first hardware module defines these for it; a shared plant type across robots waits for a second hardware module.
+2. **Ship a bundle that passes parity.** Write `policy_contract.yaml`, the model and `parity_fixture.npz`, then run `pixi run policy-parity BUNDLE`. Every kind must have a stage: the module's kinds bring theirs, and a project kind brings a stage file (`--stage KIND=FILE`). A kind without one fails as unchecked.
+
+A project that does not deploy owes nothing.
+
+## Choosing A Realization
+
+`joint_pd` covers a PD law split between host and drive. Its two placements and two clamps describe:
+
+| Plant | Stiffness | Damping | Example |
+| --- | --- | --- | --- |
+| Ideal simulator | controller | controller | MuJoCo position actuators; TRON1, G1 and Digit without drives |
+| Drives that damp | controller | actuator | Digit through Agility's LLAPI (`-Drives` tasks) |
+| Driver PD | actuator | actuator | Motor drivers that take kp and kd per command |
+
+Delay is not in the contract: training randomizes it because the hardware has it, and deployment adds none. Provenance records it, as it records training noise.
+
+A deploying app checks the placement against its plant. The Digit walking servo refuses a version 2 bundle whose damping placement differs from the plant's unless `--realization-override` is given, and records the override in its telemetry. A version 1 contract records no placement and is not refused.
+
+When a policy's actions mean something else, for example joint targets realized as a posture task in a whole-body QP, keep `joint_affine` and write a project realization. When the decode differs too, for example task-space requests, write a project decode with its output `size`. In both cases the project's controller implements the kind, and its stage file checks the parts training and deployment share; a solve that adds constraints training did not have is checked by scenarios.
+
+## What A New Robot Or Trainer Needs
+
+| Need | Where | Reuse |
+| --- | --- | --- |
+| Robot assets | `assets/robots/<robot>/` | none |
+| Plant boundary | A hardware module for the robot | Copy the shape of `modules/digit_hardware`, not its types |
+| Training | The project's learning app | Any trainer |
+| Bundle | The project's exporter | `cyber_suite.policy.bundle`; with mjlab, `python/cyber_suite_mjlab` (TRON1 and G1 use it as is, Digit extends it in `digit_learning/contract.py`) |
+| Deployment | The project's controller | `ObservationBuilder`, `ActionDecoder`, `JointPdLaw`, `OnnxPolicy`, or the project's own kinds |
+
+A trainer other than mjlab gets its own adapter package beside `cyber_suite_mjlab`; the module does not change.
+
+## Reserved For First Consumers
+
+Version 2 writes these into the schema and rejects them until a project needs them: per-term history, scale and clip; project observation terms; several named model inputs and outputs and tensor shapes; recurrent state; several models at several rates. Each is built when its first consumer arrives, as listed in the plan's phase 5.

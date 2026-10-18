@@ -1,0 +1,241 @@
+---
+Status: canonical
+Owner: apps/digit/learning
+Last verified: 2026-10-18
+Code anchors: apps/digit/learning/container/learn.def,
+  apps/digit/learning/container/build.sh,
+  apps/digit/learning/container/learn-exec.sh,
+  apps/digit/learning/container/job.sh,
+  apps/digit/learning/tools/train.py,
+  apps/digit/pixi.lock
+---
+
+# Running Digit Learning at OSC: Architecture and Workflow
+
+This is the orientation for someone new to running code on a cluster. It explains what the pieces at the Ohio Supercomputer Center (OSC) are, how a training run travels from the workstation to a GPU and back, and what to do after each kind of change. The exact, checked procedure is the [OSC deployment guide](OSC_DEPLOYMENT.md); what has been demonstrated, with job IDs and checksums, is in [VALIDATION.md](VALIDATION.md#osc-apptainer-environment). Where this document and the guide differ, the guide wins.
+
+## The Core Idea
+
+OSC is a shared building of thousands of computers. Nobody runs heavy work on them directly. You write a request: "one GPU, 8 CPU cores and 64 GB of memory for 5 hours, and run this command". A scheduler called Slurm queues the request with everyone else's and starts the command on a free machine when its turn comes. You are not watching when it runs; everything the program prints goes to a log file you read during or after the run.
+
+On the workstation the GPU sits idle whenever nobody is using it. On a cluster the scheduler keeps every GPU busy by making jobs wait their turn. The wait is the price of having hundreds of GPUs.
+
+## The Pieces
+
+```mermaid
+flowchart LR
+    WS["Ubuntu workstation<br/>edit, commit, bundle"]
+    subgraph OSC["OSC: Ascend and Cardinal share storage"]
+        TR["Transfer host<br/>sftp.osc.edu, files only"]
+        LN["Login node<br/>submit and monitor"]
+        Q["Slurm queue<br/>waits for resources"]
+        subgraph CN["Compute node, GPU or CPU"]
+            C["Container image (SIF)<br/>locked Python environment"]
+            W["/workspace<br/>your checkout, mounted"]
+        end
+        ST[("Home and scratch storage")]
+    end
+    WS -- "rsync" --> TR
+    TR --> ST
+    WS -- "ssh" --> LN
+    LN -- "sbatch" --> Q
+    Q -- "starts job" --> CN
+    CN -- "logs, checkpoints" --> ST
+```
+
+| Machine | Analogy | What you do there | SSH alias on the workstation |
+| --- | --- | --- | --- |
+| Workstation | Your desk | Edit and commit code, pack it, upload it, evaluate results | |
+| Transfer host (`sftp.osc.edu`) | Loading dock | Copy files in and out; it cannot submit jobs | `osc-transfer` |
+| Login node | Front desk | Look at files, submit and check jobs. It is shared by everyone, so never train or build here | `osc-ascend`, `osc-cardinal` |
+| Slurm | Booking system | Holds each request until resources are free, then starts it | |
+| Compute node | Lab bench | Runs the job. You never log in to it; Slurm puts your command there | |
+
+Ascend and Cardinal are two separate clusters, each with its own login nodes and queue. Ascend's GPUs are A100s (40 GB); Cardinal's are H100s (93 GB), and Cardinal also has CPU-only nodes. They share the same home and scratch storage, so anything uploaded once is visible from both. Every request is charged to the project account `pas2483`.
+
+## Where Files Live
+
+| Place | Path | Use it for | Caution |
+| --- | --- | --- | --- |
+| Home | `/users/PAS2483/hereidayonga` (`~`, `$HOME`) | Code checkouts, container images, job logs | Moderate quota; backed up |
+| Scratch | `/fs/scratch/PAS2483/hereidayonga` | Training runs, checkpoints, anything large | Not backed up and purged over time; copy keepers home |
+| Job temporary | `$TMPDIR` inside a job | Caches a job needs only while it runs | Deleted when the job ends |
+
+Everything for this repository sits in one folder in each place, so the home directory stays readable and other projects stay separate:
+
+```text
+~/cyber-suite/
+  images/      container images, cyber-learn-<lock>.sif and its .sha256
+  checkouts/   one clean Git clone per run, named <topic>-<commit>
+  inbox/       bundles and files arriving from the workstation; delete once unpacked
+  logs/        Slurm logs, named <job-name>-<job-id>.out
+/fs/scratch/PAS2483/hereidayonga/cyber-suite/
+  runs/<experiment>/<run>/   all training output, including runs to resume from
+```
+
+Pass `--output=$HOME/cyber-suite/logs/%x-%j.out` to every `sbatch` (`%x` is the job name, `%j` its ID) and `--log-root /fs/scratch/PAS2483/hereidayonga/cyber-suite/runs` to every training command, and the layout keeps itself.
+
+## Slurm: Asking for a Machine
+
+A job is submitted with `sbatch`. The training request of 2026-10-14, part by part:
+
+| Part | Meaning |
+| --- | --- |
+| `sbatch` | Schedule this job |
+| `-A pas2483` | The account the hours are charged to |
+| `-p gpu` | The partition: a queue for one kind of machine. Cardinal has `gpu`, `cpu` and `debug`; Ascend has `nextgen`, `longgpu` and `debug-nextgen` |
+| `--time=05:00:00` | Hard limit. At 5 hours Slurm stops the job, finished or not |
+| `--cpus-per-task=8 --mem=64G` | CPU cores and memory. `job.sh` itself asks for one GPU |
+| `--job-name=digit-drives-ft` | The name shown in the queue |
+| `--output=$HOME/cyber-suite/logs/%x-%j.out` | Where everything printed goes; `%x` becomes the job name and `%j` the job ID |
+| `--dependency=afterok:15517536` | Start only after that job finished successfully |
+| `job.sh IMAGE CHECKOUT -- COMMAND` | Run `COMMAND` inside the container, with `CHECKOUT` mounted at `/workspace` and the Digit project (`/workspace/apps/digit`) as its working folder |
+
+A job moves through these states:
+
+| State | Meaning |
+| --- | --- |
+| `PENDING` | Waiting. The reason column says why: `Priority` (others are ahead), `Resources` (next in line, waiting for a machine to free up), `Dependency` (waiting for another job) |
+| `RUNNING` | On a compute node now |
+| `COMPLETED` | Finished with exit code 0 |
+| `FAILED` | The command exited with an error; read the log |
+| `TIMEOUT` | Hit its time limit |
+| `CANCELLED` | Stopped with `scancel` (or by an administrator) |
+
+How long a job waits depends on how busy the partition is and on the account's priority. Priority drops as the account uses more hours recently ("fair share"). Shorter time limits start sooner, because the scheduler can fit them into gaps before big jobs it has already planned ("backfill"). The `debug` partitions take jobs of at most one hour and start them quickly; they are meant for tests, not training.
+
+## The Container
+
+OSC's machines run Red Hat Linux with OSC's software. Training needs exact versions of Python, PyTorch, CUDA, MuJoCo Warp and mjlab. The container image, a single `.sif` file of about 3.5 GB, is a sealed box holding that environment. Apptainer, the HPC counterpart of Docker that needs no administrator rights, opens it on the compute node.
+
+| In the image | Not in the image |
+| --- | --- |
+| The Digit project's `learn` Pixi environment, installed from `apps/digit/pixi.toml` and `apps/digit/pixi.lock` | Any repository source code |
+| `cyber-learn-exec`, the launcher (`learn-exec.sh`) | Checkpoints, runs, terrain banks |
+| Git, for training provenance | Compiled C++ from this repository |
+
+At run time `job.sh` mounts a checkout at `/workspace` inside the container, and Python imports `digit_learning` from there. Two consequences follow:
+
+- **Code changes need no new image.** Only a change to `apps/digit/pixi.lock`, `learn.def` or `learn-exec.sh` does. The launcher compares the checkout's `apps/digit/pixi.lock` with the one baked into the image and refuses to start on a mismatch, so a run can never silently use different packages than its commit records.
+- **The checkout is live, not copied.** A queued job runs whatever its checkout holds when it starts, and a running one can import later edits. Never change a checkout a queued or running job uses; make a new checkout per run.
+
+Images are named for the lock they bake: `cyber-learn-489340876024.sif` holds the Digit project lock whose SHA-256 starts `489340876024`. A `.sif.sha256` file beside each image lets `sha256sum -c` prove the bytes are intact. Several images can sit side by side in `images/`, one per lock still in use. Since 2026-10-17 the project-lock image serves migrated checkouts; the older `cyber-learn-68b626462c4e.sif` remains for the pre-project `drives-5fcea50` checkout. Delete an image, with its `.sha256`, only once no checkout you still run has its lock.
+
+## The Workflow
+
+### What Each Change Requires
+
+| What changed | What OSC needs |
+| --- | --- |
+| Learning code, rewards, task configs, docs | A new or updated checkout: send a Git bundle (below) |
+| `job.sh` | Nothing more; jobs run the checkout's own copy |
+| `apps/digit/pixi.lock` (a dependency added or updated) | A new image, built at OSC (below), and a smoke job |
+| `learn.def` or `learn-exec.sh` | A new image and a smoke job |
+| Nothing, but a new run | A fresh run name; reuse the checkout and image |
+
+### 1. Send the Code
+
+The workstation packs committed history into a Git bundle, a single file that the transfer host carries into the inbox. A bundle holds commits only, so commit first; uncommitted edits do not travel.
+
+```bash
+git bundle create /tmp/cyber-suite-BRANCH.bundle BRANCH
+rsync -a /tmp/cyber-suite-BRANCH.bundle osc-transfer:~/cyber-suite/inbox/
+```
+
+On a login node, clone it into a new checkout named for its topic and commit, then delete the bundle:
+
+```bash
+git clone -b BRANCH ~/cyber-suite/inbox/cyber-suite-BRANCH.bundle ~/cyber-suite/checkouts/TOPIC-COMMIT
+git -C ~/cyber-suite/checkouts/TOPIC-COMMIT rev-parse HEAD
+```
+
+Later commits can travel as a small incremental bundle (`git bundle create x.bundle OLD..BRANCH`), fetched into a checkout that no job is using: `git fetch x.bundle BRANCH && git merge --ff-only FETCH_HEAD`. Inputs Git ignores, such as a checkpoint to resume from, go through the inbox as well; place them in the scratch run tree, where a resumed run looks for them (`runs/<experiment>/<run>/model_N.pt`).
+
+### 2. Build an Image, Only When Dependencies Change
+
+Since 2026-10-14 the workstation cannot build the image: Ubuntu 24.04's AppArmor setting blocks the unprivileged build. It is built at OSC instead, from the checkout, in a Cardinal CPU job (about 3 minutes); the image lands in the shared home, so nothing large crosses the network. The command is in the [deployment guide](OSC_DEPLOYMENT.md#2-build-or-update-the-image).
+
+### 3. Smoke, Then Train
+
+A smoke job is a one- or two-minute run on a `debug` partition that proves the image, the GPU, the scratch path and the task work together before hours are spent. Chaining the training to it with `--dependency=afterok:SMOKE_ID` queues both at once: training starts only if the smoke passes. A training command looks like the one in the [worked example](#worked-example-the-drive-fine-tune); every run writes to its own folder under scratch through `--log-root`.
+
+Choose the time limit from the expected run length plus a margin, not a large round number: a longer limit waits longer in the queue. A run that hits its limit is not lost. It saves a checkpoint every 50 iterations and can continue with `--agent.resume True --agent.load-run RUN_FOLDER --agent.load-checkpoint model_N.pt`.
+
+### 4. Watch and Collect
+
+Log out freely; jobs keep running. Check them from a login node or from [OSC OnDemand](https://ondemand.osc.edu), OSC's web portal, whose file browser, active-jobs page and browser terminal need no setup. When a run ends, confirm `COMPLETED` with `sacct` and read the end of its log, then copy the run folder home through the transfer host:
+
+```bash
+rsync -a osc-transfer:/fs/scratch/PAS2483/hereidayonga/cyber-suite/runs/EXPERIMENT/RUN learning/checkpoints/runs/EXPERIMENT/
+```
+
+Evaluation and export then run on the workstation as for a local run: `evaluate`, `export-policy`, `policy-parity` ([VALIDATION.md](VALIDATION.md#commands)). The tools read the task from the run's saved configuration.
+
+## Worked Example: the Drive Fine-Tune
+
+The 2026-10-14 run fine-tuned `model_16800` under the LLAPI drive model for 2000 iterations ([VALIDATION.md](VALIDATION.md), 2026-10-14 entries). It ran before OSC was organized into the layout above; the paths below are where its pieces live now.
+
+| Step | Where | What |
+| --- | --- | --- |
+| Pack | Workstation | Bundle of branch `claude/hardware-deployment-ui-b4220c` (87 MB) and `model_16800.pt` |
+| Upload | Transfer host | Both into home; SHA-256 checked on arrival |
+| Unpack | Ascend login node | Checkout `~/cyber-suite/checkouts/drives-5fcea50`; checkpoint copied to `/fs/scratch/PAS2483/hereidayonga/cyber-suite/runs/digit_velocity_cadence/2026-10-12_20-32-06_arm-refine-r1/` |
+| Image | Cardinal `cpu` node | Job `15516729` failed (apt under OSC's fakeroot); fixed in `learn.def`; job `15516744` built `~/cyber-suite/images/cyber-learn-68b626462c4e.sif` |
+| Update | Ascend login node | The fix arrived as an incremental bundle; the checkout fast-forwarded to `5fcea50`, clean |
+| Smoke | Ascend `debug-nextgen`, Cardinal `debug` | Jobs `7841114` (A100) and `15517536` (H100) passed |
+| Train | Cardinal `gpu` | Job `15517537`, after the smoke. Ascend job `7841309` waited on priority and was cancelled before it started |
+
+The training command at the historical `5fcea50` checkout uses its root working directory and root-lock image. For current project paths and images, follow the [deployment guide](OSC_DEPLOYMENT.md):
+
+```bash
+SRC=$HOME/cyber-suite/checkouts/drives-5fcea50
+sbatch -A pas2483 -p gpu --time=05:00:00 --cpus-per-task=8 --mem=64G \
+  --job-name=digit-drives-ft --output=$HOME/cyber-suite/logs/%x-%j.out \
+  $SRC/apps/digit/learning/container/job.sh \
+  $HOME/cyber-suite/images/cyber-learn-68b626462c4e.sif $SRC -- \
+  python apps/digit/learning/tools/train.py Digit-Velocity-Flat-Cadence-1ms-Drives \
+  --env.scene.num-envs 4096 --log-root /fs/scratch/PAS2483/hereidayonga/cyber-suite/runs \
+  --agent.experiment-name digit_velocity_cadence --agent.resume True \
+  --agent.load-run 2026-10-12_20-32-06_arm-refine-r1 --agent.load-checkpoint model_16800.pt \
+  --agent.max-iterations 2000 --agent.run-name drives-ft
+```
+
+The run reuses the experiment name `digit_velocity_cadence` because mjlab looks for the checkpoint to resume inside the experiment's own folder.
+
+## Commands at a Glance
+
+Run these on a login node (`ssh osc-cardinal` or `ssh osc-ascend`) unless the column says otherwise.
+
+| Command | What it does |
+| --- | --- |
+| `squeue -u $USER` | Your waiting and running jobs |
+| `squeue -j JOB --start` | Slurm's estimated start time for a pending job |
+| `sacct -j JOB -X --format=JobID,State,ExitCode,Elapsed,NodeList` | A job's final state, also after it ends |
+| `tail -f ~/cyber-suite/logs/NAME-JOB.out` | Follow a log live; Ctrl+C stops watching, not the job |
+| `scancel JOB` | Cancel a job |
+| `sinfo -p PARTITION` | How busy a partition's nodes are |
+| `sha256sum -c FILE.sha256` | Prove an uploaded file arrived intact |
+| `rsync -a FILE osc-transfer:~/cyber-suite/inbox/` (workstation) | Upload a file to the inbox |
+| `exit` | Log out; jobs keep running |
+
+## Rules of Thumb
+
+- Never train, build or run anything heavy on a login node.
+- Keep everything for this repository under `~/cyber-suite/` and the scratch `cyber-suite/runs/`; empty the inbox after unpacking.
+- One checkout per run, named `<topic>-<commit>`; never edit a checkout a queued or running job uses.
+- Write runs to scratch with `--log-root`, and copy anything worth keeping home.
+- Smoke-test every new image on the GPU type that will train with it.
+- Ask for the time a run needs plus a margin; resume rather than over-ask.
+- Check a job's outcome with `sacct` and its log before believing it.
+
+## When Something Goes Wrong
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Log says "The checkout apps/digit/pixi.lock differs from this image" | The checkout's dependencies differ from the image's | Build an image from that checkout (step 2); never bypass the check |
+| `PENDING (Priority)` for hours | Busy partition, low fair share | Wait, shorten the time limit, or use the other cluster |
+| `PENDING (DependencyNeverSatisfied)` | The job it depends on failed | Read that job's log, fix, resubmit both; `scancel` the stuck one |
+| `TIMEOUT` | The run outgrew its limit | Resume from its last `model_N.pt` |
+| Image build: `Couldn't create temporary file /tmp/apt.conf...` | apt under fakeroot without subordinate IDs | Fixed in `learn.def` on 2026-10-14; rebuild from a checkout at or after `5fcea50` |
+| Workstation build: "Failed to create mount namespace" | Ubuntu 24.04 blocks unprivileged user namespaces | Build at OSC instead |
+| `torch.cuda.is_available()` is false | The job has no GPU, or the container lacks `--nv` | Submit to a GPU partition through `job.sh`, which passes `--nv` and asks for one GPU |

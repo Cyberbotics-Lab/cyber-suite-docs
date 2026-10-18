@@ -1,0 +1,2547 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/apps/digit/learning/OSC_WORKFLOW.html">
+      
+      
+        <link rel="prev" href="../../../docs/setup/remote-development.html">
+      
+      
+        <link rel="next" href="../docs/overview.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Training at OSC - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/project.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#running-digit-learning-at-osc-architecture-and-workflow" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Training at OSC
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="OSC_WORKFLOW.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-idea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Core Idea
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pieces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Pieces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-files-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where Files Live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slurm-asking-for-a-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slurm: Asking for a Machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Container
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-each-change-requires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Each Change Requires
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-send-the-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Send the Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-build-an-image-only-when-dependencies-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Build an Image, Only When Dependencies Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-smoke-then-train" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Smoke, Then Train
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-watch-and-collect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Watch and Collect
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-example-the-drive-fine-tune" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked Example: the Drive Fine-Tune
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands at a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rules-of-thumb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules of Thumb
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-something-goes-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Something Goes Wrong
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-idea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Core Idea
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-pieces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Pieces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-files-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where Files Live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slurm-asking-for-a-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slurm: Asking for a Machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Container
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-each-change-requires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Each Change Requires
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-send-the-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Send the Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-build-an-image-only-when-dependencies-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Build an Image, Only When Dependencies Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-smoke-then-train" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Smoke, Then Train
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-watch-and-collect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Watch and Collect
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-example-the-drive-fine-tune" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked Example: the Drive Fine-Tune
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands at a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rules-of-thumb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules of Thumb
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-something-goes-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Something Goes Wrong
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">canonical</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../../markdown/apps/digit/learning/OSC_WORKFLOW.md.txt" download="OSC_WORKFLOW.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="running-digit-learning-at-osc-architecture-and-workflow">Running Digit Learning at OSC: Architecture and Workflow<a class="headerlink" href="#running-digit-learning-at-osc-architecture-and-workflow" title="Permanent link">&para;</a></h1>
+<p>This is the orientation for someone new to running code on a cluster. It explains what the pieces at the Ohio Supercomputer Center (OSC) are, how a training run travels from the workstation to a GPU and back, and what to do after each kind of change. The exact, checked procedure is the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/OSC_DEPLOYMENT.md">OSC deployment guide</a>; what has been demonstrated, with job IDs and checksums, is in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md#osc-apptainer-environment">VALIDATION.md</a>. Where this document and the guide differ, the guide wins.</p>
+<h2 id="the-core-idea">The Core Idea<a class="headerlink" href="#the-core-idea" title="Permanent link">&para;</a></h2>
+<p>OSC is a shared building of thousands of computers. Nobody runs heavy work on them directly. You write a request: "one GPU, 8 CPU cores and 64 GB of memory for 5 hours, and run this command". A scheduler called Slurm queues the request with everyone else's and starts the command on a free machine when its turn comes. You are not watching when it runs; everything the program prints goes to a log file you read during or after the run.</p>
+<p>On the workstation the GPU sits idle whenever nobody is using it. On a cluster the scheduler keeps every GPU busy by making jobs wait their turn. The wait is the price of having hundreds of GPUs.</p>
+<h2 id="the-pieces">The Pieces<a class="headerlink" href="#the-pieces" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    WS["Ubuntu workstation&lt;br/&gt;edit, commit, bundle"]
+    subgraph OSC["OSC: Ascend and Cardinal share storage"]
+        TR["Transfer host&lt;br/&gt;sftp.osc.edu, files only"]
+        LN["Login node&lt;br/&gt;submit and monitor"]
+        Q["Slurm queue&lt;br/&gt;waits for resources"]
+        subgraph CN["Compute node, GPU or CPU"]
+            C["Container image (SIF)&lt;br/&gt;locked Python environment"]
+            W["/workspace&lt;br/&gt;your checkout, mounted"]
+        end
+        ST[("Home and scratch storage")]
+    end
+    WS -- "rsync" --&gt; TR
+    TR --&gt; ST
+    WS -- "ssh" --&gt; LN
+    LN -- "sbatch" --&gt; Q
+    Q -- "starts job" --&gt; CN
+    CN -- "logs, checkpoints" --&gt; ST</code></pre>
+<table>
+<thead>
+<tr>
+<th>Machine</th>
+<th>Analogy</th>
+<th>What you do there</th>
+<th>SSH alias on the workstation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Workstation</td>
+<td>Your desk</td>
+<td>Edit and commit code, pack it, upload it, evaluate results</td>
+<td></td>
+</tr>
+<tr>
+<td>Transfer host (<code>sftp.osc.edu</code>)</td>
+<td>Loading dock</td>
+<td>Copy files in and out; it cannot submit jobs</td>
+<td><code>osc-transfer</code></td>
+</tr>
+<tr>
+<td>Login node</td>
+<td>Front desk</td>
+<td>Look at files, submit and check jobs. It is shared by everyone, so never train or build here</td>
+<td><code>osc-ascend</code>, <code>osc-cardinal</code></td>
+</tr>
+<tr>
+<td>Slurm</td>
+<td>Booking system</td>
+<td>Holds each request until resources are free, then starts it</td>
+<td></td>
+</tr>
+<tr>
+<td>Compute node</td>
+<td>Lab bench</td>
+<td>Runs the job. You never log in to it; Slurm puts your command there</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Ascend and Cardinal are two separate clusters, each with its own login nodes and queue. Ascend's GPUs are A100s (40 GB); Cardinal's are H100s (93 GB), and Cardinal also has CPU-only nodes. They share the same home and scratch storage, so anything uploaded once is visible from both. Every request is charged to the project account <code>pas2483</code>.</p>
+<h2 id="where-files-live">Where Files Live<a class="headerlink" href="#where-files-live" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Place</th>
+<th>Path</th>
+<th>Use it for</th>
+<th>Caution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Home</td>
+<td><code>/users/PAS2483/hereidayonga</code> (<code>~</code>, <code>$HOME</code>)</td>
+<td>Code checkouts, container images, job logs</td>
+<td>Moderate quota; backed up</td>
+</tr>
+<tr>
+<td>Scratch</td>
+<td><code>/fs/scratch/PAS2483/hereidayonga</code></td>
+<td>Training runs, checkpoints, anything large</td>
+<td>Not backed up and purged over time; copy keepers home</td>
+</tr>
+<tr>
+<td>Job temporary</td>
+<td><code>$TMPDIR</code> inside a job</td>
+<td>Caches a job needs only while it runs</td>
+<td>Deleted when the job ends</td>
+</tr>
+</tbody>
+</table>
+<p>Everything for this repository sits in one folder in each place, so the home directory stays readable and other projects stay separate:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>~/cyber-suite/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  images/      container images, cyber-learn-&lt;lock&gt;.sif and its .sha256
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  checkouts/   one clean Git clone per run, named &lt;topic&gt;-&lt;commit&gt;
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  inbox/       bundles and files arriving from the workstation; delete once unpacked
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  logs/        Slurm logs, named &lt;job-name&gt;-&lt;job-id&gt;.out
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>/fs/scratch/PAS2483/hereidayonga/cyber-suite/
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  runs/&lt;experiment&gt;/&lt;run&gt;/   all training output, including runs to resume from
+</code></pre></div>
+<p>Pass <code>--output=$HOME/cyber-suite/logs/%x-%j.out</code> to every <code>sbatch</code> (<code>%x</code> is the job name, <code>%j</code> its ID) and <code>--log-root /fs/scratch/PAS2483/hereidayonga/cyber-suite/runs</code> to every training command, and the layout keeps itself.</p>
+<h2 id="slurm-asking-for-a-machine">Slurm: Asking for a Machine<a class="headerlink" href="#slurm-asking-for-a-machine" title="Permanent link">&para;</a></h2>
+<p>A job is submitted with <code>sbatch</code>. The training request of 2026-10-14, part by part:</p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sbatch</code></td>
+<td>Schedule this job</td>
+</tr>
+<tr>
+<td><code>-A pas2483</code></td>
+<td>The account the hours are charged to</td>
+</tr>
+<tr>
+<td><code>-p gpu</code></td>
+<td>The partition: a queue for one kind of machine. Cardinal has <code>gpu</code>, <code>cpu</code> and <code>debug</code>; Ascend has <code>nextgen</code>, <code>longgpu</code> and <code>debug-nextgen</code></td>
+</tr>
+<tr>
+<td><code>--time=05:00:00</code></td>
+<td>Hard limit. At 5 hours Slurm stops the job, finished or not</td>
+</tr>
+<tr>
+<td><code>--cpus-per-task=8 --mem=64G</code></td>
+<td>CPU cores and memory. <code>job.sh</code> itself asks for one GPU</td>
+</tr>
+<tr>
+<td><code>--job-name=digit-drives-ft</code></td>
+<td>The name shown in the queue</td>
+</tr>
+<tr>
+<td><code>--output=$HOME/cyber-suite/logs/%x-%j.out</code></td>
+<td>Where everything printed goes; <code>%x</code> becomes the job name and <code>%j</code> the job ID</td>
+</tr>
+<tr>
+<td><code>--dependency=afterok:15517536</code></td>
+<td>Start only after that job finished successfully</td>
+</tr>
+<tr>
+<td><code>job.sh IMAGE CHECKOUT -- COMMAND</code></td>
+<td>Run <code>COMMAND</code> inside the container, with <code>CHECKOUT</code> mounted at <code>/workspace</code> and the Digit project (<code>/workspace/apps/digit</code>) as its working folder</td>
+</tr>
+</tbody>
+</table>
+<p>A job moves through these states:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PENDING</code></td>
+<td>Waiting. The reason column says why: <code>Priority</code> (others are ahead), <code>Resources</code> (next in line, waiting for a machine to free up), <code>Dependency</code> (waiting for another job)</td>
+</tr>
+<tr>
+<td><code>RUNNING</code></td>
+<td>On a compute node now</td>
+</tr>
+<tr>
+<td><code>COMPLETED</code></td>
+<td>Finished with exit code 0</td>
+</tr>
+<tr>
+<td><code>FAILED</code></td>
+<td>The command exited with an error; read the log</td>
+</tr>
+<tr>
+<td><code>TIMEOUT</code></td>
+<td>Hit its time limit</td>
+</tr>
+<tr>
+<td><code>CANCELLED</code></td>
+<td>Stopped with <code>scancel</code> (or by an administrator)</td>
+</tr>
+</tbody>
+</table>
+<p>How long a job waits depends on how busy the partition is and on the account's priority. Priority drops as the account uses more hours recently ("fair share"). Shorter time limits start sooner, because the scheduler can fit them into gaps before big jobs it has already planned ("backfill"). The <code>debug</code> partitions take jobs of at most one hour and start them quickly; they are meant for tests, not training.</p>
+<h2 id="the-container">The Container<a class="headerlink" href="#the-container" title="Permanent link">&para;</a></h2>
+<p>OSC's machines run Red Hat Linux with OSC's software. Training needs exact versions of Python, PyTorch, CUDA, MuJoCo Warp and mjlab. The container image, a single <code>.sif</code> file of about 3.5 GB, is a sealed box holding that environment. Apptainer, the HPC counterpart of Docker that needs no administrator rights, opens it on the compute node.</p>
+<table>
+<thead>
+<tr>
+<th>In the image</th>
+<th>Not in the image</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The Digit project's <code>learn</code> Pixi environment, installed from <code>apps/digit/pixi.toml</code> and <code>apps/digit/pixi.lock</code></td>
+<td>Any repository source code</td>
+</tr>
+<tr>
+<td><code>cyber-learn-exec</code>, the launcher (<code>learn-exec.sh</code>)</td>
+<td>Checkpoints, runs, terrain banks</td>
+</tr>
+<tr>
+<td>Git, for training provenance</td>
+<td>Compiled C++ from this repository</td>
+</tr>
+</tbody>
+</table>
+<p>At run time <code>job.sh</code> mounts a checkout at <code>/workspace</code> inside the container, and Python imports <code>digit_learning</code> from there. Two consequences follow:</p>
+<ul>
+<li><strong>Code changes need no new image.</strong> Only a change to <code>apps/digit/pixi.lock</code>, <code>learn.def</code> or <code>learn-exec.sh</code> does. The launcher compares the checkout's <code>apps/digit/pixi.lock</code> with the one baked into the image and refuses to start on a mismatch, so a run can never silently use different packages than its commit records.</li>
+<li><strong>The checkout is live, not copied.</strong> A queued job runs whatever its checkout holds when it starts, and a running one can import later edits. Never change a checkout a queued or running job uses; make a new checkout per run.</li>
+</ul>
+<p>Images are named for the lock they bake: <code>cyber-learn-489340876024.sif</code> holds the Digit project lock whose SHA-256 starts <code>489340876024</code>. A <code>.sif.sha256</code> file beside each image lets <code>sha256sum -c</code> prove the bytes are intact. Several images can sit side by side in <code>images/</code>, one per lock still in use. Since 2026-10-17 the project-lock image serves migrated checkouts; the older <code>cyber-learn-68b626462c4e.sif</code> remains for the pre-project <code>drives-5fcea50</code> checkout. Delete an image, with its <code>.sha256</code>, only once no checkout you still run has its lock.</p>
+<h2 id="the-workflow">The Workflow<a class="headerlink" href="#the-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="what-each-change-requires">What Each Change Requires<a class="headerlink" href="#what-each-change-requires" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>What changed</th>
+<th>What OSC needs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learning code, rewards, task configs, docs</td>
+<td>A new or updated checkout: send a Git bundle (below)</td>
+</tr>
+<tr>
+<td><code>job.sh</code></td>
+<td>Nothing more; jobs run the checkout's own copy</td>
+</tr>
+<tr>
+<td><code>apps/digit/pixi.lock</code> (a dependency added or updated)</td>
+<td>A new image, built at OSC (below), and a smoke job</td>
+</tr>
+<tr>
+<td><code>learn.def</code> or <code>learn-exec.sh</code></td>
+<td>A new image and a smoke job</td>
+</tr>
+<tr>
+<td>Nothing, but a new run</td>
+<td>A fresh run name; reuse the checkout and image</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-send-the-code">1. Send the Code<a class="headerlink" href="#1-send-the-code" title="Permanent link">&para;</a></h3>
+<p>The workstation packs committed history into a Git bundle, a single file that the transfer host carries into the inbox. A bundle holds commits only, so commit first; uncommitted edits do not travel.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>bundle<span class="w"> </span>create<span class="w"> </span>/tmp/cyber-suite-BRANCH.bundle<span class="w"> </span>BRANCH
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>rsync<span class="w"> </span>-a<span class="w"> </span>/tmp/cyber-suite-BRANCH.bundle<span class="w"> </span>osc-transfer:~/cyber-suite/inbox/
+</code></pre></div>
+<p>On a login node, clone it into a new checkout named for its topic and commit, then delete the bundle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>BRANCH<span class="w"> </span>~/cyber-suite/inbox/cyber-suite-BRANCH.bundle<span class="w"> </span>~/cyber-suite/checkouts/TOPIC-COMMIT
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>git<span class="w"> </span>-C<span class="w"> </span>~/cyber-suite/checkouts/TOPIC-COMMIT<span class="w"> </span>rev-parse<span class="w"> </span>HEAD
+</code></pre></div>
+<p>Later commits can travel as a small incremental bundle (<code>git bundle create x.bundle OLD..BRANCH</code>), fetched into a checkout that no job is using: <code>git fetch x.bundle BRANCH &amp;&amp; git merge --ff-only FETCH_HEAD</code>. Inputs Git ignores, such as a checkpoint to resume from, go through the inbox as well; place them in the scratch run tree, where a resumed run looks for them (<code>runs/&lt;experiment&gt;/&lt;run&gt;/model_N.pt</code>).</p>
+<h3 id="2-build-an-image-only-when-dependencies-change">2. Build an Image, Only When Dependencies Change<a class="headerlink" href="#2-build-an-image-only-when-dependencies-change" title="Permanent link">&para;</a></h3>
+<p>Since 2026-10-14 the workstation cannot build the image: Ubuntu 24.04's AppArmor setting blocks the unprivileged build. It is built at OSC instead, from the checkout, in a Cardinal CPU job (about 3 minutes); the image lands in the shared home, so nothing large crosses the network. The command is in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/OSC_DEPLOYMENT.md#2-build-or-update-the-image">deployment guide</a>.</p>
+<h3 id="3-smoke-then-train">3. Smoke, Then Train<a class="headerlink" href="#3-smoke-then-train" title="Permanent link">&para;</a></h3>
+<p>A smoke job is a one- or two-minute run on a <code>debug</code> partition that proves the image, the GPU, the scratch path and the task work together before hours are spent. Chaining the training to it with <code>--dependency=afterok:SMOKE_ID</code> queues both at once: training starts only if the smoke passes. A training command looks like the one in the <a href="#worked-example-the-drive-fine-tune">worked example</a>; every run writes to its own folder under scratch through <code>--log-root</code>.</p>
+<p>Choose the time limit from the expected run length plus a margin, not a large round number: a longer limit waits longer in the queue. A run that hits its limit is not lost. It saves a checkpoint every 50 iterations and can continue with <code>--agent.resume True --agent.load-run RUN_FOLDER --agent.load-checkpoint model_N.pt</code>.</p>
+<h3 id="4-watch-and-collect">4. Watch and Collect<a class="headerlink" href="#4-watch-and-collect" title="Permanent link">&para;</a></h3>
+<p>Log out freely; jobs keep running. Check them from a login node or from <a href="https://ondemand.osc.edu">OSC OnDemand</a>, OSC's web portal, whose file browser, active-jobs page and browser terminal need no setup. When a run ends, confirm <code>COMPLETED</code> with <code>sacct</code> and read the end of its log, then copy the run folder home through the transfer host:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>rsync<span class="w"> </span>-a<span class="w"> </span>osc-transfer:/fs/scratch/PAS2483/hereidayonga/cyber-suite/runs/EXPERIMENT/RUN<span class="w"> </span>learning/checkpoints/runs/EXPERIMENT/
+</code></pre></div>
+<p>Evaluation and export then run on the workstation as for a local run: <code>evaluate</code>, <code>export-policy</code>, <code>policy-parity</code> (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md#commands">VALIDATION.md</a>). The tools read the task from the run's saved configuration.</p>
+<h2 id="worked-example-the-drive-fine-tune">Worked Example: the Drive Fine-Tune<a class="headerlink" href="#worked-example-the-drive-fine-tune" title="Permanent link">&para;</a></h2>
+<p>The 2026-10-14 run fine-tuned <code>model_16800</code> under the LLAPI drive model for 2000 iterations (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md">VALIDATION.md</a>, 2026-10-14 entries). It ran before OSC was organized into the layout above; the paths below are where its pieces live now.</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Where</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pack</td>
+<td>Workstation</td>
+<td>Bundle of branch <code>claude/hardware-deployment-ui-b4220c</code> (87 MB) and <code>model_16800.pt</code></td>
+</tr>
+<tr>
+<td>Upload</td>
+<td>Transfer host</td>
+<td>Both into home; SHA-256 checked on arrival</td>
+</tr>
+<tr>
+<td>Unpack</td>
+<td>Ascend login node</td>
+<td>Checkout <code>~/cyber-suite/checkouts/drives-5fcea50</code>; checkpoint copied to <code>/fs/scratch/PAS2483/hereidayonga/cyber-suite/runs/digit_velocity_cadence/2026-10-12_20-32-06_arm-refine-r1/</code></td>
+</tr>
+<tr>
+<td>Image</td>
+<td>Cardinal <code>cpu</code> node</td>
+<td>Job <code>15516729</code> failed (apt under OSC's fakeroot); fixed in <code>learn.def</code>; job <code>15516744</code> built <code>~/cyber-suite/images/cyber-learn-68b626462c4e.sif</code></td>
+</tr>
+<tr>
+<td>Update</td>
+<td>Ascend login node</td>
+<td>The fix arrived as an incremental bundle; the checkout fast-forwarded to <code>5fcea50</code>, clean</td>
+</tr>
+<tr>
+<td>Smoke</td>
+<td>Ascend <code>debug-nextgen</code>, Cardinal <code>debug</code></td>
+<td>Jobs <code>7841114</code> (A100) and <code>15517536</code> (H100) passed</td>
+</tr>
+<tr>
+<td>Train</td>
+<td>Cardinal <code>gpu</code></td>
+<td>Job <code>15517537</code>, after the smoke. Ascend job <code>7841309</code> waited on priority and was cancelled before it started</td>
+</tr>
+</tbody>
+</table>
+<p>The training command at the historical <code>5fcea50</code> checkout uses its root working directory and root-lock image. For current project paths and images, follow the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/OSC_DEPLOYMENT.md">deployment guide</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">SRC</span><span class="o">=</span><span class="nv">$HOME</span>/cyber-suite/checkouts/drives-5fcea50
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>sbatch<span class="w"> </span>-A<span class="w"> </span>pas2483<span class="w"> </span>-p<span class="w"> </span>gpu<span class="w"> </span>--time<span class="o">=</span><span class="m">05</span>:00:00<span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">8</span><span class="w"> </span>--mem<span class="o">=</span>64G<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--job-name<span class="o">=</span>digit-drives-ft<span class="w"> </span>--output<span class="o">=</span><span class="nv">$HOME</span>/cyber-suite/logs/%x-%j.out<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nv">$SRC</span>/apps/digit/learning/container/job.sh<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nv">$HOME</span>/cyber-suite/images/cyber-learn-68b626462c4e.sif<span class="w"> </span><span class="nv">$SRC</span><span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>python<span class="w"> </span>apps/digit/learning/tools/train.py<span class="w"> </span>Digit-Velocity-Flat-Cadence-1ms-Drives<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span>--env.scene.num-envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span>--log-root<span class="w"> </span>/fs/scratch/PAS2483/hereidayonga/cyber-suite/runs<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span>--agent.experiment-name<span class="w"> </span>digit_velocity_cadence<span class="w"> </span>--agent.resume<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span>--agent.load-run<span class="w"> </span><span class="m">2026</span>-10-12_20-32-06_arm-refine-r1<span class="w"> </span>--agent.load-checkpoint<span class="w"> </span>model_16800.pt<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span>--agent.max-iterations<span class="w"> </span><span class="m">2000</span><span class="w"> </span>--agent.run-name<span class="w"> </span>drives-ft
+</code></pre></div>
+<p>The run reuses the experiment name <code>digit_velocity_cadence</code> because mjlab looks for the checkpoint to resume inside the experiment's own folder.</p>
+<h2 id="commands-at-a-glance">Commands at a Glance<a class="headerlink" href="#commands-at-a-glance" title="Permanent link">&para;</a></h2>
+<p>Run these on a login node (<code>ssh osc-cardinal</code> or <code>ssh osc-ascend</code>) unless the column says otherwise.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>squeue -u $USER</code></td>
+<td>Your waiting and running jobs</td>
+</tr>
+<tr>
+<td><code>squeue -j JOB --start</code></td>
+<td>Slurm's estimated start time for a pending job</td>
+</tr>
+<tr>
+<td><code>sacct -j JOB -X --format=JobID,State,ExitCode,Elapsed,NodeList</code></td>
+<td>A job's final state, also after it ends</td>
+</tr>
+<tr>
+<td><code>tail -f ~/cyber-suite/logs/NAME-JOB.out</code></td>
+<td>Follow a log live; Ctrl+C stops watching, not the job</td>
+</tr>
+<tr>
+<td><code>scancel JOB</code></td>
+<td>Cancel a job</td>
+</tr>
+<tr>
+<td><code>sinfo -p PARTITION</code></td>
+<td>How busy a partition's nodes are</td>
+</tr>
+<tr>
+<td><code>sha256sum -c FILE.sha256</code></td>
+<td>Prove an uploaded file arrived intact</td>
+</tr>
+<tr>
+<td><code>rsync -a FILE osc-transfer:~/cyber-suite/inbox/</code> (workstation)</td>
+<td>Upload a file to the inbox</td>
+</tr>
+<tr>
+<td><code>exit</code></td>
+<td>Log out; jobs keep running</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rules-of-thumb">Rules of Thumb<a class="headerlink" href="#rules-of-thumb" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Never train, build or run anything heavy on a login node.</li>
+<li>Keep everything for this repository under <code>~/cyber-suite/</code> and the scratch <code>cyber-suite/runs/</code>; empty the inbox after unpacking.</li>
+<li>One checkout per run, named <code>&lt;topic&gt;-&lt;commit&gt;</code>; never edit a checkout a queued or running job uses.</li>
+<li>Write runs to scratch with <code>--log-root</code>, and copy anything worth keeping home.</li>
+<li>Smoke-test every new image on the GPU type that will train with it.</li>
+<li>Ask for the time a run needs plus a margin; resume rather than over-ask.</li>
+<li>Check a job's outcome with <code>sacct</code> and its log before believing it.</li>
+</ul>
+<h2 id="when-something-goes-wrong">When Something Goes Wrong<a class="headerlink" href="#when-something-goes-wrong" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Log says "The checkout apps/digit/pixi.lock differs from this image"</td>
+<td>The checkout's dependencies differ from the image's</td>
+<td>Build an image from that checkout (step 2); never bypass the check</td>
+</tr>
+<tr>
+<td><code>PENDING (Priority)</code> for hours</td>
+<td>Busy partition, low fair share</td>
+<td>Wait, shorten the time limit, or use the other cluster</td>
+</tr>
+<tr>
+<td><code>PENDING (DependencyNeverSatisfied)</code></td>
+<td>The job it depends on failed</td>
+<td>Read that job's log, fix, resubmit both; <code>scancel</code> the stuck one</td>
+</tr>
+<tr>
+<td><code>TIMEOUT</code></td>
+<td>The run outgrew its limit</td>
+<td>Resume from its last <code>model_N.pt</code></td>
+</tr>
+<tr>
+<td>Image build: <code>Couldn't create temporary file /tmp/apt.conf...</code></td>
+<td>apt under fakeroot without subordinate IDs</td>
+<td>Fixed in <code>learn.def</code> on 2026-10-14; rebuild from a checkout at or after <code>5fcea50</code></td>
+</tr>
+<tr>
+<td>Workstation build: "Failed to create mount namespace"</td>
+<td>Ubuntu 24.04 blocks unprivileged user namespaces</td>
+<td>Build at OSC instead</td>
+</tr>
+<tr>
+<td><code>torch.cuda.is_available()</code> is false</td>
+<td>The job has no GPU, or the container lacks <code>--nv</code></td>
+<td>Submit to a GPU partition through <code>job.sh</code>, which passes <code>--nv</code> and asks for one GPU</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>apps/digit/learning/OSC_WORKFLOW.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../../docs/setup/remote-development.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Remote development">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Remote development
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../docs/overview.html" class="md-footer__link md-footer__link--next" aria-label="Next: Digit">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Digit
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../assets/mathjax.js"></script>
+      
+        <script src="../../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,46 @@
+---
+Status: working
+Owner: modules/robot, modules/sim
+Last reviewed: 2026-10-18
+Code anchors: modules/robot/MODULE.md, modules/sim/MODULE.md, modules/sim/terrains/README.md, assets/robots/digit/config/drives.yaml
+---
+
+# Models and simulation
+
+A robot experiment depends on more than its controller. Geometry, inertia, joint coordinates, contacts, actuators and sensor behavior all affect the response. Cyber Suite keeps robot descriptions with their assets and exposes model computations through the robot module, while simulation owns the world and simulated measurements.
+
+## Model computations and the simulated world
+
+The robot module supplies kinematics and dynamics for estimation and control. The simulation module supplies MuJoCo integration, scene construction and terrain utilities. These roles are related but distinct: a controller can query a model to predict a foot's motion while the simulator evolves the robot under contact and actuation.
+
+Parity checks ask whether corresponding computations agree under matched coordinates and assumptions. Matching joint names or loading both models successfully is insufficient. A useful check specifies the configuration, velocity, coordinate convention and quantity being compared. Robot-specific qualifications remain in the owning app's validation.
+
+## Assets and calibration have different owners
+
+| Information | Home | Why |
+| --- | --- | --- |
+| Robot geometry, inertial properties and description files | `assets/robots/<robot>/` | Shared robot identity |
+| Reusable terrain scenes | `modules/sim/terrains/` | Simulator-owned data and geometry |
+| Controller and estimator tuning | The app's `config/` | Values chosen for a particular behavior |
+| Command schedule and run choices | App scenario | Reproducible experiment definition |
+| Resolved configuration and outputs | Run artifacts | What this run actually used |
+
+For example, changing a Digit controller gain is an app-calibration change. Changing the shin damping in the robot model changes the physical assumptions for multiple consumers, including training. The latter requires checking the affected policies and comparisons rather than treating it as another gain adjustment.
+
+## Terrain geometry is not terrain knowledge
+
+The terrain catalog includes flat planes, oriented boxes for slopes and steps, and heightfields for continuous surfaces. A viewer can display that geometry even when a controller has no access to it. Selecting stairs therefore changes the world; it does not automatically provide foothold heights to the planner.
+
+The [terrain catalog](../../modules/sim/terrains/README.md) explains scene ownership. The [state and perception guide](state-and-perception.md) explains the additional sensing, mapping and adoption boundaries needed to use terrain information.
+
+## An actuator command is not instantaneous torque
+
+In Digit's deployment-oriented simulation, command delay and drive damping change the torque that reaches a joint. The LLAPI drive configuration is shared with the learning app. An ideal actuation experiment answers a different question from one using the drive model, even if the velocity command and planner are unchanged.
+
+Before comparing results, record the model identity, actuation mode, delay assumptions, physics step, contact settings and state source. For a learned policy, also record the model and control contract used during training. Export parity cannot repair a mismatch in the simulated plant.
+
+## A useful first experiment
+
+Run one known scenario and save its resolved configuration. Change only the terrain selection or one explicitly chosen actuation assumption, then compare the observed behavior and outcome. Keep the original run. If the change causes a failure, identify which boundary changed before tuning the controller to hide the symptom.
+
+Implementation details live in the [robot contract](../../modules/robot/MODULE.md) and [simulation contract](../../modules/sim/MODULE.md). Digit's [walking validation](../../apps/digit/walking/VALIDATION.md) records the drive and simulator comparisons and their limits.

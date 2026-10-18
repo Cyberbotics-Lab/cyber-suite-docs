@@ -1,0 +1,116 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-18
+Code anchors: CMakeLists.txt, modules, apps/README.md, docs/site/modules.yaml
+hide:
+  - navigation
+  - toc
+---
+
+<div class="package-hero" markdown="1">
+<div class="hero-copy" markdown="1">
+
+<p class="eyebrow">Cyberbotics Lab / Software platform</p>
+
+# A shared foundation for robot behavior.
+
+<div class="lead" markdown="1">
+
+Cyber Suite connects robot models, numerical methods, sensing, control and execution in a modular C++ and Python package. Use a single building block or compose an experiment whose behavior you can inspect.
+
+</div>
+
+<div class="hero-actions" markdown="1">
+
+[Explore the architecture →](design/system-architecture.md){ .md-button .md-button--primary }
+[Learn with an example](handbook/chapters/index.md){ .md-button }
+
+</div>
+</div>
+<div class="hero-aside" markdown="1">
+
+<p class="eyebrow">From method to experiment</p>
+
+**Model the system.**
+
+Kinematics, dynamics and the numerical tools to reason about motion.
+
+**Compose the behavior.**
+
+State estimation, terrain queries, control algorithms and learned policies.
+
+**Run and understand.**
+
+Execution, world interfaces and recorded evidence of what happened.
+
+</div>
+</div>
+
+## Explore the core package { #package-map }
+
+Every module has a specific responsibility. The map shows the complete module inventory, grouped by the questions each part helps answer. Follow any block to its explanation and current contract.
+
+<!-- cyber-suite:module-map -->
+
+## One foundation, several ways to work
+
+<div class="route-grid" markdown="1">
+<div markdown="1">
+
+<p class="eyebrow">01 / Compute</p>
+
+### Start with a model
+
+Load a robot description, query kinematics and dynamics, or formulate a QP. A complete walking application is not required to use these tools.
+
+[Models and simulation →](design/models-and-simulation.md)
+
+</div>
+<div markdown="1">
+
+<p class="eyebrow">02 / Compose</p>
+
+### Connect an algorithm
+
+Understand how estimated state, motion references, task constraints and actuator commands meet at explicit boundaries.
+
+[Motion and control →](design/model-based-walking.md)
+
+</div>
+<div markdown="1">
+
+<p class="eyebrow">03 / Execute</p>
+
+### Make behavior observable
+
+Learn how CORTA paces a composition, keeps deferred work off the control path and exposes signals for analysis.
+
+[Runtime and execution →](design/runtime-execution.md)
+
+</div>
+</div>
+
+## How you use the package
+
+The C++ interface exposes `cyber_suite::<module>` targets through `find_package(cyber_suite)`. Python exposes supported bindings and native tools through `cyber_suite`; learning integrations also use the separate `cyber_suite_mjlab` adapter. Robot models and other packaged data are found through the package's data resolver. See the [package consumption boundary](../apps/README.md) for the current installation and build contract.
+
+Hard real-time control belongs in C++20. Python supports training, research and analysis, as well as components without hard real-time constraints. Module lifecycle and available bindings vary; each block's owner contract identifies its supported surface.
+
+<div class="package-boundary" markdown="1">
+
+**Modules provide reusable mechanisms. Projects choose behavior.**
+
+A robot project selects modules, connects them, supplies calibration and scenario settings, and defines the evidence needed to accept a result. Training recipes, robot-specific tuning and experiment outcomes stay with that project.
+
+</div>
+
+## See the pieces in an experiment
+
+**Digit** is the most complete integration example, spanning model-based control, learned policies, CORTA and the Agility low-level interface. **Unitree G1** is the focused starting point for a student project. Their guides distinguish implementation from demonstrated simulation and hardware behavior.
+
+[Explore Digit](../apps/digit/docs/overview.md) · [Start a G1 project](setup/student-projects.md) · [TRON1](../apps/tron1/docs/overview.md) · [Terrain mapping](../apps/perception/mapping/docs/overview.md)
+
+New to robotics software? The [illustrated handbook](handbook/chapters/index.md) follows one command through the feedback loop, connects it to a recorded result and proposes a first exercise. The [first simulation guide](setup/first-run.md) then takes you into a viewer.
+
+These guides explain design and use. Owner contracts describe implemented behavior; validation records describe demonstrated limits. Consult [repository status](status/CURRENT.md) for the current project-wide summary.

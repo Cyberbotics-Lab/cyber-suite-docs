@@ -1,0 +1,145 @@
+---
+Status: candidate
+Owner: repo
+---
+
+# Sim
+
+## Purpose
+
+Standalone MuJoCo simulation utilities, terrain generation, optional viewer support, and thin robot-specific simulator helpers used by examples and future apps.
+
+## Public API
+
+Terrain profiles choose their collision geometry: flat uses a plane; stairs, platforms and square steps use boxes; slopes use tilted boxes with explicit origin and heading; Perlin, multi-sine and waves use heightfields. `TerrainGenerator::generate_boxes` emits metric `TerrainBox` values (world centre, half-size, wxyz quaternion). `generate` rasterizes continuous profiles; `generate_custom` handles caller-supplied height functions. Structured profiles passed to `generate` throw. C++ and Python expose the same split.
+
+- `debug_geometry.hpp`: fixed-capacity, renderer-neutral debug geometry
+- `digit_simulator.hpp`
+- `external_wrench.hpp`: named-body wrench schedules driven by logical time
+- `mujoco_include.hpp`
+- `mujoco_simulator.hpp`
+- `mujoco_terrain.hpp`: source-MJCF procedural terrain composition
+- `mujoco_terrain_oracle.hpp`: immutable static-terrain snapshot and shared compiled-heightfield conversion, producing `perception::TerrainMap`
+- `mujoco_ray_sensor.hpp`: headless batched depth-camera/lidar rays with caller supplied calibration, beam pattern, range limits, pose and uncertainty. Acquisition needs exclusive access to caller-owned `mjData` after forward kinematics. It respects visible geom groups and self-occlusion; selective body exclusion is explicit. No rig sites, renderer or control edge is added.
+- `mujoco_viewer.hpp`
+- `simulator.hpp`
+- `terrain_catalog.hpp`: terrain scene schema and catalog loading
+- `terrain_generator.hpp`
+- `types.hpp`
+- Python package: `cyber_suite.sim`
+
+`DigitSimulator::get_contact_corner_truth()` assigns every contact touching a foot body to its nearest valid corner site on that foot, without a distance cutoff. The eight entries conserve each foot's summed contact-normal magnitude and resultant world force. They are attribution buckets, not physical corner contact locations; moving a force to a corner does not preserve its moment. Non-foot contacts are outside this query. A foot-foot contact contributes to both feet, with equal and opposite world resultants.
+
+`ContactWrench` uses MuJoCo's geom1-to-geom2 normal: the rotated solver wrench acts on geom2, and geom1 receives its negative. `ContactPoint::friction_force` is the world tangential force on geom1. For vertical support use the z component of the world resultant, not the sum of contact-normal magnitudes on terrain. The old optional 4 cm radius argument was removed on 2026-09-13; all in-repo callers use the no-argument query. Rebuild external C++ callers, and remove any explicit radius argument. Old recorded data is not corrected retroactively.
+
+## Dependencies
+
+- `foundation` (including `cyber_suite_foundation_data`, the package data lookup)
+- `perception` (terrain contract, sensor geometry and uncertainty propagation)
+- Eigen
+- MuJoCo 3.13 (conda-forge, pinned `>=3.13,<3.14` in `pixi.toml`)
+- GLFW
+- OpenGL
+- fmt
+- spdlog
+- yaml-cpp
+- pybind11 for Python bindings
+
+## Owned Examples
+
+- `examples/cpp/sim/headless_mujoco_demo.cpp`
+- `examples/cpp/sim/terrain_generation_demo.cpp`
+- `examples/cpp/sim/perception_mapping_demo.cpp`
+- `examples/python/sim/headless_mujoco_demo.py`
+- `examples/python/sim/terrain_generation_demo.py`
+
+## Validation
+
+- C++ contract tests: `pixi run test sim`
+- Python binding tests: `pixi run py-test sim`
+
+- Smoke examples:
+  - `build/default/modules/sim/sim_headless_mujoco_demo`
+  - `build/default/modules/sim/sim_terrain_generation_demo`
+  - `pixi run python examples/python/sim/headless_mujoco_demo.py`
+  - `pixi run python examples/python/sim/terrain_generation_demo.py`
+
+Last verified:
+
+- 2026-10-08 Ubuntu terrain merge: the affected sim, binding, API smoke, example, Digit and mapping targets build. All five focused CTest entries pass (92 sim, 16 phase/swing, four scene and 64 config/safety cases, plus the scene artifact check); six sim Python tests pass. All 16 mapping catalog scenes pass, but the stepping-stone placement gate fails identically with the pre-merge generator. See [mapping validation](../../apps/perception/mapping/VALIDATION.md#2026-10-08-ubuntu-terrain-merge-verification) and `artifacts/terrain_merge_20261008/`. No walking qualification follows.
+
+- 2026-10-07 terrain representation migration, on this Mac host with MuJoCo 3.13: the sim library, Python extension, API smoke, C++ terrain demo, Digit walking executable/config/scene tests and mapping executable build. Focused sim contracts pass 92/92; Python sim tests pass 6/6; both terrain examples run. Geometry checks include all 16 catalog scenes, four cardinal and one oblique heading with both slope signs/caps, signed treads, partial tiles, immutable box-oracle versus vertical-ray parity, and unknown finite gaps. Digit's phase/swing reference consumer contracts also pass. Requested slope heights allow 20 micrometres for the MJCF writer's six significant digits; oracle-versus-compiled-ray parity uses 1e-10 metres in that fixture. The Rerun scene and artifact gates pass for box terrain. Digit's 62 remaining config/safety cases pass, including profile materialization and summary fields; two inventory cases require the shipped envelope to be enabled and are excluded because that Mac checkout had an unrelated local override. The full config gate was therefore not green in that checkout.
+- The standalone mapping app passes all 16 catalog scenes, occlusion/recovery and stepping-stone support checks. Node-height RMSE is 1.06–18.46 mm, including quantization at discontinuities. The +x sensor trajectory is a consumer smoke for backward/lateral presets, not full directional coverage; sim ray contracts establish their geometry. Arena widening checks all 15 finite scenes without adding heightfield fields to boxes. All 16 generated scene previews were rendered and visually inspected with brighter inspection headlight settings. Logs, generated MJCF/HF, HDF5/CSV/JSON and previews live under `artifacts/sim_terrain_20261007/`. An 81x81 oracle fill on square steps (1,000 tiles plus approach) measured 38.1–38.9 ms before cached box-bound rejection and 3.40–3.43 ms after it, over three fills per arm on this Mac's RelWithDebInfo build. This is a host microbenchmark, not a deadline or WCET qualification. Ray parity passes with the rejection enabled. No walking comparison or walking qualification was performed. Earlier terrain evidence below predates this representation change.
+
+- 2026-09-27 MuJoCo 3.13: `pixi run test` 74/74 and `pixi run py-test` 198 passed, 1 skipped. Since 3.13 the Newton solver may accept its warm start with zero iterations once `SimulatorConfig::solver_tolerance` (default 1e-6) is met, so two nearly identical models can differ at that scale. A comparison meant to isolate model differences must tighten the tolerance; the flat round-trip test uses 1e-10. Walking regression evidence is in `apps/digit/walking/VALIDATION.md`.
+
+- 2026-09-13 force-conservation regression on plane and sole-interior heightfield contacts, and a settled-box force-direction regression. The old mapper dropped all 496 foot-contact samples in the ridge fixture; its world force on a settled 1 kg box was -9.81 N. These are measurement contracts, not walking qualification.
+
+- 2026-08-22 generator/catalog/composer contract tests, all repository scene compositions, flat short-step dynamic parity, Python bindings, and C++ and Python terrain example smokes; manual flat, square-step, down-stairs, and Perlin viewer smokes plus down-stairs, square-steps, Perlin, and multi-sine rendered-frame inspection verified the shared texture binding, distinct backdrop, and no-brown blue-gray heightfield palettes.
+- 2026-07-04 targeted MuJoCo viewer event-loop regression: `pixi run py-test sim -k viewer_event_loop`.
+- 2026-06-21 targeted C++ tests, targeted Python tests, and both sim demos, terrain demos listed above.
+
+## Experimental ray sensors
+
+`MujocoRaySensor` owns an explicit sensor ID, calibrated ray pattern and noise model. Camera rays use +x right, +y down and +z optical forward; lidar beams use +x forward, +y left and +z up. `mujoco_sensor_pose` reads a named site's world pose after forward kinematics. The site must use the sensor's stated convention; this helper does not reinterpret a MuJoCo camera's -z viewing axis or invent mounting extrinsics. Sensor definitions remain programmatic until a real rig/config owner is available.
+
+`capture` batches rays through `mj_multiRay` at one pose and timestamp. `capture_beam` reads one ray against the scene/pose at its own timestamp; the caller advances the scene to model a sweep or rolling shutter. Acquisition holds no live simulator pointers between calls. The caller must own exclusive `mjData` access: in particular, `mj_multiRay` takes mutable data and cannot run against Plant's live data from a second worker. These primitives are not installed in the walking graph.
+
+Finite field of view, scene occlusion and robot self-occlusion follow MuJoCo ray visibility. Group/body exclusions are explicit. A too-near hit remains invalid; it does not reveal the surface behind it. Missing and beyond-range returns are also invalid, never zero-height samples or implicit free space. Depth uncertainty uses independent pixel and axial-depth errors, with axial standard deviation `constant + quadratic * depth²`. Lidar uses radial range and transverse angular uncertainty. Captures are deterministic geometric rays; these models annotate covariance and do not inject random range errors.
+
+`mujoco_metric_depth` prepares the later rendered-depth path. It multiplies near/far clip fractions by model extent and handles both standard and reversed perspective depth mappings; the caller passes the actual context's `readDepthMap`. Far/background and invalid buffer samples return unknown. See [MuJoCo's depth mapping contract](https://mujoco.readthedocs.io/en/3.13.0/APIreference/APItypes.html#mjtdepthmap). It does not create OpenGL contexts, acquire RGB-D, flip image rows or calibrate camera intrinsics. Orthographic buffers are outside this conversion contract.
+
+The 2026-09-19 support gate passes camera/scalar-ray parity, self-occlusion and range handling, capture-to-elevation-query integration, per-beam timestamps, and both metric depth conventions. The synthetic plane example is independent of walking and requires no viewer:
+
+```sh
+pixi run build --target perception_mapping_demo test_cyber_suite_perception test_cyber_suite_sim cyber_suite_perception_apicheck cyber_suite_sim_apicheck -j4
+pixi run build/default/examples/perception_mapping_demo
+pixi run test -R '^(cyber_suite_perception.tests|cyber_suite_sim.tests)$'
+```
+
+The demo reports `rays=25 fused=25 query_valid=1 height_m=0` with variance 0.000196 m². This validates supporting functions on synthetic geometry, not sensor calibration, real-time performance or perception-guided walking.
+
+## Non-goals
+
+- Runtime graph integration
+- Controllers, estimators, or locomotion policies
+- Hardware interfaces
+- App-level robot scenarios
+
+### Experimental terrain oracle
+
+`MujocoTerrainOracle` copies static collision planes, oriented boxes and upright heightfields from a model and its initialized data during setup. It retains no simulator pointers. Dynamic bodies and visual-only ground are excluded; unsupported static collision shapes or tilted heightfields throw at setup. Plane queries match `mj_ray`'s rendered rectangle (zero extent is infinite). Box queries reject distant surfaces with cached world XY bounds, then intersect a world-vertical line with the full oriented solid, including side surfaces, and return its highest intersection. Overlapping surfaces return the highest valid height. Out-of-bounds queries are unknown.
+
+`MujocoHeightfield` is the shared conversion used by the oracle and Digit's Rerun scene: row zero is -y, heights include the compiled elevation scale, and cells split along the lower-left/upper-right diagonal. The previous Rerun conversion mirrored y and split the opposite diagonal; old recordings retain that visual discrepancy. This does not change MuJoCo collision geometry.
+
+`fill` produces a rolling world-axis window snapped to the first unrotated heightfield origin. Matching the native spacing preserves the triangulation away from mixed-surface boundaries, up to float rounding. Other resolutions, rotated source grids and discontinuous box boundaries are resampled and cannot be described as exact between nodes. An elevation map interpolates a sampled surface; it does not encode risers or certify an entire foothold. Zero node variance describes privileged geometry, not estimator registration or discretization uncertainty.
+
+The focused `MujocoTerrainOracle.*` gate compares asymmetric, translated and yaw-rotated fields and overlapping/tilted boxes against `mj_ray`, plus rolling-window, visual-ground and unsupported-geometry behavior. This is geometric parity, not locomotion or sensor qualification.
+
+`DebugGeometry` describes only reusable visual primitives. It deliberately contains no robot, controller, collision, or safety semantics; owning apps and modules decide what those primitives mean.
+
+`ExternalWrenchSchedule` applies rectangular wrench pulses to explicitly named MuJoCo bodies using caller-supplied logical time. It does not infer gait phase, contact roles, robot semantics, or control policy, and `clear()` removes only the generalized-force contribution written by that schedule.
+
+`generate_mujoco_terrain` owns robot-neutral terrain composition. It consumes a validated `TerrainScene`; profile choice, metric generator configuration, ground-plane collision policy, and appearance come from the shared catalog. Source robot assets, output naming, and manifest defaults remain with the calling app.
+
+Composition goes through MuJoCo's `mjSpec` API: the source model is parsed, mutated structurally, compiled, and written. Compiling before writing means a malformed composition fails at generation rather than at load. The cost is that the generated model is a re-serialization of the source robot at the XML writer's six significant digits, not the source text verbatim -- body masses drift by order 1e-5 kg. `GeneratedModelPreservesTheSourceRobot` bounds that drift. Anything comparing a terrain run against a flat run should generate both through this path rather than loading the source model directly for one of them.
+
+`terrain_catalog.hpp` owns the terrain scene schema and the catalog layout: `modules/sim/terrains/` is a directory of scene files, one per scene, named by filename stem, and `kTerrainCatalogDirectory` publishes that repository-relative location so applications do not restate it. Every path the module opens (the catalog, an MJCF, a mesh directory) goes through `cyber_suite::data::resolve` (foundation), so the same relative path names the file in this repository and in an installed package. Applications name a scene and inherit this module's validation and error messages; they do not carry the list or restate the schema. The catalog validates profile-specific YAML directly into the metric `TerrainConfig` shared with `TerrainGenerator`; it does not own a second profile enum or duplicate parameter structs. Every field a profile takes is required, and a key that profile does not use is an error rather than a value silently ignored.
+
+The supported named-scene vocabulary is intentionally smaller than the set of terrain algorithms that once accumulated in the generator: flat, platform, signed slope, signed-riser stairs, box square steps, waves, Perlin, and the seeded three-sinusoid surface named multi-sine. Custom height functions remain programmatic-only. Stepping stones and tiling are not catalog surfaces until their placement/count and seam contracts are repaired. Uncorrelated per-cell random terrain, localized hills, and redundant legacy stair formulations are not supported aliases.
+
+`terrain_generator.hpp` emits geometry and never MJCF. Continuous profiles are pure world-position height functions, rasterized onto a world-anchored grid with `TerrainPlacement` fading. Heights remain signed metres because MuJoCo normalizes `.hf` data at compile time; the composer restores elevation size and geom z offset. Structured profiles emit exact finite boxes without grid resolution or fading. Their origin is the leading top-surface point; local u follows heading, v is centred across width, and positive grade/riser rises along u. Explicit approach/exit boxes supply finite level sections. Slope height caps create a plateau. Stair tread i is at origin.z + i*step_height; partial final treads and boundary checker tiles are clipped to the extent. Thickness is measured normal to the top face, including on tilted boxes. Dimensions must be finite/positive, grade magnitude below 89 degrees, and the total count no more than 10,000 boxes. See [the catalog contract](terrains/README.md) for each profile's schema and approach/exit restrictions.
+
+The catalog includes signed slope presets at headings 0, 90, 180 and 270, with arbitrary headings supported by the public configuration. Existing forward scene names remain; `-backward`, `-left` and `-right` identify the other headings. Structured YAML must migrate to primitive placement and thickness, and stairs must supply signed step height instead of grade/height cap. Obsolete fields are rejected. Continuous scene YAML keeps its prior schema.
+
+Every scene, including flat, passes through the same `mjSpec` parse, mutation, compile, and save path. The saved MJCF and any `.hf` heightfield are written to a private temporary and renamed into place. Concurrent processes that generate the same scene therefore never read a partial file: each sees one complete generation or another, with identical bytes. Scene-owned ground policy retains the source plane as colliding or visual-only, or removes it. A colliding plane is rejected when a heightfield has negative height or a box top is coplanar with or below the plane. Heightfields retain their existing 1 mm lift; boxes have no offset. A visual-only plane is lowered below the generated solid so it cannot hide descending surfaces and contributes no collision support. Outside finite boxes/fields, support depends on an explicitly retained colliding plane; otherwise the oracle returns unknown. Scene appearance owns metric grid/checker/dirt patterns in a lighter matte blue-gray family, an optional fixed MuJoCo Menagerie blue-to-black skybox with blue-gray haze, and bounded reflectance. `dirt` remains the compatibility spelling for a deterministic blue-gray speckled pattern; it is not an earth-tone material. Visual-only planes use a separate, darker Menagerie blue-black checker backdrop with moderate reflectance so their role remains distinguishable from the colliding terrain. The schema does not expose texture resolution, backdrop styling, palette, or robot-specific material names.
+
+## Notes
+
+Digit simulator defaults use the migrated `assets/robots/digit` and `assets/robots/digit_simple` asset subsets. Viewer APIs compile as part of the module, but automated validation remains headless. MuJoCo viewer render/update paths must poll GLFW input before static-frame gating, and camera or visual input callbacks must force one redraw even when simulation time is no longer advancing; this keeps final-state viewer windows responsive to rotate, zoom, and visual toggles while still processing close events promptly.
+
+`SimulatorConfig::render_in_step` decides whether `step()` draws. It defaults to `true`, which is the step-and-draw loop most callers want, but it charges the whole frame to whoever called `step()` -- under a scheduler that makes the physics system's measured cost bimodal, a frame time on the releases that land on a frame boundary and physics alone on the rest. A caller that drives `render()` itself, such as a graph running the renderer on its own band, sets it `false` so the physics step measures physics. Pause is unaffected either way: `step()` polls `viewer_->is_paused()` independently of who draws.
+
+`MuJoCoSimulator::pace_realtime()` blocks until wall time catches up with simulation time at the viewer's playback rate, when a viewer is open and `visualization_realtime` is set. A caller that drives its own loop calls it once per advance. The Digit walking Plant does; other callers that set the flag do not yet, and are unchanged. The viewer's `-` and `=` keys halve and double the rate between 1/16 and 16. A pause, a rewind, or falling 0.25 s behind re-anchors instead of catching up. Before 2026-09-27 the flag was never read, so a stack cheaper than real time played back too fast.
+
+For the floating-base Digit MJCF, `DigitSimulator` resolves the native `imu` site and its accelerometer/gyro sensors at load time. `get_imu_data()` returns measurements rotated from the site frame into the Digit base frame and exposes the resolved sensor-to-base rotation and base-frame sensor position for validation and logging. The simulator does not own state-estimator policy.

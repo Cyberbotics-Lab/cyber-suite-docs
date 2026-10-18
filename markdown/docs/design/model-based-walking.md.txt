@@ -1,0 +1,53 @@
+---
+Status: working
+Owner: modules/locomotion, modules/control, apps/digit/walking
+Last reviewed: 2026-10-18
+Code anchors: modules/locomotion/MODULE.md, modules/control/MODULE.md, apps/digit/walking/APP.md, apps/digit/walking/src/systems/alip_planner.cpp, apps/digit/walking/src/systems/cpp_dcm.cpp
+---
+
+# Model-based walking
+
+Model-based walking separates choosing a feasible motion from realizing it with the full robot. A reduced balance model helps choose steps. The app turns those decisions into body and foot trajectories. A whole-body controller then tries to realize the trajectories under the modeled dynamics and constraints.
+
+## The execution loop
+
+<figure class="teaching-figure" markdown="1">
+
+![The planner returns task references to Servo, Servo sends actuator commands to the Plant, and observations feed back to planning and control.](../assets/handbook/control-loop.svg)
+
+<figcaption>Digit's model-based composition. A motion command, a task reference and an actuator command are three different contracts. Each needs its own evidence when diagnosing a failure.</figcaption>
+
+[Open full-size diagram](../assets/handbook/control-loop.svg)
+
+</figure>
+
+## What ALIP and DCM contribute
+
+**ALIP**, the angular-momentum linear inverted pendulum model, describes balance through a reduced relationship between body position and angular momentum. **DCM**, the divergent component of motion, describes the unstable part of pendulum-like motion and how foot placement affects it. They provide different ways to reason about where and when to step.
+
+Neither reduced model is the whole robot. Feet must lift and land, joint and actuator limits still apply, and the estimated state can be wrong. In Cyber Suite the numerical kernels belong to locomotion; robot-specific task mapping and reference authoring belong to the app adapters. The current [locomotion contract](../../modules/locomotion/MODULE.md) names those boundaries.
+
+## Coordination is more than a sequence timer
+
+The walking coordinator handles startup, accepted contact transitions and stopping. A planner receives contact history collected at Servo rate and publishes references with finite validity. That lets a slower planning update reason about events observed between releases.
+
+The controller executes the installed reference against current state. ALIP and DCM have different reference-coordinate contracts, so replacing one with the other deliberately changes more than a class name. Preserve the world, command schedule, estimator and shared calibration when comparing them, and report the planner-specific profiles and reference meanings that change.
+
+## Whole-body control resolves competing objectives
+
+The TAC-QP controller combines desired body and foot motion with modeled physical constraints. Its task objectives can compete: asking the torso to recover quickly can consume actuator authority needed to move a foot. A numerical solution, a small task residual and successful physical recovery are different outcomes.
+
+Use the [control contract](../../modules/control/MODULE.md) for the implemented controller and constraint vocabulary. Fallback behavior is app-configured and may relax constraints in a declared order; a fallback activation must be reported rather than interpreted as proof that every original bound held.
+
+## Diagnose from the boundary that failed
+
+| Observation | First comparison | Likely owner to inspect |
+| --- | --- | --- |
+| A foot target jumps | Authored plan versus installed trajectory | Planner adapter and reference binding |
+| A foot misses a sensible target | Reference versus measured motion, effort and constraints | Servo, controller and Plant |
+| A support transition happens too early | Contact evidence versus admitted transition | Estimation and walking coordination |
+| The run walks but never settles | Stop command, balance state and stop acceptance | Coordination and app completion logic |
+
+These are starting points, not diagnoses. A single screenshot rarely establishes the cause. Use time-aligned signals and a matched baseline; the [evaluation guide](../setup/evaluating-experiments.md) shows how to turn that into an experiment.
+
+Continue with the [walking coordinator reference](walking-coordinator-boundary.md) for lifecycle, contact history and robot-specific admission settings. The [ALIP formulation](alip-footstep-planner-formulation.md) and [DCM formulation](dcm-footstep-planner-formulation.md) map their derivations and alternatives to the current kernels. The [walking app contract](../../apps/digit/walking/APP.md) and [validation](../../apps/digit/walking/VALIDATION.md) own integrated behavior and demonstrated limits.

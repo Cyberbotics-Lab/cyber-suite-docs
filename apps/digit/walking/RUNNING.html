@@ -1,0 +1,2937 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/apps/digit/walking/RUNNING.html">
+      
+      
+        <link rel="prev" href="../../../docs/design/dcm-footstep-planner-formulation.html">
+      
+      
+        <link rel="next" href="../../unitree-g1/walking/RUNNING.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Run Digit - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/project.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#running-the-digit-walking-simulation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Run Digit
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="RUNNING.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-run-is-put-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a run is put together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motion-from-the-command-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motion from the command line
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terrain
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="All options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launcher-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launcher options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#app-options-digit_corta_walking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App options (digit_corta_walking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#live-rerun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live Rerun
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browser-view-viser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browser view (viser)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#driving-the-robot-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driving the robot live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agilitys-simulator-or-the-robot-llapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agility's simulator or the robot (LLAPI)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#perception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perception
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs-and-after-the-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs and after the run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-binary-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the binary directly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-run-is-put-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a run is put together
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenarios
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motion-from-the-command-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motion from the command line
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terrain
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="All options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launcher-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launcher options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#app-options-digit_corta_walking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App options (digit_corta_walking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#live-rerun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live Rerun
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#browser-view-viser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Browser view (viser)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#driving-the-robot-live" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Driving the robot live
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agilitys-simulator-or-the-robot-llapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agility's simulator or the robot (LLAPI)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#perception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perception
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs-and-after-the-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs and after the run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-binary-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the binary directly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">canonical</span>
+  <span>Reviewed 2026-10-14</span>
+  <a href="../../../markdown/apps/digit/walking/RUNNING.md.txt" download="RUNNING.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="running-the-digit-walking-simulation">Running the Digit Walking Simulation<a class="headerlink" href="#running-the-digit-walking-simulation" title="Permanent link">&para;</a></h1>
+<p>This page explains how to run the Digit walking simulation: choosing a scenario, overriding it from the command line, turning on live Rerun, the browser 3D viewer and virtual perception, and reading the results. The composition and its guarantees are described in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md">APP.md</a>, and what has been demonstrated is recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">VALIDATION.md</a>.</p>
+<p>Run every command from the Digit project (<code>apps/digit</code>), which builds against the installed cyber-suite package; paths below are relative to it. From elsewhere, <code>pixi run --manifest-path apps/digit/pixi.toml walk</code> runs the same task. A module edit you want here takes <code>pixi install</code> in <code>apps/digit</code> first, which rebuilds the package incrementally; for an edit that changes a module and Digit together, the repository's root build also compiles Digit (in-tree), and its binary is passed with <code>--binary ../../build/default/apps/digit/walking/digit_corta_walking</code>.</p>
+<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w">                                   </span><span class="c1"># after every pull or C++ edit</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>digit_corta_walking<span class="w">      </span><span class="c1"># the walking binary only</span>
+</code></pre></div>
+<p>The launcher runs whatever binary is in <code>build/</code>. A stale build runs old code without warning, so rebuild after pulling.</p>
+<h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Canonical DCM walk in the MuJoCo viewer</td>
+<td><code>pixi run walk</code></td>
+</tr>
+<tr>
+<td>Same stack with the ALIP planner</td>
+<td><code>pixi run walk --config alip_walking</code></td>
+</tr>
+<tr>
+<td>List the scenarios</td>
+<td><code>pixi run walk --list</code></td>
+</tr>
+<tr>
+<td>Walk at one constant command</td>
+<td><code>pixi run walk --vx 0.5 --walk-duration 6</code></td>
+</tr>
+<tr>
+<td>Walk on other terrain</td>
+<td><code>pixi run walk --terrain up-stairs</code></td>
+</tr>
+<tr>
+<td>Run without a window</td>
+<td><code>pixi run walk --headless</code></td>
+</tr>
+<tr>
+<td>Live Rerun dashboard</td>
+<td><code>pixi run walk --rerun</code></td>
+</tr>
+<tr>
+<td>Rerun in a browser</td>
+<td><code>pixi run walk --rerun-web</code></td>
+</tr>
+<tr>
+<td>Rerun plus virtual camera/lidar maps</td>
+<td><code>pixi run walk --rerun --perception</code></td>
+</tr>
+<tr>
+<td>Rerun and the MuJoCo viewer together</td>
+<td><code>pixi run walk --rerun --viewer</code></td>
+</tr>
+<tr>
+<td>Browser 3D view, also over SSH (experimental)</td>
+<td><code>pixi run walk --viser</code></td>
+</tr>
+<tr>
+<td>Show the effective config without running</td>
+<td><code>pixi run walk --print-resolved-config</code></td>
+</tr>
+<tr>
+<td>Every option, launcher and app</td>
+<td><code>pixi run walk --help</code></td>
+</tr>
+</tbody>
+</table>
+<p>The viewer plays back in real time; <code>-</code> and <code>=</code> halve and double the rate (1/16× to 16×), and Space pauses. Headless runs go as fast as the stack allows.</p>
+<p>The shared DCM/ALIP profiles enable the constant-acceleration joint observer. Controller joint position/velocity and base angular velocity use 20 Hz filters; InEKF base linear velocity has no additional controller filter. These settings are adopted defaults with remaining sustained combined-noise limits; see <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-04-independent-filtering-and-constant-acceleration-observer">filtering validation</a>. To disable observation, set <code>state_estimation.joint_state_observer.enabled</code> to <code>false</code> in an estimation profile selected by the scenario. This is also required when selecting an estimator mode other than <code>group-velocity</code>.</p>
+<p>Options combine freely, for example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--terrain<span class="w"> </span>up-slope<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--vx<span class="w"> </span><span class="m">0</span>.4<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">8</span><span class="w"> </span>--rerun<span class="w"> </span>--perception<span class="w"> </span>--log<span class="w"> </span>artifacts/alip_slope.h5
+</code></pre></div>
+<h2 id="how-a-run-is-put-together">How a run is put together<a class="headerlink" href="#how-a-run-is-put-together" title="Permanent link">&para;</a></h2>
+<p><code>pixi run walk</code> runs <code>walking/tools/walk.py</code>. The launcher does three things itself:</p>
+<ol>
+<li>It turns <code>--config NAME</code> into <code>walking/config/scenarios/NAME.yaml</code>. The default is <code>dcm_walking</code>.</li>
+<li>With <code>--rerun</code>, it opens the native Rerun viewer; with <code>--rerun-web</code>, it serves the browser viewer. Both install the dashboard and add the flags that connect the app to it. <code>--rerun-connect URL</code> installs the same dashboard in an existing viewer. With <code>--viser</code>, it starts the browser 3D viewer and adds <code>--scene-udp</code>.</li>
+<li>It passes every other argument, unchanged, to the C++ executable <code>build/walking/digit_corta_walking</code>.</li>
+</ol>
+<p>The executable then builds its configuration in two layers:</p>
+<ol>
+<li><strong>The scenario YAML</strong> states the planner (<code>dcm</code> or <code>alip</code>), the terrain, the motion sequence, the simulation settings and logging. All tuning comes from the shared profiles in <code>config/profiles/</code>. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#configuration">Configuration</a>.</li>
+<li><strong>Command-line flags</strong> override a small set of run choices on top of the scenario. The resolved config records each override separately.</li>
+</ol>
+<p>The scenario selects the planner by default. <code>--planner dcm</code>, <code>--planner alip</code> or <code>--planner policy</code> overrides that choice. For a planner comparison, retain the same scenario and shared settings, and record the planner-specific profile and reference contract that deliberately change.</p>
+<h2 id="scenarios">Scenarios<a class="headerlink" href="#scenarios" title="Permanent link">&para;</a></h2>
+<p><code>pixi run walk --list</code> reads these straight from the scenario files:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Planner</th>
+<th>What it runs</th>
+<th>Display</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dcm_walking</code> (default)</td>
+<td>DCM</td>
+<td>Speed ramp 1.0 → 2.0 → 1.0 m/s over 10 s on flat ground</td>
+<td>viewer</td>
+</tr>
+<tr>
+<td><code>alip_walking</code></td>
+<td>ALIP</td>
+<td>0.3 m/s for 24.4 s on flat ground</td>
+<td>viewer</td>
+</tr>
+<tr>
+<td><code>disturbance_rejection</code></td>
+<td>DCM</td>
+<td>0.4 m/s with four scripted pushes (lateral, braking, high forward, a nudge train)</td>
+<td>viewer</td>
+</tr>
+<tr>
+<td><code>standing_push_recovery</code></td>
+<td>DCM</td>
+<td>Standing; a 450 N forward push at 3 s forces recovery steps</td>
+<td>viewer</td>
+</tr>
+<tr>
+<td><code>gate_cruise</code></td>
+<td>DCM</td>
+<td>Acceptance gate A: 1.0 m/s cruise for 20 s, then stop</td>
+<td>headless</td>
+</tr>
+<tr>
+<td><code>gate_ramp_high_speed</code></td>
+<td>DCM</td>
+<td>Gate B: staged ramp to 2.3 m/s</td>
+<td>headless</td>
+</tr>
+<tr>
+<td><code>gate_lateral</code></td>
+<td>DCM</td>
+<td>Gate C: lateral 0.15 → 0.30 m/s</td>
+<td>headless</td>
+</tr>
+<tr>
+<td><code>gate_yaw</code></td>
+<td>DCM</td>
+<td>Gate D: turning at 0.25 → 0.5 rad/s</td>
+<td>headless</td>
+</tr>
+<tr>
+<td><code>policy_hold</code></td>
+<td>policy</td>
+<td>M1 hold check: a zero-action policy bundle holds the stand for 5 s</td>
+<td>headless</td>
+</tr>
+</tbody>
+</table>
+<p>Any scenario runs a trained policy instead with <code>--planner policy --policy-bundle DIR</code>; see <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#learned-policy-planner-policy">APP.md</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>gate_cruise<span class="w"> </span>--planner<span class="w"> </span>policy<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--policy-bundle<span class="w"> </span>learning/checkpoints/policies/RUN-model_N<span class="w"> </span>--viewer
+</code></pre></div>
+<p>Each file's header comment explains why it exists. <code>--config</code> also takes a path, so for your own variant, copy a scenario into the ignored <code>artifacts/</code> folder, edit it, and run the copy:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cp<span class="w"> </span>walking/config/scenarios/alip_walking.yaml<span class="w"> </span>artifacts/my_run.yaml
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>artifacts/my_run.yaml
+</code></pre></div>
+<p>The copy still reads the app's profiles. Scenario keys are strict: a misspelled or misplaced key fails at startup and names the file and key path.</p>
+<h2 id="motion-from-the-command-line">Motion from the command line<a class="headerlink" href="#motion-from-the-command-line" title="Permanent link">&para;</a></h2>
+<p>A scenario's <code>motion:</code> list is a sequence of timed velocity segments. Four flags replace the whole list with one segment:</p>
+<table>
+<thead>
+<tr>
+<th>Flags</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--vx V --walk-duration T</code></td>
+<td>Walk forward at V m/s for T s. <code>vy</code> and yaw rate are <strong>zero</strong>, not taken from the scenario</td>
+</tr>
+<tr>
+<td><code>--vy V --walk-duration T</code></td>
+<td>Walk sideways at V m/s</td>
+</tr>
+<tr>
+<td><code>--omega W --walk-duration T</code></td>
+<td>Turn at W rad/s</td>
+</tr>
+<tr>
+<td><code>--walk-duration T</code> alone</td>
+<td>Keep the scenario's first segment and change only its duration</td>
+</tr>
+</tbody>
+</table>
+<p><code>--vx</code>, <code>--vy</code> and <code>--omega</code> each require <code>--walk-duration</code>. For a multi-segment profile such as a ramp or a stop, edit a scenario copy instead.</p>
+<p>A run lasts longer than its motion. The robot first prepares to launch from measured state, and after the command ends it walks to a settled stop. The run finishes once that stop completes.</p>
+<h2 id="terrain">Terrain<a class="headerlink" href="#terrain" title="Permanent link">&para;</a></h2>
+<p><code>--terrain NAME</code> replaces the scenario's <code>active_terrain</code> with a scene from <code>modules/sim/terrains/</code>:</p>
+<p><code>flat</code>, <code>up-slope</code>, <code>down-slope</code>, <code>up-stairs</code>, <code>down-stairs</code>, <code>square-steps</code>, <code>waves</code>, <code>multi-sine</code>, <code>perlin</code></p>
+<p>Terrain geometry lives in those scene files, not in flags. Terrain changes what the robot walks on, not what the controller knows. Unless oracle perception is on (see below), the planner and controller still assume flat ground.</p>
+<h2 id="all-options">All options<a class="headerlink" href="#all-options" title="Permanent link">&para;</a></h2>
+<h3 id="launcher-options">Launcher options<a class="headerlink" href="#launcher-options" title="Permanent link">&para;</a></h3>
+<p>The launcher reads these itself:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--config NAME\|PATH</code></td>
+<td>Scenario name, or a YAML path relative to the Digit project. Default <code>dcm_walking</code></td>
+</tr>
+<tr>
+<td><code>--list</code></td>
+<td>Print the scenario table and exit</td>
+</tr>
+<tr>
+<td><code>--rerun</code></td>
+<td>Open the live Rerun viewer and connect the app. The app runs headless unless <code>--viewer</code> is also given</td>
+</tr>
+<tr>
+<td><code>--rerun-connect URL</code></td>
+<td>Install the same dashboard in an existing viewer and connect the app, without spawning another viewer. Mutually exclusive with <code>--rerun</code></td>
+</tr>
+<tr>
+<td><code>--perception</code></td>
+<td>Record virtual camera/lidar maps (passed to the app). With <code>--rerun</code>, also show them live. <code>--rerun-perception</code> is the same flag</td>
+</tr>
+<tr>
+<td><code>--rerun-web</code></td>
+<td>Serve the Rerun viewer and dashboard to a browser on one port, <code>http://127.0.0.1:9090</code>. The app runs headless unless <code>--viewer</code> is also given</td>
+</tr>
+<tr>
+<td><code>--viser</code></td>
+<td>Serve the <a href="#browser-view-viser">browser 3D view</a> and copy the Plant scene to it. The app runs headless unless <code>--viewer</code> is also given</td>
+</tr>
+<tr>
+<td><code>--attach-only</code></td>
+<td>With <code>--rerun</code>, <code>--rerun-connect</code> or <code>--viser</code>: install the dashboard or start the viewer, print the app command, and stop, so you can start the app yourself (for example under a debugger)</td>
+</tr>
+<tr>
+<td><code>--port N</code></td>
+<td>Rerun gRPC port, default 9876. Use another port if 9876 is taken</td>
+</tr>
+<tr>
+<td><code>--web-port N</code></td>
+<td><code>--rerun-web</code> browser port, default 9090: the only port to open or forward</td>
+</tr>
+<tr>
+<td><code>--web-bind IP</code></td>
+<td><code>--rerun-web</code> bind address, default <code>127.0.0.1</code>. <code>0.0.0.0</code> or Ubuntu's Tailscale/LAN address serves a remote browser without forwarding</td>
+</tr>
+<tr>
+<td><code>--viser-port N</code></td>
+<td>Browser viewer HTTP port, default 8080. The viewer takes the next free port if it is busy and prints the URL</td>
+</tr>
+<tr>
+<td><code>--viser-host ADDR</code></td>
+<td>Browser viewer bind address, default <code>127.0.0.1</code>. <code>0.0.0.0</code> exposes the page to the network; with <code>--operator viser</code> that includes its controls, so anyone who reaches the page can drive the robot</td>
+</tr>
+<tr>
+<td><code>--scene-udp-port N</code></td>
+<td>Loopback UDP port from the app to the browser viewer, default 9877</td>
+</tr>
+<tr>
+<td><code>--operator-udp-port N</code></td>
+<td>With <code>--operator viser</code>: loopback UDP port from the page to the app, default 9878</td>
+</tr>
+<tr>
+<td><code>--binary PATH</code></td>
+<td>Run a different <code>digit_corta_walking</code> build</td>
+</tr>
+<tr>
+<td><code>-h</code>, <code>--help</code></td>
+<td>Print these options, then the app's own options</td>
+</tr>
+</tbody>
+</table>
+<p>Everything else goes to the app.</p>
+<h3 id="app-options-digit_corta_walking">App options (<code>digit_corta_walking</code>)<a class="headerlink" href="#app-options-digit_corta_walking" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Option</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scenario</td>
+<td><code>--config &lt;yaml&gt;</code></td>
+<td>Scenario file. Required when you run the binary directly</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--terrain &lt;name&gt;</code></td>
+<td>Replace <code>active_terrain</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--planner &lt;dcm\|alip\|policy&gt;</code></td>
+<td>Replace the scenario's <code>planner</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--policy-bundle &lt;dir&gt;</code></td>
+<td>The policy bundle for <code>planner: policy</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--policy-base-state &lt;truth\|estimate&gt;</code></td>
+<td>What the policy sees: simulation truth or the InEKF estimate</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--seed &lt;n&gt;</code></td>
+<td>Replace <code>simulation.seed</code>, which draws <code>simulation.sensor_noise</code>. It changes nothing when noise is off; the Arena runner varies it (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#arena">APP.md</a>)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--actuation &lt;llapi\|ideal&gt;</code></td>
+<td>How MuJoCo turns commands into joint torque, replacing <code>simulation.actuation</code>. <code>llapi</code>, the default, acts as Agility's low-level API: each command 5 ms late, drive damping at <code>--llapi-min-damping</code> toward <code>--llapi-drive-target</code>, the robot's torque limits (<code>assets/robots/digit/config/drives.yaml</code>). <code>ideal</code> applies each command's torque at once; with the undamped shins the legs then ring harder than on the robot (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#plant-and-terrain">APP.md</a>)</td>
+</tr>
+<tr>
+<td>Motion</td>
+<td><code>--vx</code>, <code>--vy</code>, <code>--omega</code>, <code>--walk-duration</code></td>
+<td>One-segment command; see <a href="#motion-from-the-command-line">Motion</a></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--operator &lt;keyboard\|joystick\|viser&gt;</code></td>
+<td>Drive the robot live instead of the motion schedule; see <a href="#driving-the-robot-live">Driving the robot live</a>. Refused together with the one-segment flags</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--operator-udp &lt;port&gt;</code></td>
+<td>The loopback port the viser page's operator controls send to; required by <code>--operator viser</code>, which the launcher's <code>--viser</code> supplies</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--operator-profile &lt;yaml&gt;</code></td>
+<td>Operator limits and mapping. Default <code>walking/config/operator.yaml</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--joystick-device &lt;path&gt;</code></td>
+<td>Joystick device, overriding the profile's <code>joystick.device</code></td>
+</tr>
+<tr>
+<td>Robot</td>
+<td><code>--llapi &lt;address&gt;</code></td>
+<td>Run on Agility's low-level API instead of MuJoCo: <code>127.0.0.1</code> for <code>ar-control</code>, <code>10.10.1.1</code> for Digit; observes only. See <a href="#agilitys-simulator-or-the-robot-llapi">below</a></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--llapi-apply</code></td>
+<td>With <code>--llapi</code>: request torque once the Servo can stand on its own</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--llapi-min-damping &lt;fraction&gt;</code></td>
+<td>With <code>--llapi</code> or <code>--actuation llapi</code>: the least drive damping, as a fraction of each drive's limit, for every planner's commands. Default 0.75, as digit_fpp and Agility's example client use; 0 leaves the policy its trained damping and DCM/ALIP none</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--llapi-drive-target &lt;predicted\|zero&gt;</code></td>
+<td>With <code>--llapi</code> or <code>--actuation llapi</code>: what the drives damp DCM's and ALIP's joints toward. <code>predicted</code> (default) keeps a 9–12 cm swing and ALIP's 1.0 m/s walk in Agility's simulator and is untried on the robot; <code>zero</code> is digit_fpp's hardware-proven setting, with a low swing (about 4 cm)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--llapi-base &lt;agility\|estimator&gt;</code></td>
+<td>With <code>--llapi</code>: the base state the controller uses. Default <code>agility</code>, Agility's own estimate; <code>estimator</code> is our InEKF, whose tilt drifts (see <a href="#agilitys-simulator-or-the-robot-llapi">below</a>)</td>
+</tr>
+<tr>
+<td>Display</td>
+<td><code>--viewer</code> / <code>--headless</code></td>
+<td>Show or hide the MuJoCo viewer, overriding <code>simulation.headless</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--no-keep-viewer-open</code></td>
+<td>Close the viewer when the run ends. By default the last frame stays up until you close the window</td>
+</tr>
+<tr>
+<td>Logging</td>
+<td><code>--log [path]</code></td>
+<td>Turn on the session log, optionally at a new path</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--no-log</code></td>
+<td>Write no session log. Rerun and viser still work, from the same streams kept in memory only; <code>--perception</code> needs logging on</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--log-debug</code></td>
+<td>Also record TAC-QP solver internals as a separate stream</td>
+</tr>
+<tr>
+<td>Observation</td>
+<td><code>--rerun-connect &lt;url&gt;</code></td>
+<td>Stream to a running Rerun viewer. When using the launcher, it also installs the dashboard; the direct binary streams data only</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--scene-udp &lt;port&gt;</code></td>
+<td>Copy the 50 Hz Plant scene to <code>127.0.0.1:&lt;port&gt;</code> for the browser 3D viewer. <code>--viser</code> supplies this for you</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--perception</code></td>
+<td>Record virtual sensor clouds, elevation, costmap and occupancy</td>
+</tr>
+<tr>
+<td>Safety</td>
+<td><code>--cbf</code> / <code>--no-cbf</code></td>
+<td>Force the collision CBF on or off. The safety profile is unchanged, so an A/B pair differs only in this flag</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--inspect-safety-geometry</code></td>
+<td>Open a paused viewer showing candidate CBF proxies. Cannot be combined with <code>--headless</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>--show-safety-geometry</code> / <code>--no-safety-geometry</code></td>
+<td>Show or hide the guarded-shape overlay in the viewer</td>
+</tr>
+<tr>
+<td>Diagnostics</td>
+<td><code>--print-resolved-config</code></td>
+<td>Print the effective configuration, with every override and file digest, then exit</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--write-resolved-config &lt;path&gt;</code></td>
+<td>Write that report to a file, then exit</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--print-tac-qp-summary</code></td>
+<td>Print TAC-QP variables, tasks and constraints before running</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--corta-introspect &lt;path&gt;</code></td>
+<td>Write the compiled CORTA graph as JSON. Render it with <code>pixi run python -m cyber_suite.corta &lt;path&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>Precedence:</p>
+<ul>
+<li>When a flag and its opposite are both given (<code>--viewer</code>/<code>--headless</code>, <code>--log</code>/<code>--no-log</code>, <code>--cbf</code>/<code>--no-cbf</code>), the later one wins. So does a repeated <code>--config</code>.</li>
+<li>Retired flags such as <code>--qp-solver</code> or <code>--keep-viewer-open</code> fail with the YAML key that replaced them. Tuning has no command-line surface.</li>
+</ul>
+<h2 id="live-rerun">Live Rerun<a class="headerlink" href="#live-rerun" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--rerun
+</code></pre></div>
+<p>This command:</p>
+<ol>
+<li>starts the native Rerun viewer that ships with <code>rerun-sdk</code>, on port 9876;</li>
+<li>installs the dashboard layout: a large <strong>Plant truth</strong> 3D view (robot, terrain, foot-corner contact forces) above four live plots, <strong>Base state</strong>, <strong>Estimated state</strong>, <strong>Motion command</strong> and <strong>Control</strong>; and</li>
+<li>launches the app headless with <code>--rerun-connect rerun+http://127.0.0.1:9876/proxy</code>.</li>
+</ol>
+<p>The robot uses its visual meshes with smooth surface normals, and terrain uses the resolved MuJoCo material textures. The ground plane is displayed as a 2 km by 2 km textured surface that appears unbounded at normal walking views, against a sky-blue background (RGB 135, 206, 235). The spatial camera starts near Digit and follows its base position, keeping the view upright as the robot rolls, pitches or turns; you can still orbit and zoom. This requires the updated walking binary and launcher. The 3D view shows the current frame while the scalar plots retain their ten-second history. Rerun uses its own lighting, so the appearance is similar rather than identical to MuJoCo.</p>
+<p>To view in a browser instead, on this computer or a Mac, add <code>--rerun-web</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">6</span><span class="w"> </span>--rerun-web
+</code></pre></div>
+<p>Then open <code>http://localhost:9090</code>. Like <code>--viser</code>, it needs one port and the link never changes. When the simulation runs on Ubuntu, forward port 9090 with VS Code's <strong>Ports</strong> view or <code>ssh -N -L 9090:127.0.0.1:9090 ubuntu-workstation</code>. To skip forwarding over Tailscale or a private LAN, add <code>--web-bind 0.0.0.0</code> (or Ubuntu's Tailscale address) and open <code>http://&lt;ubuntu-tailscale-name&gt;:9090</code>. Ubuntu serves the bundled Rerun web viewer, the current dashboard and the telemetry, so the Mac needs only a browser. The first visit downloads the 50 MB viewer, which the browser then caches.</p>
+<p>The Rerun server itself listens only on Ubuntu loopback: telemetry on <code>--port</code> (default 9876) for the app, and its page on a private port. A small launcher-owned relay is the only listener on <code>--web-bind</code>. It forwards the page and the viewer's gRPC-web telemetry from <code>--web-port</code> (default 9090), so both share one origin and need no cross-origin permission. Opening <code>/</code> redirects to the viewer with WebGL selected and telemetry pointed at the address the browser used, so the same link works through a forward, a Tailscale name or a LAN address.</p>
+<p>The browser server stays open after simulation completion so you can scrub the recording. Ctrl+C in the launch terminal closes that server; <code>--rerun-web --attach-only</code> likewise keeps serving until Ctrl+C while printing the separate app command. A port that is still held, usually by an earlier launch serving playback, is an error rather than a new link: press Ctrl+C in that launch, then run again with the same link. For two simultaneous runs, give the second its own <code>--web-port</code> and <code>--port</code>. <code>--rerun</code>, <code>--rerun-web</code> and <code>--rerun-connect</code> are mutually exclusive. See the <a href="../../../docs/setup/remote-development.html#digit-rerun-in-a-browser">remote workflow</a> for the Mac recipe and native-viewer alternative.</p>
+<p>Under <code>planner: policy</code> (for example <code>--planner policy --policy-bundle DIR</code>), every Rerun mode shows the same robot scene with the policy's own plots: the base velocity the policy saw, the estimate, the velocity command, mechanical power, saturated actuators, phase and fall. <code>--perception</code> is not supported with the policy and is refused before any viewer starts.</p>
+<p>Browser mode adds the C++ operational flag <code>--rerun-dashboard-only</code>: its four plot panels receive their existing channels sampled at up to 50 Hz, and the robot scene remains at 50 Hz. The full 1 kHz Servo stream is stored in HDF5 before this presentation copy is made. Native <code>--rerun</code> and ordinary <code>--rerun-connect</code> retain their full scalar stream for drill-down. This limits browser ingestion overhead; use the HDF5 artifact or native viewer for signals faster than the browser display rate. No controller or simulator rate changes.</p>
+<p>To use an existing viewer, including one reached through an SSH tunnel, run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--headless<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>--vx<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>--rerun-connect<span class="w"> </span>rerun+http://127.0.0.1:9876/proxy
+</code></pre></div>
+<p>The launcher sends and activates the same dashboard, including its sky-blue background and close camera, before starting the app. Without that camera an automatic view can frame the whole 2 km ground surface, making the robot too small to see. The endpoint remains unchanged, and no additional viewer is spawned. The direct C++ binary sends scene data but does not install a dashboard; use the launcher or prepare the viewer with <code>--attach-only</code> first.</p>
+<p>The viewer stays open after the run ends, so you can scrub <code>sim_time</code>. Rerun receives a copy of the logged telemetry: each record is written to HDF5 first, then offered to Rerun. A slow or closed viewer drops only its own copy, never log data or control. The run's closing summary prints a <code>rerun_observer</code> line with offered, logged and dropped counts.</p>
+<p>Useful combinations:</p>
+<ul>
+<li><code>--rerun --viewer</code>: the MuJoCo window as well.</li>
+<li><code>--rerun --port 9877</code>: use this when another viewer holds 9876 (the error is <code>Rerun viewer did not bind to port 9876</code>).</li>
+<li><code>--rerun --attach-only</code>: open the viewer and print the app command without running it.</li>
+<li><code>--rerun-connect URL --attach-only</code>: refresh the dashboard in an existing viewer without running the simulation.</li>
+</ul>
+<h2 id="browser-view-viser">Browser view (viser)<a class="headerlink" href="#browser-view-viser" title="Permanent link">&para;</a></h2>
+<p>Experimental. The page draws the Plant scene (robot, terrain, foot-corner contacts and forces) in any browser, so a remote session needs one forwarded TCP port and no viewer install:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--viser<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">8</span>
+</code></pre></div>
+<p>The launcher starts <code>tools/viser_view.py</code>, waits until it serves <code>http://127.0.0.1:8080</code>, then runs the app headless with <code>--scene-udp 9877</code>. The app copies each Plant scene record to that loopback port after it is written to HDF5; like Rerun's copy, a missing or slow viewer drops only its own copy. The closing summary prints a <code>scene_udp_tap</code> line with offered, enqueued, dropped and sent counts. The page stays up after the run until Ctrl-C.</p>
+<p>When the simulation runs on another computer, forward the port from your own machine and open <code>http://localhost:8080</code> there. VS Code Remote-SSH forwards it from its <strong>Ports</strong> view; from a plain terminal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ssh<span class="w"> </span>-N<span class="w"> </span>-L<span class="w"> </span><span class="m">8080</span>:127.0.0.1:8080<span class="w"> </span>ubuntu-workstation
+</code></pre></div>
+<p>Logging is not needed: with <code>--no-log</code> the app keeps its streams in memory only and still feeds the page. In a live operator session the page also shows an <strong>Operator</strong> status panel, and with <code>--operator viser</code> its controls; see <a href="#driving-the-robot-live">Driving the robot live</a>.</p>
+<p>The page keeps every frame of the run:</p>
+<ul>
+<li><strong>Follow live</strong> shows the newest frame at simulation speed, which is not wall-clock speed. Headless runs go as fast as the stack and the host's load allow: terrain and perception runs are slower, and <code>planner: policy</code> can run faster than real time.</li>
+<li><strong>Play</strong> replays at the chosen <strong>Speed</strong> (1× is real time); the slider scrubs. Both turn off Follow live. Play at the end of a finished run restarts it.</li>
+<li><strong>Follow base</strong> keeps the base centred by sliding the world beneath it. Untick it to orbit or pan in world coordinates.</li>
+</ul>
+<p>The viewer also replays any session log, without the app:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>walking/tools/viser_view.py<span class="w"> </span>--log<span class="w"> </span>artifacts/walking.h5
+</code></pre></div>
+<p>Started on its own (<code>pixi run python walking/tools/viser_view.py</code>), it waits for a run with <code>--scene-udp 9877</code>, and switches to each new run that arrives. It loads the resolved MJCF the run names, so it must run on the computer that ran the simulation. Robot meshes are merged on a 3 mm grid by default to shorten the first download (<code>--mesh-cell 0</code> keeps full detail); flat heightfield cells are merged exactly. The first page load downloads about 3 MB on flat ground and 5 MB on the stairs; following a live run then takes about 70 kB/s.</p>
+<p>It works with every planner. It shows no plots, perception maps or estimated state, and offers no MuJoCo-style perturbation: use <code>--rerun</code> or <code>--viewer</code> for those.</p>
+<h2 id="driving-the-robot-live">Driving the robot live<a class="headerlink" href="#driving-the-robot-live" title="Permanent link">&para;</a></h2>
+<p><code>--operator</code> lets you drive any scenario instead of its motion schedule, with every planner, including <code>--planner policy</code>. The run is paced to the wall clock and lasts until you quit. With the browser view, drive from the page itself; logging is optional:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--operator<span class="w"> </span>viser<span class="w"> </span>--viser<span class="w"> </span>--no-log
+</code></pre></div>
+<p>Open the page (<code>http://localhost:8080</code>, forwarded when remote), click into the scene so it has keyboard focus, and use the <strong>Operator controls</strong> panel or its keys. The <strong>Operator</strong> panel above it shows what the robot's supervisor decided, not what you asked for.</p>
+<table>
+<thead>
+<tr>
+<th>Page key</th>
+<th>Terminal key</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>G</code></td>
+<td><code>g</code></td>
+<td>Walk. Accepted once the status says <code>ready</code></td>
+</tr>
+<tr>
+<td><code>I</code> / <code>K</code></td>
+<td><code>w</code> / <code>s</code> (or <code>i</code> / <code>k</code>, Up / Down)</td>
+<td>Forward / backward request, one step (10 % of the limit) per press</td>
+</tr>
+<tr>
+<td><code>J</code> / <code>L</code></td>
+<td><code>a</code> / <code>d</code> (or <code>j</code> / <code>l</code>)</td>
+<td>Left / right request</td>
+</tr>
+<tr>
+<td><code>U</code> / <code>O</code></td>
+<td><code>q</code> / <code>e</code> (or <code>u</code> / <code>o</code>, Left / Right)</td>
+<td>Turn left / right</td>
+</tr>
+<tr>
+<td>Space</td>
+<td>Space</td>
+<td>Stop: zero the request and return to Stand</td>
+</tr>
+<tr>
+<td><code>P</code></td>
+<td><code>p</code></td>
+<td>Damp: latched joint damping. In simulation the robot collapses</td>
+</tr>
+<tr>
+<td><code>X</code></td>
+<td><code>x</code> or Ctrl-C</td>
+<td>Quit: stop, settle, and end the run</td>
+</tr>
+</tbody>
+</table>
+<p>The page uses the right hand because viser's camera owns W/A/S/D/Q/E and the arrow keys; those still move the camera and never reach the robot. The sliders set the same request as the keys, and the buttons send the same requests. The request latches: it stays where your presses leave it until you change it or stop. The page repeats it 20 times a second while a browser is connected, so closing the tab or losing the connection stops the robot within about half a second and returns it to Stand, after which it needs a new Walk. Ctrl-C in the launch terminal ends the session too.</p>
+<p><code>--operator keyboard</code> drives from the launch terminal instead, with the terminal keys above, and works over SSH because the app reads the terminal it was launched from. The terminal shows the same status in one line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>t   12.3s 1.00x | WALK  ready    link    deadman | req +0.60 +0.00 +0.00 | cmd vx +0.30 vy +0.00 wz +0.00
+</code></pre></div>
+<p>That is simulated time and real-time factor; mode (<code>STAND</code>, <code>WALK</code> or <code>DAMP</code>); whether the robot accepts motion yet (<code>starting</code>, <code>ready</code>, <code>quitting</code>); device link; deadman; your request as a fraction of each limit (forward, left, counter-clockwise); and the command the servo actually receives, rate-limited, in m/s and rad/s. A terminal reports no key releases, so the keyboard cannot tell a lost terminal from a quiet one: its request stays latched until the session ends.</p>
+<p><code>--operator joystick</code> reads a pad plugged into the computer that runs the simulation, which needs the <code>joydev</code> module and read access to <code>/dev/input/js0</code> (membership of the <code>input</code> group). With the default Xbox-style mapping, hold LB (deadman) and use the left stick to move and the right stick to turn; A walks, B stands, Back damps and Start quits. Releasing LB ramps the command to zero but stays in Walk. If the pad goes silent for 0.3 s, for example unplugged or out of range, the robot returns to Stand and needs a new Walk. Other pads number their axes and buttons differently: <code>jstest /dev/input/js0</code> (package <code>joystick</code>) shows yours, and <code>config/operator.yaml</code> maps them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>dcm_walking<span class="w"> </span>--operator<span class="w"> </span>joystick<span class="w"> </span>--viser<span class="w"> </span>--no-log
+</code></pre></div>
+<p>Limits, accelerations, the joystick mapping and the session limit are in <code>config/operator.yaml</code>; the defaults allow 0.5 m/s forward, 0.3 m/s backward and sideways, and 0.5 rad/s turning. A session ends when you quit, after <code>session_limit_s</code> (300 s), or on Ctrl-C (except with <code>--operator keyboard</code>, where Ctrl-C is the quit key), which still closes any log normally; a second Ctrl-C kills the process. Logging is your choice: with it on, the session log grows by about 1.4 GB per simulated minute.</p>
+<h2 id="agilitys-simulator-or-the-robot-llapi">Agility's simulator or the robot (LLAPI)<a class="headerlink" href="#agilitys-simulator-or-the-robot-llapi" title="Permanent link">&para;</a></h2>
+<p><code>--llapi</code> runs the same app on Agility's low-level API, which Agility's own simulator, <code>ar-control</code>, serves exactly as the robot does; only the address changes. It needs a build with the live link: <code>modules/digit_hardware</code> builds it when Agility's sources are in <code>~/Projects/agility_resources/current</code> (or <code>$AGILITY_RESOURCES</code>). Agility's controller holds the robot until you switch it to the low-level API, and you hand it back the same way.</p>
+<ol>
+<li>Start Agility's simulator, which starts the robot standing under Agility's controller, and wait for <code>JSON message API server started</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">cd</span><span class="w"> </span>~/Projects/agility_resources/current/sdk/lowlevelapi<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>~/Projects/ar_control/ar-control-2023<span class="w"> </span>lowlevelapi_example.toml
+</code></pre></div>
+<ol>
+<li>Run the app with <code>--llapi-apply</code>. Startup prints Agility's operation mode, which the app keeps reading from the JSON API, and then <code>takeover-ready</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--operator<span class="w"> </span>keyboard<span class="w"> </span>--llapi<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--llapi-apply<span class="w"> </span>--no-log
+</code></pre></div>
+<ol>
+<li>Hand the robot to the app. The app prints <code>Agility's operation mode locomotion -&gt; low-level-api</code> and <code>the robot obeys our commands</code>, and its controller stands the robot:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>modules/digit_hardware/tools/agility_mode.py<span class="w"> </span>low-level-api
+</code></pre></div>
+<ol>
+<li>
+<p>Drive it from the app's terminal: <code>g</code> walks, each <code>w</code> or <code>s</code> adds a tenth of the forward limit (0.5 m/s in <code>config/operator.yaml</code>), <code>a</code>/<code>d</code> and <code>q</code>/<code>e</code> step sideways and turn, Space stops, <code>x</code> quits. A profile with a higher <code>limits.forward_mps</code> (<code>--operator-profile</code>) allows more speed.</p>
+</li>
+<li>
+<p>Hand the robot back to Agility's controller before quitting:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>modules/digit_hardware/tools/agility_mode.py<span class="w"> </span>locomotion
+</code></pre></div>
+<p>Without <code>--llapi-apply</code> the app only observes: the whole stack runs while Agility keeps the robot. <code>--config dcm_walking</code> runs DCM. At the switch the pelvis leans from Agility's upright stance to our controller's 0.05 rad (2.9°) forward pitch within a quarter second while the base moves about 4 cm back; that is our standing posture, not a fault. The closing <code>digit_llapi_control</code> line reports the time in control, the worst backlog, held and degraded sends, and the largest tilt. To diagnose a session, replace <code>--no-log</code> with <code>--log &lt;file.h5&gt;</code>: the <code>components/hardware/digit_llapi</code> stream holds the operation mode, the torque the robot applied beside the one requested, Agility's base estimate and the link's counters, tick by tick.</p>
+<p>Watch the robot at <code>http://localhost:8080/gamepad</code>, Agility's page; the viser and MuJoCo views need the MuJoCo Plant. Only one <code>ar-control</code> can run: stop it with Ctrl+C, not <code>kill</code>, or it keeps port 8080. On the robot the address is <code>10.10.1.1</code>, for both the LLAPI and <code>agility_mode.py --address</code>, and the computer sits on Digit's payload Ethernet; follow the safety procedures in Agility's manual first.</p>
+<p><strong>Defaults, and what they mean.</strong> These are the settings the app picks for <code>--llapi</code>; APP.md has the reasons and VALIDATION.md the evidence.</p>
+<ul>
+<li>Base state: <code>--llapi-base agility</code> controls on the estimate Agility publishes with every observation, with our estimator off. The app anchors its height once, so connect while the robot stands on flat ground. <code>--llapi-base estimator</code> uses our InEKF, whose roll and pitch drift with the gyro bias (a degree after half a minute in the simulator); use it only to observe.</li>
+<li>Drive damping: every command asks the joint drives to damp at <code>--llapi-min-damping</code> (default 0.75) of each drive's limit, as digit_fpp does on the robot, because the leg springs otherwise ring through the command delay. For DCM and ALIP, <code>--llapi-drive-target predicted</code> (default) damps toward the joint velocity the command expects; <code>zero</code> damps toward zero velocity, digit_fpp's proven robot setting, which lowers the swing to about 4 cm in the simulator. digit_fpp found a measured-velocity target fed the spring mode on the robot: watch for leg jitter there.</li>
+<li>In Agility's simulator ALIP walked straight at up to 1.0 m/s with a 9.4 cm swing and 0.48 s steps (0.33–0.37 s at 1.0 m/s), and DCM at 0.3 m/s. Turning, sideways steps and pushes are untested.</li>
+</ul>
+<p><strong>Real-time priority.</strong> The control and link threads ask for <code>SCHED_FIFO</code>. On an account whose <code>ulimit -r</code> is 0, startup prints <code>real-time priority refused</code> and they run at normal priority; on a busy desktop a burst of late ticks can then cross the 15-slot backlog threshold and end the run with <code>Plant read failed or crossed its miss threshold</code>, releasing the robot to Damping. digit_fpp's procedure grants it: a <code>realtime</code> group with <code>rtprio 95</code> and <code>memlock unlimited</code> in <code>/etc/security/limits.d/99-realtime.conf</code>, then a fresh login (a tmux or byobu server started earlier keeps the old limits), after which <code>ulimit -r</code> prints 95. A deployment computer needs it; digit_fpp measured 13.6 ms control ticks on the robot without it.</p>
+<p><strong>The learned policy</strong> runs the same way with its bundle:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>policy_hold<span class="w"> </span>--operator<span class="w"> </span>keyboard<span class="w"> </span>--llapi<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--llapi-apply<span class="w"> </span>--policy-bundle<span class="w"> </span>learning/checkpoints/policies/2026-10-12_20-32-06_arm-refine-r1-model_16800<span class="w"> </span>--no-log
+</code></pre></div>
+<p>Until the switch the app holds the posture and torque Agility's controller applies, so the switch barely moves the robot, and it starts the policy within about 40 ms of seeing <code>low-level-api</code>. The policy stands until you press <code>g</code> and command motion; it stood still at 0.1 m/s (<code>ww</code>) and walked at 0.3 m/s (<code>wwwwww</code>), with less foot lift than ALIP. Its PD damping runs in the drives toward zero velocity, its trained law, raised to the 0.75 floor where lower. Handing back to <code>locomotion</code> ends the run, since the policy must not run blind.</p>
+<h2 id="perception">Perception<a class="headerlink" href="#perception" title="Permanent link">&para;</a></h2>
+<p>Two separate switches are both called "perception". They differ in whether the controller sees the result:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>--perception</code> (flag)</th>
+<th><code>simulation.terrain_perception: oracle</code> (scenario YAML)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What runs</td>
+<td>A virtual depth camera (61 × 45 rays) and lidar (426 beams) ray-cast from the robot's true pose, feeding an elevation map, costmap and 3D occupancy at up to 10 Hz</td>
+<td>A 20 Hz elevation map read directly from the simulated terrain</td>
+</tr>
+<tr>
+<td>Planners</td>
+<td>Both</td>
+<td><strong>DCM only</strong>; an ALIP scenario with <code>oracle</code> fails at startup</td>
+</tr>
+<tr>
+<td>Affects walking?</td>
+<td><strong>No.</strong> Observation only; control never reads it</td>
+<td><strong>Yes.</strong> The planner uses terrain height to set swing apex and landing height</td>
+</tr>
+<tr>
+<td>Where it goes</td>
+<td><code>components/perception/maps</code> in the session log, and Rerun with <code>--rerun</code></td>
+<td><code>terrain/*</code> channels of the DCM planner stream (<code>terrain/status</code> 1 = map applied)</td>
+</tr>
+<tr>
+<td>How to view</td>
+<td>Live: <code>--rerun --perception</code>. Afterwards: <code>pixi run python -m cyber_suite.perception.playback LOG.h5</code></td>
+<td><code>pixi run python -m cyber_suite.corta.telemetry LOG.h5 --list</code> finds the channels; the walking plotter does not draw them yet</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>off</td>
+<td><code>blind</code></td>
+</tr>
+</tbody>
+</table>
+<p>To walk with oracle terrain, set it in a copy of a DCM scenario:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">simulation</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span><span class="nt">terrain_perception</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oracle</span><span class="w">   </span><span class="c1"># blind | oracle</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>cp<span class="w"> </span>walking/config/scenarios/dcm_walking.yaml<span class="w"> </span>artifacts/dcm_oracle.yaml
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># edit simulation.terrain_perception to oracle, then:</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>artifacts/dcm_oracle.yaml<span class="w"> </span>--terrain<span class="w"> </span>up-stairs<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">6</span>
+</code></pre></div>
+<p>The flag and the YAML key are independent. To watch the maps while the planner uses oracle terrain, pass <code>--rerun --perception</code> with that scenario. Oracle terrain is experimental, and the perception maps are an inspection tool, not a sensor model of the real robot. Their limits are in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#experimental-oracle-terrain-perception">APP.md</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/perception/TELEMETRY.md">the perception telemetry contract</a>.</p>
+<h2 id="logs-and-after-the-run">Logs and after the run<a class="headerlink" href="#logs-and-after-the-run" title="Permanent link">&para;</a></h2>
+<p>Each scenario sets its log path. The canonical DCM run writes <code>logs/digit_corta_walking.h5</code> and ALIP writes <code>logs/digit_alip_walking.h5</code>. <code>--log PATH</code> redirects the log; use <code>artifacts/</code> for anything you want to keep apart. Both folders are ignored by Git.</p>
+<p>The summary printed at the end reports <code>run_complete=</code>, <code>boundary_pass=</code> and an <code>outcome</code> line. The exit code is 0 when the run passes. A passing run proves only that the run executed cleanly, not that the gait was good. For gait quality, read the log:</p>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Figures and a <code>summary.json</code> report, for either planner</td>
+<td><code>pixi run plot-walking LOG.h5 -o DIR</code></td>
+</tr>
+<tr>
+<td>List the figures, or write only the report</td>
+<td><code>pixi run plot-walking LOG.h5 --list</code> / <code>--summary-only</code></td>
+</tr>
+<tr>
+<td>Pick figures, a time window, or open windows</td>
+<td><code>--only NAME</code>, <code>--window START END</code>, <code>--show</code></td>
+</tr>
+<tr>
+<td>Compare two DCM runs</td>
+<td><code>pixi run plot-walking A.h5 --compare B.h5 -o DIR</code></td>
+</tr>
+<tr>
+<td>Numerical plots of the DCM kernel</td>
+<td><code>pixi run python -m cyber_suite.viz.cli locomotion LOG.h5 -o DIR --no-show</code></td>
+</tr>
+<tr>
+<td>Plain-language TAC-QP findings</td>
+<td><code>pixi run python -m cyber_suite.control.audit.walking_log LOG.h5</code></td>
+</tr>
+<tr>
+<td>Per-tick timing percentiles</td>
+<td><code>pixi run python -m cyber_suite.corta.timing LOG.h5</code></td>
+</tr>
+<tr>
+<td>List streams, or export to npz/csv/parquet</td>
+<td><code>pixi run python -m cyber_suite.corta.telemetry LOG.h5 --list</code></td>
+</tr>
+<tr>
+<td>Replay recorded perception maps</td>
+<td><code>pixi run python -m cyber_suite.perception.playback LOG.h5</code> (<code>--inspect</code> validates without a GUI; <code>--save X.rrd --plot X.png</code> exports)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="running-the-binary-directly">Running the binary directly<a class="headerlink" href="#running-the-binary-directly" title="Permanent link">&para;</a></h2>
+<p>Scripts and matrix runners call the executable without the launcher:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>build/walking/digit_corta_walking<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span>--config<span class="w"> </span>walking/config/scenarios/gate_cruise.yaml<span class="w"> </span>--headless
+</code></pre></div>
+<p>Here <code>--config</code> needs the full path, because name lookup is a launcher feature. Run from the Digit project. For a live Rerun view, start a viewer yourself (for example with <code>pixi run walk --rerun --attach-only</code>) and pass <code>--rerun-connect &lt;url&gt;</code>.</p>
+<h2 id="common-errors">Common errors<a class="headerlink" href="#common-errors" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Message</th>
+<th>Meaning and fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Digit walking binary not found</code></td>
+<td>Build it: <code>pixi run build --target digit_corta_walking</code></td>
+</tr>
+<tr>
+<td><code>unknown scenario 'x'; available: …</code></td>
+<td>Use one of the listed names, or give a path to a <code>.yaml</code> file</td>
+</tr>
+<tr>
+<td><code>--config is required for Digit walking runs</code></td>
+<td>The binary was run without a scenario. Use <code>pixi run walk</code> or pass <code>--config</code></td>
+</tr>
+<tr>
+<td><code>--vx, --vy, and --omega require --walk-duration</code></td>
+<td>Add <code>--walk-duration SECONDS</code></td>
+</tr>
+<tr>
+<td><code>--perception requires logging</code></td>
+<td>Remove <code>--no-log</code>, or enable <code>logging</code> in the scenario</td>
+</tr>
+<tr>
+<td><code>--operator viser drives the robot from the viser page; add --viser</code></td>
+<td>The page is the device, so the launcher must start it</td>
+</tr>
+<tr>
+<td><code>cannot bind operator port 127.0.0.1:9878</code></td>
+<td>An earlier run still holds the port: end it, or pick another with the launcher's <code>--operator-udp-port</code></td>
+</tr>
+<tr>
+<td><code>--scenario was replaced by --terrain</code></td>
+<td>On the binary, <code>--scenario</code> is retired. Use <code>--config</code> for the scenario file and <code>--terrain</code> for the ground</td>
+</tr>
+<tr>
+<td><code>--X was removed; set &lt;key&gt; in the Digit walking YAML configuration</code></td>
+<td>That tuning moved into YAML. Edit a scenario copy or profile</td>
+</tr>
+<tr>
+<td><code>Unknown option: --X</code></td>
+<td>Check <code>pixi run walk --help</code></td>
+</tr>
+<tr>
+<td><code>Rerun viewer did not bind to port 9876</code></td>
+<td>Another viewer holds the port. Close it or pass <code>--port 9877</code></td>
+</tr>
+<tr>
+<td><code>OSError: [Errno 98] Address already in use</code> from <code>viser_view.py</code></td>
+<td>Another browser viewer holds UDP 9877. Close it or pass <code>--scene-udp-port 9878</code></td>
+</tr>
+<tr>
+<td><code>simulation.terrain_perception: oracle feeds only the DCM planner</code></td>
+<td>Oracle terrain needs a DCM scenario</td>
+</tr>
+<tr>
+<td><code>--inspect-safety-geometry cannot be combined with --headless</code></td>
+<td>Drop <code>--headless</code>, and with <code>--rerun</code> add <code>--viewer</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>apps/digit/walking/RUNNING.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../../docs/design/dcm-footstep-planner-formulation.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: DCM formulation">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                DCM formulation
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../unitree-g1/walking/RUNNING.html" class="md-footer__link md-footer__link--next" aria-label="Next: Run G1">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Run G1
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../../assets/mathjax.js"></script>
+      
+        <script src="../../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

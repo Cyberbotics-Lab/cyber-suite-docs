@@ -1,0 +1,2243 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/modules/control/MODULE.html">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Control - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#control" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Control
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ordered-constraint-relaxation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordered constraint relaxation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experimental-contact-centroid-acceleration-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental contact centroid acceleration constraint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#candidate-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Candidate diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retired-lateral-dcm-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retired lateral DCM allocation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retired-reference-charts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retired reference charts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retired reference charts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#independent-state-conditioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Independent state conditioning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-owned-receding-horizon-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task-Owned Receding-Horizon References
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration loading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logged-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logged Diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#projected-dynamics-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Projected Dynamics Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-cbf-safety-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental CBF Safety Contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experimental CBF Safety Contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experimental-tracking-envelope-evaluators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental tracking-envelope evaluators
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tac-qp-contact-force-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TAC-QP Contact Force Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tac-qp-signal-conditioning-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TAC-QP Signal Conditioning Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#humanoid-walking-controller-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Humanoid Walking Controller Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-contact-group-kinematic-stabilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Contact-Group Kinematic Stabilization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-stance-foot-yaw-momentum-rate-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Stance-Foot Yaw-Momentum-Rate Constraint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-stance-foot-yaw-force-distribution-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental Stance-Foot Yaw Force-Distribution Task
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tac-qp-reference-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TAC-QP Reference Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#walking-runtime-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Walking Runtime Boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">Lifecycle: candidate</span>
+  
+  <a href="../../markdown/modules/control/MODULE.md.txt" download="MODULE.md">Markdown source</a>
+</div>
+
+<div class="module-contract-context"><strong>Module contract</strong> · <a href="../../docs/design/system-architecture.html#module-control">Back to the module explanation</a><p>This page renders the owning MODULE.md. Its lifecycle and validation statements are preserved from the source.</p></div>
+
+
+
+                  
+  
+
+
+
+
+<h1 id="control">Control<a class="headerlink" href="#control" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Feedback and whole-body control contracts for robot workflows, including the full joint servo controller and TAC-QP core. Robot walking lifecycle policy, planner scheduling, contact schedules, and scenario logging are app-owned.</p>
+<h2 id="public-api">Public API<a class="headerlink" href="#public-api" title="Permanent link">&para;</a></h2>
+<p>TAC-QP uses combined dense solver preparation when available, retaining the separate sparse path. For timing comparisons, sum <code>solver_matrix_update_time_us</code> and <code>solver_vector_update_time_us</code>: combined preparation is charged to the matrix timer and the dense vector timer is zero. Three-row CoM/frame/relative-position costs share direct weighted rank accumulation with signed/zero weights preserved; CoM tasks consume the current kinematics-cache position when valid. Logged per-task objective deltas copy only a single declared Ddq or LambdaC block, while mixed-variable tasks retain full copies. This changes preparation/copying, not task objectives, constraints, conditioning, solver settings or torque semantics. Objective parity and integrated timing evidence are retained under <code>artifacts/servo_computation_20261010/</code> and the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization">walking validation</a>.</p>
+<p>Sparse-selector actuation uses a guarded reduced holonomic solve for the same coupled left inverse of L=[S,J_h.transpose()]. Non-selector or poorly conditioned cases retain the full Gram solve. Projected dynamics uses leading coordinate rows only after current geometry and left-inverse consistency checks; the generic basis and invalid-map sentinel remain. Built-in joint position/velocity CBFs gather signed contact-projector rows and the same affine acceleration credit, while other barriers retain dense projection. Torque-smoothing cross blocks and three-row costs reuse symmetric contributions, contact-projector Gram assembly uses its lower self-adjoint triangle, and the force allocator uses one combined solver update. These are algebra/storage optimizations with the same task catalog, constraints, contact authority, torque policy and upstream solver algorithms. Bounded parity and timing evidence is recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-10-servo-assembly-optimization">walking validation</a>.</p>
+<ul>
+<li><code>robot_state.hpp</code></li>
+<li><code>feedback_controller.hpp</code></li>
+<li><code>joint_servo_controller.hpp</code></li>
+<li><code>terrain_model.hpp</code></li>
+<li><code>map_terrain_model.hpp</code>: bounded map-backed local plane distance/normal, with explicit timestamp/epoch admission and flat fallback (experimental). <code>MapTerrainModel</code> owns a fixed snapshot. Its caller sets the maximum age, current clock/epoch and map-to-consumer vertical offset; XY must already share a chart. Signed distance is the local triangle's normal clearance, not the closest distance to the whole mesh. Snapshot updates and queries must be serialized by the owner. The focused <code>cyber_suite_control.map_terrain</code> gate covers slope, registration, stale, unknown and out-of-window fallback. The Digit app does not install this adapter yet: its external contact-normal override and estimator vertical gauge require a separately validated contact-geometry integration.</li>
+<li><code>catalog_types.hpp</code></li>
+<li><code>cbf_types.hpp</code></li>
+<li><code>barrier_evaluator.hpp</code></li>
+<li><code>tracking_envelope_barriers.hpp</code></li>
+<li><code>joint_limit_barriers.hpp</code></li>
+<li><code>capsule_distance_barrier.hpp</code></li>
+<li><code>smooth_support_gap_barrier.hpp</code></li>
+<li><code>capsule.hpp</code></li>
+<li><code>capsule_distance.hpp</code></li>
+<li><code>support_proxy.hpp</code></li>
+<li><code>collision_safety_model.hpp</code>: <code>load_collision_safety_model</code> finds its profile through <code>cyber_suite::data::resolve</code> (foundation), so a robot's profile in package data (<code>assets/robots/...</code>) loads from any project</li>
+<li><code>collision_safety_debug.hpp</code></li>
+<li><code>constraint_base.hpp</code></li>
+<li><code>floating_base_bridge.hpp</code></li>
+<li><code>force_allocation_layer.hpp</code></li>
+<li><code>friction_pyramid.hpp</code></li>
+<li><code>humanoid_walking_controller.hpp</code></li>
+<li><code>humanoid_walking_reference_contract.hpp</code></li>
+<li><code>passive_elasticity.hpp</code></li>
+<li><code>ramps.hpp</code></li>
+<li><code>front_end.hpp</code></li>
+<li><code>reference_sample.hpp</code></li>
+<li><code>reference_trajectory.hpp</code></li>
+<li><code>shared_kinematics_cache.hpp</code></li>
+<li><code>tac_qp_controller.hpp</code></li>
+<li><code>tac_qp_logger.hpp</code></li>
+<li><code>tac_qp_telemetry.hpp</code></li>
+<li><code>task_base.hpp</code></li>
+<li><code>task_scale_types.hpp</code></li>
+<li><code>braking_authority_observer.hpp</code></li>
+<li><code>acceleration_smoothing_task.hpp</code></li>
+<li><code>captured_yaw_relative_position_task.hpp</code></li>
+<li><code>centroidal_momentum_task.hpp</code></li>
+<li><code>com_position_task.hpp</code></li>
+<li><code>com_relative_foot_position_task.hpp</code> (experimental, retained former ALIP task)</li>
+<li><code>contact_force_regularization_task.hpp</code></li>
+<li><code>contact_force_smoothing_task.hpp</code></li>
+<li><code>contact_force_tracking_task.hpp</code></li>
+<li><code>contact_kinematic_group.hpp</code></li>
+<li><code>contact_group_kinematic_stabilization_task.hpp</code></li>
+<li><code>frame_angular_velocity_task.hpp</code></li>
+<li><code>frame_height_task.hpp</code></li>
+<li><code>frame_orientation_task.hpp</code></li>
+<li><code>frame_position_task.hpp</code></li>
+<li><code>frame_tilt_task.hpp</code></li>
+<li><code>posture_task.hpp</code></li>
+<li><code>relative_orientation_task.hpp</code></li>
+<li><code>relative_position_task.hpp</code></li>
+<li><code>external_anchor_position_task.hpp</code></li>
+<li><code>slack_regularization_task.hpp</code></li>
+<li><code>torque_minimization_task.hpp</code></li>
+<li><code>torque_smoothing_task.hpp</code></li>
+<li><code>vector_alignment_task.hpp</code></li>
+<li><code>box_constraint.hpp</code></li>
+<li><code>contact_group_acceleration_constraint.hpp</code></li>
+<li><code>joint_tracking_constraint.hpp</code></li>
+<li><code>cbf_constraint.hpp</code></li>
+<li><code>stance_foot_yaw_momentum_rate_constraint.hpp</code></li>
+<li><code>dynamics_constraint.hpp</code></li>
+<li><code>friction_cone_constraint.hpp</code></li>
+<li><code>holonomic_constraint.hpp</code></li>
+<li><code>torque_limit_constraint.hpp</code></li>
+<li>Python package: <code>cyber_suite.control</code></li>
+<li>Python humanoid-walking assembly: <code>configure_humanoid_walking_controller_from_yaml</code>, returning typed task IDs and the builder-selected joint partitions from the same C++ composition used by integrated apps.</li>
+<li>Python TAC-QP, joint-servo, and walking-runtime plotting package: <code>cyber_suite.control.plotting</code></li>
+<li>Shared Python plotting support: <code>cyber_suite.viz</code></li>
+</ul>
+<p>The control plotting CLI's <code>tasks</code> and <code>all</code> presets use catalog types to select task-specific figures. Recorded tasks missing type metadata fall back to generic tracking or cost/activation figures with a warning. These plots cannot recover omitted task semantics or joint labels; composing apps must append the TAC-QP metadata catalog after closing the native telemetry stream.</p>
+<p><code>ComRelativeFootPositionTask</code> tracks <code>R_CW (p_foot - c)</code> with the exact <code>R_CW (J_foot - J_com)</code> Jacobian and matching drift. The consumer explicitly selects a three-row swing objective or a one-row stance height objective. Reference storage stays three-dimensional; <code>active_rows</code> and per-axis row flags distinguish storage from objective authority in telemetry. The stance role emits no horizontal cost rows. Captured yaw rejects nonfinite updates, and reset clears the chart. This primitive remains available with its existing contracts; the ALIP app no longer uses it. The DCM catalog is unchanged.</p>
+<p><code>CapturedYawRelativePositionTask</code> tracks the differential position of two frames in a fixed yaw-only chart supplied by its consumer. Its Jacobian is the same fixed rotation applied to the two-frame translational-Jacobian difference, so common floating-base translation cancels. It does not own gait phase, frame selection, or the captured heading. Digit walking's ALIP planner uses a step-frozen estimated yaw chart with base/foot frames for heading-aligned foot-minus-base tracking, and composes independent <code>FrameHeightTask</code> support-height objectives. No live reference-frame attitude enters the chart.</p>
+<p><code>TACQPController::set_upstream_state_conditioning(true)</code> selects a composing estimator's conditioned input before initialization. It bypasses only the controller's position and velocity EMA; torque, stiffness and velocity-feedback conditioning retain their configured behavior. The default remains controller-local state conditioning. The composing app owns the shared state filter and its reset policy.</p>
+<p>TAC-QP calls <code>RobotModel::prepare_control_terms</code> on its final conditioned q/qd before precomputing its own kinematics cache. A composing app may prepare the same state earlier for observations and transforms; an exact match avoids repeated backend evaluation. Other backends retain the no-op hook and existing individual queries. Estimation/physical inputs are not replaced by this control view.</p>
+<h3 id="ordered-constraint-relaxation">Ordered constraint relaxation<a class="headerlink" href="#ordered-constraint-relaxation" title="Permanent link">&para;</a></h3>
+<p><code>TACQPControllerOptions::relaxation_stages</code> lists constraint families to relax, in order, after a rejected solve. The reusable default is empty. Each stage names inequality or box constraints by id; ids are resolved at <code>initialize()</code>, and an unknown id or an equality constraint throws. When the solve is rejected, the controller re-solves the same problem. It relaxes stage 1, then stages 1 and 2, and so on, and commands the first accepted solution. No tasks, estimators or Layer 1 are rerun.</p>
+<p>Relaxing moves a constraint's finite bounds to <code>+/-solvers::kQPRelaxedBound</code> (1e15). Infinite sides stay infinite, so the solver's bound pattern and every prepared workspace are unchanged, and the relaxed solve allocates nothing. A stage that relaxes no bound is skipped without a solve. A contact-group acceleration constraint in a stage is relaxed only while it is invalid, or while its group capacity Q is below the stage's <code>contact_capacity_below</code>.</p>
+<p>Relaxation runs only after an attempted primary solve, never on nonfinite problem data. Dynamics and closed-chain equalities are never relaxed. A relaxed command is never CBF-protected.</p>
+<p><code>Diagnostics::solved</code> means an accepted command, relaxed or not. Two fields identify it:
+- <code>primary_qp_solved</code> identifies the unrelaxed solve.
+- <code>relaxation_stage</code> is k when stages 1..k were relaxed, otherwise 0.</p>
+<p><code>relaxation_attempts</code> counts the re-solves. <code>relaxation_solve_time_ms</code> is included in <code>solve_time_ms</code>. <code>solver_status</code>, iterations, objective and residuals describe the primary solve. <code>constraint_violation_max</code> measures the command against the unrelaxed rows.</p>
+<p>Telemetry carries <code>qp/relaxation_stage</code>, <code>qp/relaxation_attempts</code> and <code>qp/relaxation_solve_time_ms</code>, and names the stages in <code>relaxation/stage_names</code>. <code>qp/solved</code> excludes relaxed commands. Constraint channels log the unrelaxed bounds, so the relaxed rows' violation is visible. <code>record_applied_torque</code> still reconciles the controller's history when the composing app substitutes its own command.</p>
+<p>The experimental task-space realizations remain environment overrides for learning research: <code>CYBER_SUITE_TACQP_REALIZATION=beta_newton | cascade_split</code> replaces the Layer-2 solve on every tick. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/investigations/2026-10-01-task-space-action-learning.md">investigation</a>. They are no longer a fallback. <code>CYBER_SUITE_TACQP_HOLD_TICKS=N</code> (with optional <code>CYBER_SUITE_TACQP_HOLD_EVENTS=1</code> and <code>CYBER_SUITE_TACQP_HOLD_LAW=linear|zoh|pd</code>) is a rate-split experiment: it commands the QP solution every Nth tick and the anchor solution's first-order expansion in between, while the full QP still runs every tick as a shadow. Its 2026-10-12 campaign and limits are in the same investigation; it changes nothing when unset. <code>TACQPController::inequality_constraint_activity</code> (with <code>inequality_constraint_names</code>) is a read-only diagnostic: per inequality or box constraint, the rows at or beyond a bound of the unrelaxed problem under the last accepted solution, and the largest excess. Experiment 0 of the same investigation reads it.</p>
+<h3 id="experimental-contact-centroid-acceleration-constraint">Experimental contact centroid acceleration constraint<a class="headerlink" href="#experimental-contact-centroid-acceleration-constraint" title="Permanent link">&para;</a></h3>
+<p><code>ContactGroupAccelerationConstraint</code> and <code>TACQPController::make_contact_group_acceleration_constraint</code> add three fixed world-frame rows on the authorized contact-point centroid. Geometry is the normalized structural point-weight average, including the same average of <code>J_contact_dot_v</code>. Group capacity is the maximum stored <code>contact_force_capacity_qp</code> over points selected by binary <code>A=1</code>, matching the existing contact-group task. It never reconstructs C or H, thresholds Q, or uses Q as a measured contact mask.</p>
+<p>For each axis, <code>abs(Q * (J * ddq + drift - acceleration_target)) &lt;= Q * tolerance + (1-Q) * release_acceleration</code>, with <code>acceleration_target = -velocity_damping .* velocity_centroid</code> in world coordinates. The centroid velocity uses the same authorized structural weights as the Jacobian/drift. The standalone typed config defaults its per-axis <code>velocity_damping</code> to zero for acceleration-only diagnostics. Nonzero gains must be finite and nonnegative, and require finite active contact velocities. Q=1 enforces the tolerance around that target; Q=0 leaves zero rows and unbounded row limits without reading contact velocity. Intermediate capacity opens the finite physical band to <code>tolerance + (1-Q)/Q * release_acceleration</code>. There are no slacks or new state transitions. Fixed declared ddq sparsity includes the rows even when setup occurs at zero capacity. Invalid active kinematics creates an infeasible row rather than silently releasing contact.</p>
+<p>The shared humanoid builder accepts <code>controller.contacts.acceleration_constraint</code> with <code>enabled</code> (default false), <code>tolerance</code> (default 0.5 m/s2), and <code>release_acceleration</code> (default 100 m/s2). Tolerances must be finite, nonnegative/positive respectively, even in a disabled block. When enabled, <code>left_contact_acceleration</code> and <code>right_contact_acceleration</code> each own three rows. Python exposes the same typed config and factory; Digit's applied YAML records the effective settings. In the walking composition, velocity damping is derived from the existing enabled <code>kinematic_stabilization.centroid_kd</code> in world x/y, with z zero. If that stabilization block is disabled, the target is zero. This keeps the hard band compatible with the existing horizontal slip-damping objective without introducing another YAML gain. The standalone factory accepts explicit per-axis gains instead. Native constraint diagnostics declare validity, group Q, selected-point count, scaled bound, acceleration/drift by axis, and scaled violation. Six appended scalars report world contact velocity and the acceleration target; the original eleven indices retain their order. Violation is measured relative to the target. Kinematic values are unavailable at Q=0, where they are not evaluated; the violation is zero. With zero damping, missing velocity is allowed and logged as unavailable rather than as zero.</p>
+<p>The checked-in Digit walking profile explicitly enables this experimental block. That selection does not qualify startup or terrain behavior; see the walking app's validation record. Consumers omitting the block retain the shared builder's disabled default.</p>
+<p>This is a translation model of a configured centroid, not a six-dimensional rigid patch, terrain contact estimator, or occupancy guarantee. Positive Q on an airborne foot can still constrain its acceleration. Existing forces, holonomic dynamics, velocity/shape stabilization, and contact-projected CBFs retain their contracts. The CBF point projection is not identical to these three centroid rows. Dynamic adoption belongs to the walking app's validation.</p>
+<h3 id="candidate-diagnostics">Candidate diagnostics<a class="headerlink" href="#candidate-diagnostics" title="Permanent link">&para;</a></h3>
+<p><code>diagnostics/braking_authority_observer.hpp</code> compares aligned predicted and observed planar acceleration over a bounded window without feeding a value back into the controller. <code>collision_safety_debug.hpp</code> resolves overlay shape data and selected capsule-pair measurements from a collision profile without a simulator or viewer dependency. Integrated apps own configuration, rendering, telemetry, and any interpretation of these diagnostic values.</p>
+<h2 id="retired-lateral-dcm-allocation">Retired lateral DCM allocation<a class="headerlink" href="#retired-lateral-dcm-allocation" title="Permanent link">&para;</a></h2>
+<p>The experimental <code>LateralDcmCommand</code>, <code>LateralDcmDiagnostics</code>, and <code>lateral_dcm</code> command/result fields were removed on 2026-09-19 after the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/journal/entries/2026-09-19-lateral-dcm-scenario-comparison.md">Digit scenario comparison</a>. Its three integrations completed 24/46, 19/46 and 20/46 scenarios versus baseline's 34/46, with poorer forward tracking and prolonged stopping.</p>
+<p>The predictive objective, roll-momentum constraints, dedicated <code>set_projected_momentum_rate_target</code> handoff, and fifth <code>regulated_momentum_task_name</code> argument to <code>enable_force_allocation_cascade</code> are removed from the native and Python interfaces without compatibility shims. Rebuild native consumers after this source/ABI change. The ordinary centroidal command, force/moment tracking, optional planar feedforward and vertical-height feedback remain supported; the generic HDF5 allocation schema is unchanged.</p>
+<h2 id="retired-reference-charts">Retired reference charts<a class="headerlink" href="#retired-reference-charts" title="Permanent link">&para;</a></h2>
+<p><code>TaskBase::replace_inactive_vector_reference_trajectory</code> installs a complete future without an old-chart C2 splice only when the task is disabled and its activation has reached zero. It rejects enabled or retiring tasks. Callers own chart metadata; RHRS continues to own all sampling. Ordinary active retargeting still uses <code>set_vector_reference_trajectory</code> with a C2 join. TRON1 uses the guarded operation when reusing a swing task in a new captured yaw chart. The reference sampling suite verifies the retirement guard.</p>
+<h3 id="independent-state-conditioning">Independent state conditioning<a class="headerlink" href="#independent-state-conditioning" title="Permanent link">&para;</a></h3>
+<p><code>SignalConditionerConfig</code> and the humanoid controller profile accept optional <code>base_linear_velocity_cutoff_hz</code> and <code>base_angular_velocity_cutoff_hz</code>. They filter the respective three-row floating-base tangent velocity blocks. An omitted value inherits <code>qd_cutoff_hz</code>, preserving legacy whole-velocity conditioning; explicit zero passes that block through. Fixed-base models ignore the base overrides. <code>qd_cutoff_hz</code> still filters joint velocities and <code>q_cutoff_hz</code> filters joint positions (base pose only when explicitly requested). Base overrides must be finite and nonnegative. Each block primes from its first input; conditioning performs no per-tick allocation. The task-space JSON emits effective numeric cutoffs for the batched consumer; Python bindings expose optional overrides as <code>None</code> or numbers. These are control-state bandwidth settings, not changes to an upstream estimator's covariance or IMU propagation.</p>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Eigen</li>
+<li>yaml-cpp</li>
+<li>optional HighFive/HDF5 for TAC-QP and app-local joint-servo/walking-runtime logging</li>
+<li>Python plotting dependencies: h5py and matplotlib</li>
+<li><code>cyber_suite_foundation</code></li>
+<li><code>cyber_suite_solvers</code></li>
+<li><code>cyber_suite_robot</code></li>
+<li><code>cyber_suite_estimation</code></li>
+<li><code>cyber_suite_perception</code> -- fixed terrain product for the experimental map adapter</li>
+<li>pybind11 for Python bindings</li>
+</ul>
+<h2 id="consumers">Consumers<a class="headerlink" href="#consumers" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Future integrated robot control apps under <code>apps/</code></li>
+<li><code>apps/digit/walking/digit_corta_walking</code></li>
+<li>Future examples that demonstrate control APIs without owning robot behavior</li>
+<li>Python tooling that inspects controller diagnostics and configuration</li>
+<li>Python analysis workflows that inspect TAC-QP, joint-servo, or app walking-runtime HDF5 logs and generate plots</li>
+</ul>
+<h2 id="task-owned-receding-horizon-references">Task-Owned Receding-Horizon References<a class="headerlink" href="#task-owned-receding-horizon-references" title="Permanent link">&para;</a></h2>
+<p>The candidate control module owns runtime-independent continuous-reference infrastructure for TAC-QP tasks. <code>TaskBase</code> owns its installed reference and activation trajectories and samples them in <code>tick()</code> before cost assembly. The implemented slice accepts absolute-time nonuniform complete-jet vector, scalar-activation, and SO(3) samples.</p>
+<p>When replacing an active preview, each trajectory constructs one bounded C2 prefix from the actually executed jet to the candidate jet sampled at the caller-provided join time. Candidate knots inside the prefix remain continuous boundaries, so the task does not smooth across an authored apex or hold. The candidate is exact no later than the join. A task's first authoritative trajectory is installed directly because there is no prior future to reconcile.</p>
+<p>Every setter has task-local strong exception safety: it constructs and validates its own replacement before changing the task. There is deliberately no batch <code>prepare</code>/<code>commit</code>, cross-task rollback, provisional admission state, or partial-generation recovery. A composing app may call several independent setters with the same join time; if a later call throws, the app must fail before QP solve or command publication rather than continue from mixed state.</p>
+<p>A producer on the control tick can install without allocating. Once <code>TaskBase::prepare_reference_storage</code> and the trajectories' <code>prepare_storage</code> have run, a same-shape future installs by copying into the prepared storage. <code>set_knots</code> takes a span, so a producer with a variable knot count installs a prefix of one fixed, pre-sized knot pool. The splice-deviation diagnostic and <code>CentroidalMomentumTask</code>'s cost buffers are sized at the same point, so a task first activated after startup does not allocate either. <code>TACQPController::prepare_solver_workspaces</code> does the same for the solver's shapes and seals them. Both Digit walking Servos gate this with an allocation probe from estimator authority on.</p>
+<p>Scalar activation additionally proves every complete-jet candidate and splice segment remains in <code>[0,1]</code>. A bound-breaking curve throws during installation; sampling does not introduce a discontinuous saturation policy.</p>
+<p>The future contract may allow missing velocity or acceleration constraints and must infer absent derivatives rather than treat them as zero. That presence encoding and inference are not implemented and must not be claimed by current consumers.</p>
+<p>The module does not own producer scheduling, task catalogs, planner or contact semantics, join-time policy, retargeting, retiming, reshaping, physical-limit policy, or application lifecycle. The maintained first consumer is the fixed Python DCM/Digit TAC-QP stack. Module validation covers complete-jet C2 splice boundaries, direct first install, interior-knot and post-join candidate preservation, nonuniform time, activation bounds, and task-local structural failure. Walking behavior remains app-owned scenario evidence. There is no owned reference-planning example.</p>
+<h2 id="configuration-loading">Configuration loading<a class="headerlink" href="#configuration-loading" title="Permanent link">&para;</a></h2>
+<p><code>HumanoidWalkingControllerConfig</code> owns controller values, while integrated apps own profile composition. <code>read_humanoid_walking_controller_section</code> reads a <code>controller</code> mapping through <code>config::ProfileReader</code>: every key is required, an unknown or duplicated key fails with its qualified path, and the two stance-foot yaw blocks are the only optional sections, because building either adds QP rows even disabled. <code>read_humanoid_walking_controller_profile</code> and the path overload read a document's <code>controller</code> mapping and leave its sibling sections to the composer. <code>humanoid_walking_controller_section_yaml</code> is the report emitter; reading its output gives an equal configuration. Contract-specific tasks live in two sections, <code>support_relative</code> (<code>base_height</code>, <code>swing_foot_position</code>, <code>vertical_com_regulation</code>, <code>pelvis_orientation</code>) and <code>base_relative</code> (<code>base_height</code>, <code>swing_foot_position</code>, <code>vertical_acceleration_limit</code>, <code>pelvis_orientation</code>); the former top-level keys and the <code>stiffness_cutoff_hz</code> alias fail with a migration message. Pelvis orientation is per contract because the swing each planner authors sets how much torso yaw damping it needs.</p>
+<h2 id="logged-diagnostics">Logged Diagnostics<a class="headerlink" href="#logged-diagnostics" title="Permanent link">&para;</a></h2>
+<p>TAC-QP telemetry logs only what cannot be recomputed from other logged channels with plain arithmetic. Per task, that is the reference and actual state, <code>desired_acceleration</code> (its gains are not logged and some are state- or role-dependent), <code>drift_term</code>, the task-defined <code>position_error</code> and <code>velocity_error</code>, cost and named diagnostic scalars. Per constraint, it is <code>Ax</code>, <code>lb</code>, <code>ub</code>, named scalars, CBF <code>h</code> (plus <code>surface_distance</code> for collision barriers) and holonomic <code>phi</code>/<code>phi_dot</code>; the debug stream adds CBF <code>psi1</code>, drift, residuals and source diagnostics. CBF row validity and emergency slack are summarized per tick by the <code>qp/cbf_*</code> channels.</p>
+<p>Not logged, because a reader derives them: constraint <code>max_violations</code> and <code>satisfied</code> (from <code>Ax</code>/<code>lb</code>/<code>ub</code>), holonomic <code>phi_norm</code>, <code>phi_dot_norm</code> and <code>constraint_error_norm</code>, <code>qp/dynamics_residual_*</code>, <code>qp/holonomic_residual_*</code>, <code>qp/constraint_violation_max</code> over the logged rows, and Layer-1 <code>normal_force_utilization</code> (<code>normal_force / normal_upper</code>). <code>TACQPLogData</code> derives each when a log lacks it, and keeps an older log's logged value. The CBF plotter recovers emergency slack as <code>relaxed_residual - physical_residual</code> and degree-two <code>h_dot</code> as <code>psi1 - alpha1 * h</code>, or a finite difference of <code>h</code> without the debug stream. <code>Diagnostics::constraint_violation_max</code> remains a controller field; the Digit servo stream records it every tick.</p>
+<p>Removed outright: the task gain terms <code>kp_term</code>/<code>kd_term</code>, the objective attribution fields (<code>residual_cost_value</code>, <code>normalized_dissatisfaction</code>, <code>objective_influence_*</code>, which cost about 50 µs per tick of Hessian copies), and the per-tick feasibility report. The legacy affine <code>costs</code> dataset is not objective attribution.</p>
+<h2 id="projected-dynamics-contract">Projected Dynamics Contract<a class="headerlink" href="#projected-dynamics-contract" title="Permanent link">&para;</a></h2>
+<p>The default TAC-QP formulation eliminates actuator and holonomic reaction forces with <code>L = [S J_h^T]</code>. Its dynamics equality uses a complete orthonormal basis <code>N</code> of <code>null(L^T)</code>:</p>
+<p><code>N^T (M ddq + h - J_c^T lambda_c) = 0</code>.</p>
+<p>For full-column-rank <code>L</code>, the fixed row count is <code>max(0, nv - na - nc)</code>. The runtime basis is formed from coordinate directions projected through <code>I - L L^+</code>, then re-orthogonalized without hot-path allocation. This retains every uncontrolled direction; selecting the first rows of the projector is invalid because those rows may be zero when the corresponding coordinates are actuated. Missing, nonfinite, rank-deficient, or dimensionally inconsistent coupled maps fail closed rather than silently omitting dynamics equations.</p>
+<h2 id="experimental-cbf-safety-contract">Experimental CBF Safety Contract<a class="headerlink" href="#experimental-cbf-safety-contract" title="Permanent link">&para;</a></h2>
+<p>The supported experimental CBF authoring path separates safe-set evaluation from QP assembly. A <code>BarrierEvaluator</code> owns fixed-size <code>h</code>, <code>h_dot</code>, derivative, drift, validity, and source-diagnostic data. It binds required model/cache resources before controller initialization and invalidates its preallocated output before every evaluation. <code>CbfConstraint</code> is the shared row assembler for first- and second-order barriers. All rows and any configured bounded slack are registered before <code>TACQPController::initialize()</code>; the controller never changes QP structure at runtime.</p>
+<p>Every <code>CbfConstraint</code> row is restricted to the accelerations the active contacts permit, for all barrier families. Barriers write <code>A_ddq</code> in free-space kinematics, but a planted foot holds its own frame, so the reachable set is the affine set <code>ddq = ddq_p + N_c z</code>. <code>CbfConstraint</code> post-multiplies each row by <code>SharedKinodynamicsCache::N_contact</code> and credits its drift with <code>A_ddq · contact_ddq_particular</code>; both halves are required, because projecting coefficients alone asks for the same <code>h_ddot</code> from a shrunken row. <code>h</code> and <code>h_dot</code> are measured and never modified. The projector is built once per tick by <code>TACQPController::update_contact_nullspace_projector</code>, after the front end publishes <code>contact_force_capacity</code> and before constraints read it, weighted so a row's projection strength equals that contact's <code>Q</code> — the same <code>Q = A C H</code> the friction cones and contact stabilization task are gated by, and continuous, so no threshold appears in the constraint matrix during load transfer. Do not confuse <code>N_contact</code> with the projected-dynamics <code>N</code> above: that one is a basis of <code>null(L^T)</code> for the dynamics equality, this one is a projector on <code>ddq</code> for barrier rows. With no contact carrying capacity, <code>N_contact_valid</code> is false, the projection is skipped, and row arithmetic is unchanged. A row that keeps less than a thousandth of its norm under the projection is reported <code>Uncommandable</code> and written vacuous rather than infeasible, because it is an ordinary condition — a foot-foot pair is uncommandable in every double-support tick — and must leave the solve without taking the solve down. The algorithm, its rejected alternatives, and the measured behaviour are recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/investigations/2026-08-07-contact-projected-cbf-rows.md"><code>notes/investigations/2026-08-07-contact-projected-cbf-rows.md</code></a>.</p>
+<p><code>JointPositionBarrier</code> and <code>JointVelocityBarrier</code> use explicit, independently validated configuration and velocity indices, so floating-base <code>nq != nv</code> mappings do not rely on an index-offset assumption. <code>CapsuleDistanceBarrier</code> loads only explicitly named capsule pairs from a strict, versioned <code>CollisionSafetyModel</code> profile. It recomputes the exact capsule distance and automatic closest-point witnesses once per pair per tick, then freezes those witness parameters for the local Jacobian. Freezing is exact for <code>h_dot</code> by Danskin's theorem, but not for the drift: the witness slides, so the frozen drift overstates <code>h_ddot</code> by the curvature energy of the witness velocity. That deficit is computed from the witness Hessian and removed, which makes the drift match the true second derivative on interior branches and leaves strict endpoint branches unchanged. A borderline endpoint is treated as sliding, which overstates the deficit and tightens the row. The deficit is dominated by the smallest witness-Hessian eigenvalue, because a low-curvature mode is one the witness slides along quickly and that eigenvalue sits in the denominator. Truncating it discards nearly the whole correction rather than a negligible part, so truncation, a sliding rate that leaves the branch within one control period, and the configured deficit ceiling are all reported as approximate. <code>drop_uncertified_rows</code> removes those rows from the safety solve, but that is fail-open rather than fail-closed: it grants the nominal controller more authority exactly where the model is least trustworthy, and it measurably deepened penetration on the Digit foot-approach diagnostic, so it defaults off. A kept approximate row is reported <code>Uncertified</code>: it remains a hard QP row, but the controller reports the command <code>Unprotected</code> and never sets the CBF-protected flag. Coincident witnesses remain degenerate because their separating normal is undefined.</p>
+<p><code>SmoothSupportGapBarrier</code> avoids that whole correction by not using a distance. For any direction <code>n</code>, <code>n' (c_B - c_A) - rho_A(n) - rho_B(n)</code> is at most the true clearance, so a nonnegative value certifies the pair apart. The directions come from explicit formulas of the configuration rather than an optimisation, and the proxies' support radii are smooth by construction, so both derivatives are exact with no envelope argument, no witness, and no branch to leave. A support radius is only twice differentiable where the body has strictly positive curvature, which is why exact boxes and capsules are disqualified and why the flat cylinder side is the same defect as the capsule barrier's feature switch; <code>SupportProxy</code> restores smoothness by padding each absolute value outward by a declared number of millimetres. Candidate directions are combined with a <em>normalised</em> smooth maximum, <code>(1/beta) log((1/K) sum_k exp(beta g_k))</code>, whose <code>1/K</code> is what keeps it a lower bound on the true maximum — an unnormalised log-sum-exp would exceed it and break the safety implication, which is the opposite of the convention a smooth minimum over sphere pairs needs. With <code>CenterAxesAndCrossProducts</code> and two <code>Box</code> proxies the direction set is the separating-axis theorem's complete one, so the zero level set is the true contact boundary and only the values away from it are understated. Each row publishes its whole conservatism budget — shape padding plus <code>log(K)/beta</code> — so the approximation can be compared against the clearance it is charged against; on Digit the seven configured pairs spend 5.4 to 6.0 mm against clearances of 10 to 30 mm and evaluate in about 10 us together. The aggregation contributes <code>beta * Var_w(g_dot)</code> to the drift, which is nonnegative and therefore relaxes the row; a sharp <code>beta</code> costs less than its curvature alone suggests. Every row is Valid or Invalid, never Degenerate: coincident centres and parallel axes fall out as small, smooth, heavily negative candidates rather than as undefined normals. Each row publishes named surface/centerline distances, witness parameters and features, centerline sine, closest points, separating direction, the witness drift deficit, its minimum relative eigenvalue, its slide horizon, and its status through the generic source-diagnostic channel. Consumers must resolve those columns through <code>cbf_source_diagnostic_names</code> rather than assuming a fixed stride. Invalid or degenerate rows fail the safety solve instead of reusing stale or zero-filled coefficients.</p>
+<p>TAC-QP owns exactly one automatically generated joint-position family and one joint-velocity family. Their stable IDs are <code>joint_position_limit_cbf</code> and <code>joint_velocity_limit_cbf</code>. Each is 2n hard rows -- upper then lower -- at the raw robot-model limits, and there is no inward operational band nested inside them. <code>TACQPControllerOptions</code> exposes two knobs per family: <code>enforce_model_limits</code> and <code>model_limit_response_time_s</code>.</p>
+<p>The response time maps to <code>alpha = 1 / response_time_s</code>. Alpha is a rate, so a <em>larger</em> alpha is more permissive: it lets a joint approach its stop faster. This inverts the plain-language reading of the field and is the trap to watch. The second-order position row is <code>q_ddot &lt;= alpha^2 * h + 2 * alpha * h_dot</code>, so alpha is not a gentleness dial -- it sets a per-joint acceleration cap proportional to <code>alpha^2</code> times the distance to the bound. The default 0.01 s (alpha = 100) keeps both families inert in nominal motion.</p>
+<p>A previous automatic inward joint-limit margin was removed. At equal gains, its rows dominated the physical model-limit rows by a constant offset and acted as an acceleration cap throughout the joint range. This history concerns a blanket inset of model limits; an app's task-relative operating envelope has its own reference, gains and feasibility tradeoff. The controller does not automatically add or relax such app requirements.</p>
+<p>The controller performs one solve per tick. For a family with <code>EmergencyRelaxation::bounded(...)</code>, bounded slack is available in that same QP; it is not opened by a second solve. Families configured with <code>EmergencyRelaxation::disabled()</code> stay hard. An accepted solution is reported <code>Strict</code> only when independent residual checks pass, measured <code>h</code> and (for relative degree two) <code>psi1</code> are admissible, and all rows are certified and commandable. A solution that requires configured slack is reported <code>EmergencyRelaxed</code>; invalid data, inadmissible measured states, uncommandable rows or failed acceptance checks withhold the protection claim. Initial admissibility gates priming; after priming an inadmissible measured state revokes protection without withholding an otherwise accepted recovery command. <code>SolvedInaccurate</code> requires finite primal and dual residuals within the configured limits.</p>
+<p><code>Strict</code> and the current <code>command_is_cbf_protected</code> flag describe the accepted QP result and measured barrier admissibility. The implementation does not revoke that flag when velocity feedback, effort clipping or torque filtering changes the inverse-dynamics torque. Consumers must therefore not interpret it as certification of the applied command; physical enforcement must be validated separately.</p>
+<p>This is a conditional sampled-data QP contract, not a proof of continuous-time, intersample, model, geometry, solver, actuator, environment-collision, or hardware safety. A consumer must separately validate its initial safe set, geometry, rates, feasibility, timing, stop behavior, and command application. In particular, the capsule drift is corrected for witness sliding only within the active branch. Capsule distance is piecewise twice differentiable, so its second derivative still jumps where the closest-feature branch changes, and the correction does not address that jump. Rows whose deficit is truncated, rate limited, or capped are reported approximate. With the default <code>drop_uncertified_rows=false</code>, they remain hard rows but are marked <code>Uncertified</code>, which withholds the protected-command claim. Opting into row dropping marks them <code>Degenerate</code> and removes them from the safety solve; that policy is fail-open. <code>SmoothSupportGapBarrier</code> removes that failure mode but replaces it with a conservatism the caller must budget for: it under-states clearance by its published padding and aggregation margin, plus however loosely each proxy wraps its link and, outside the box-box complete direction set, however far the chosen directions fall from the true separating one. Neither of those last two is knowable from the evaluator, so a profile has to justify its proxies against the robot's real collision geometry rather than against the capsules it replaces. The deprecated inheritance API was removed on 2026-09-12: <code>FirstOrderCBFConstraint</code>, <code>SecondOrderCBFConstraint</code>, <code>JointPositionLimitCBF</code>, <code>JointVelocityLimitCBF</code>, <code>SelfCollisionAvoidanceCBF</code>, <code>CentroidalMomentumCBF</code>, the legacy-only <code>CollisionManager</code>/narrowphase cache, and the C++/Python <code>make_centroidal_momentum_cbf</code> factory. Author barriers with <code>BarrierEvaluator</code> and register them through <code>add_cbf()</code>; <code>BarrierDescriptor::required_frames</code> automatically registers cache frames. Joint-limit convenience factories remain and already construct the shared implementation. Historical semantic enum/log IDs and plot readers remain so recorded runs can still be inspected.</p>
+<p>Digit walking uses this same path for its torso tilt envelope: degree-two position and degree-one velocity instances of <code>FrameTiltEnvelopeBarrier</code>, with hard rows and app-owned reference selection and bounds. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#torso-tilt-envelope">app contract</a>.</p>
+<h3 id="experimental-tracking-envelope-evaluators">Experimental tracking-envelope evaluators<a class="headerlink" href="#experimental-tracking-envelope-evaluators" title="Permanent link">&para;</a></h3>
+<p><code>JointTrackingConstraint</code> (kind <code>joint_tracking</code>) imposes a task's sampled joint reference as a hard acceleration equality, one row per joint: <code>ddq_j = a_ref + kp (q_ref - q) + kd (v_ref - v)</code>. Unlike the weighted <code>PostureTask</code>, no other task can trade against these joints, and the dynamics constraint supplies their torque. The rows are never softened. A reference whose size does not match, or that is not finite, holds the joints by damping alone (<code>ddq_j = -kd v_j</code>), so the rows never vanish. The reference task must outlive the constraint and be ticked before assembly, as <code>TACQPController</code> does. A focused contract test covers the rows, the damping fallback and the argument checks. Digit walking's <code>controller.arm_posture.mode: constraint</code> is the first consumer. In flight, when no contact can supply momentum, these rows can leave the joint-limit barriers no solution; see the walking validation.</p>
+<p>The reusable tracking-envelope API is <code>FrameTiltEnvelopeBarrier</code> in <code>tracking_envelope_barriers.hpp</code>. It supplies reference-relative safe sets to <code>CbfConstraint</code> and does not register operational limits automatically. Dependencies are RobotModel, TaskBase's sampled references and SharedKinodynamicsCache. Digit walking is the first consumer; its app owns selection, bounds, gains and enablement. No additional example framework is needed.</p>
+<p>The evaluator borrows a reference TaskBase that must outlive it and must be sampled before evaluation. <code>JointTrackingEnvelopeBarrier</code> and <code>FrameHeadingEnvelopeBarrier</code> were removed with their sole runtime consumer, Digit's retired arm/pelvis-yaw envelope, on 2026-10-11. Historical log readers retain the old evaluator identifiers.</p>
+<p>Frame tilt bounds roll and pitch against the same kind of world-orientation reference. Its two coordinates are the x and y components of <code>R_ref^T z</code>, the frame's +Z axis in the reference frame. They are zero when level with the reference and equal the sine of a single-axis tilt error. The degree-two bound is an angle below pi/2, applied to the coordinate as its sine. The degree-one bound applies to the coordinate rate, which is the tilt rate when level. The derivatives include the moving reference frame: <code>e_dot = R_ref^T ((w - w_ref) x z)</code>, and the acceleration adds the reference's angular acceleration and both rotation terms. A frame within acos(0.1) of opposing the reference +Z invalidates the evaluation. The control unit suite checks h, h_dot and the acceleration row against finite differences of a moving reference, with allocation-free evaluation. Like every <code>CbfConstraint</code> family, its rows pass through the shared contact projection. On a floating base held by Q-banded contacts this bounds the contact-consistent part of the commanded tilt acceleration, which can differ from the QP's own commanded tilt acceleration by tens of rad/s^2 in double support (see the Digit walking validation of 2026-10-11).</p>
+<p>Gains and relaxation remain inputs to <code>add_cbf()</code>. Invalid references or geometry invalidate the whole evaluator; runtime evaluation uses preallocated storage. Metadata records the reference task, evaluator, upper/lower coordinate row names and units. Normal h/h_dot channels suffice to reconstruct the conditioned tracking value and its symmetric bound. Debug source diagnostics name actual/reference position, actual/reference velocity, reference acceleration, error, relative velocity, unprojected drift and the bound. Logging this error does not turn it into a physical truth measurement.</p>
+<p>The historical tracking-envelope CBF plot suite adds <code>cbf_envelope_&lt;constraint_id&gt;</code> figures for its recorded joint/heading evaluator identifiers, pairing <code>/upper</code> and <code>/lower</code> row names rather than assuming row order. It plots <code>(h_lower - h_upper)/2</code> against the symmetric bound <code>(h_upper + h_lower)/2</code>, with reference-task provenance. The standard loader merges optional session <code>tac_qp_debug</code> constraint channels only when both tick indices and simulation timestamps match the main stream; otherwise it warns and keeps the ordinary channels. Legacy logs remain readable. Debug diagnostics refer to the evaluator's unprojected geometry, while debug constraint drift and residuals include the shared contact projection. Degree-one rate/phase diagnostics use the QP-commanded rate reconstructed from residual and gain; degree-two ones recover <code>h_dot</code> from <code>psi1</code> and <code>alpha1</code>, or from a finite difference of <code>h</code>. Phase portraits select the busiest rows within the configured grid capacity.</p>
+<p>Validation requires reference-derivative and model-mapping checks, a bounded allocation check, metadata/plot reader coverage, and Digit's matched integrated scenario. A universal arbitrary-task envelope, full SO(3) orientation envelope, payload policy and physical invariance certification are outside this API.</p>
+<h2 id="tac-qp-contact-force-contract">TAC-QP Contact Force Contract<a class="headerlink" href="#tac-qp-contact-force-contract" title="Permanent link">&para;</a></h2>
+<p>TAC-QP uses 3D point-force decision variables and point friction cones only. All load-bearing contact-force consumers share one stored QP-facing <code>force_capacity_qp</code> scalar <code>Q</code> per contact. The composition is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Q[g,p] = A[g,p] * C[g] * H[g]
+</code></pre></div>
+<p><code>contact_release_hold(group)</code> exposes the current front-end <code>H</code> without changing it; unresolved groups return zero. Together with the existing <code>R</code>, <code>C</code>, <code>A</code> and <code>Q</code> accessors, this supports raw planner-side evidence even when <code>A</code> is zero and <code>H</code> cannot be recovered by dividing <code>Q</code>.</p>
+<p><code>C</code> is the DSG-owned normalized group capacity. <code>A</code> is a complete binary point-topology map; it selects heel/toe/edge points but is not a continuous planner confidence. <code>R</code> is group reference retention, and <code>H</code> is the front-end-owned release hold. The front end forms raw retention from explicitly contact-scoped motion objectives, then applies one symmetric exact first-order filter. <code>R</code> is release-only: capacity consumes its falling edge through <code>H</code>, never its level or its rise. <code>H</code> takes the whole of each fall and then recovers toward one on its own constant, with recovery suppressed while <code>R</code> is still falling. Consuming the level instead pins <code>H</code> at zero for an entire swing and hands <code>R</code> veto power over admission, and letting recovery compete with the fall reverses <code>H</code> mid-release. A 3-vector linear reference is judged as motion over the ground, in world coordinates: <code>v</code> is <code>TaskBase::linear_velocity_reference_over_ground</code>. A task measured from a moving frame inverts its own velocity map and adds that frame's measured velocity (<code>R_WC v_ref + v_a</code> for the captured-yaw relative task, <code>R_Wa v_ref + v_a</code> for <code>RelativePositionTask</code>, <code>v_ref + v_a</code> for a relative <code>FramePositionTask</code>, and the supplied anchor velocity for <code>ExternalAnchorPositionTask</code>). A world-anchored task uses its reference as authored. Read in its own coordinates instead, a base-relative swing authors a planted foot at minus the base velocity and releases it for as long as the task is active. A task that cannot express its reference over ground (no captured chart, reference frame not cached) is invalid reference data. For a unit group contact normal <code>n</code>, linear reference energy is <code>(||v_t||^2 + max(dot(n,v),0)^2) / linear_scale^2</code>; closing normal velocity is not release intent. Angular reference energy remains the normalized squared angular speed of the reference as authored; no contact-scoped angular task is measured from a moving frame today. The group normal is formed from finite cached point normals; a missing valid normal conservatively restores the full linear-speed norm. Absolute reference displacement does not enter retention.</p>
+<p>Contact groups are fixed before initialization. Missing/non-finite <code>C</code>, missing/non-binary <code>A</code>, invalid reference data, or incomplete bindings fail closed at zero. The release hold is the only contact state TAC-QP keeps; there is no contact admission state, explicit release-authority input, planner-vs-estimator mode, or capacity ODE. Admission is <code>C</code> alone: <code>H</code> is at one whenever nothing is being released, so <code>Q</code> reduces to <code>A*C</code> there and the capacity magnitude stays DSG's to set.</p>
+<p>Friction cones, force allocation, and contact-force tracking use the same stored <code>Q</code> for normal-force capacity or load-bearing inclusion. Layer-1 force allocation and Layer-2 whole-body TAC-QP must not introduce separate contact-support gates; any binary active-contact diagnostics are derived from nonzero <code>force_capacity_qp</code>. The default cascade tracks the full Layer-1 point-force handoff. An experimental composition may instead track one planar force resultant per configured support group while preserving Layer 1's per-point vertical loads; this relaxes only virtual-corner tangential-force distribution and does not infer physical corner contact, a measured center of pressure, or a group force-capacity budget. <code>ContactKinematicGroupSpec</code> remains a separate arbitrary-size kinematic stabilization contract and does not alter contact-force allocation.</p>
+<p>Layer-1 force allocation keeps net-force tracking weight separate from centroidal moment tracking weight. Defaults preserve the historical objective, but integrated walking configs may reduce moment weight without disabling the net-force target. This prevents double-support holds from relying on a dominant zero-moment objective that can choose a one-foot force-allocation corner. Layer 1 also supports an independently validated positive per-axis limit on the desired centroidal angular-momentum rate. Positive infinity is the sole unbounded encoding and remains the default on every axis. Allocator diagnostics distinguish measured angular momentum, the raw feedback/feedforward command, the limited command used by the QP, and exact per-axis limit activity. The combined feedforward-plus-feedback CoM acceleration has the same kind of positive per-axis limit; positive infinity preserves the historical behavior.</p>
+<p>The optional <code>vertical_height_task_names</code> argument to <code>enable_force_allocation_cascade</code> binds WorldZ <code>FrameHeightTask</code> instances at initialization. Each tick, after reference sampling and state conditioning, the first task with an enabled activation target supplies both height and height-rate errors from the current shared kinematics cache. No enabled target supplies zero errors; an empty binding list preserves caller-owned CoM references. Humanoid walking binds left then right support-height tasks when vertical regulation is active. This is support-relative base-height feedback used to request world CoM acceleration, not a world CoM position measurement.</p>
+<p><code>FrameHeightTask</code> and <code>CapturedYawRelativePositionTask</code> publish additive named <code>acceleration_achieved</code> and <code>acceleration_achieved_{x,y,z}</code> diagnostics, respectively. These are the accepted QP prediction <code>J*ddq + Jdot*v</code> in the task coordinate. Historical <code>desired_acceleration</code> still targets <code>J*ddq</code>; add <code>drift_term</code> before comparing full accelerations. Differentiated logged task velocity includes state conditioning and is a distinct measured quantity. Consumers resolve diagnostic columns by name; old logs remain readable without the achieved fields.</p>
+<p>Humanoid walking composition exposes four planar velocity-realization modes. <code>duplicated_velocity_feedback</code> preserves the validated default: Layer 1 and Layer 2 independently apply feedback to the same planner-owned velocity. <code>layer1_force_only</code> removes the Layer-2 row, and <code>layer2_acceleration_only</code> removes planar velocity feedback and planar force-cascade tracking from Layer 1. <code>shared_feasible_acceleration</code> applies one bounded velocity loop in Layer 1, keeps Layer 2's direct velocity gain at zero, and publishes Layer 1's solved planar resultant to the centroidal-momentum task as physical momentum-rate feedforward. The last three modes are explicit research ablations, not canonical capability claims.</p>
+<p><code>CentroidalMomentumTask</code> separately owns a reusable six-row generalized- acceleration cost. Its vector jet means <code>(h_ref, hdot_ref, hddot_ref)</code>; momentum is first order in generalized acceleration. The physical request satisfies <code>(I + Kd) hdot_request = hdot_ff + Kp (h_ref - h) + Kd hdot_ref</code> with nonnegative dimensionless <code>Kd</code>. This solves rate feedback implicitly instead of mistaking <code>A_g_dot_v</code> alone for the current momentum rate. With <code>Kd=0</code>, it is the ordinary first-order momentum loop. The default <code>hdot_ff</code> is the first reference derivative. <code>set_momentum_rate_feedforward</code> supplies an independent physical wrench for one solve attempt, including failed/skipped attempts; reference sampling does not overwrite it. The second derivative is never used as force feedforward. The <code>actual_velocity</code> log reports achieved <code>A_g * ddq + A_g_dot_v</code>; drift remains separately named in diagnostics.</p>
+<p>The four-argument constructor/factory signature is retained and delegates to positive-infinite per-row limits. Its former second-derivative/drift-feedback semantics were corrected on 2026-09-10; numerical compatibility with that bug is not retained. The additive overload accepts one positive finite or positive-infinite physical momentum-rate limit per row. It clamps the feedback/feedforward request before subtracting <code>A_g_dot_v</code>; therefore linear rows are bounded in <code>N</code>, angular rows in <code>N*m</code>, and the limit never clips the drift-subtracted <code>A_g * ddq</code> target.</p>
+<p>Every evaluation clears its prior outputs before validating bindings, adapters, cache data, dimensions, and finite values. Failures retain the specific <code>NOT_BOUND</code>, <code>MISSING_ADAPTERS</code>, <code>CACHE_MISS</code>, <code>INVALID_DATA</code>, or <code>EXCEPTION</code> status and write no cost. A successfully refreshed zero-activation task reports <code>SKIPPED</code>; a written cost reports <code>OK</code>. The task publishes 30 named diagnostics for raw, limited, achieved, limit-active, and drift values in six-component linear-then-angular order. <code>actual_position</code> remains centroidal momentum and the historical <code>actual_velocity</code> field remains <code>A_g_dot_v</code>; the plotter uses the named achieved-rate diagnostic when present and labels the old field as drift. Logs without the additive diagnostics remain loadable and plottable.</p>
+<p><code>ForceDistributionConfig</code> independently supports a positive finite or positive-infinite three-axis angular-momentum-rate command limit. Positive infinity remains the default, including for the legacy constructor, so existing force-distribution tasks retain their prior unbounded command. A finite limit clips only the synthesized angular wrench command after feedforward plus feedback; it does not bound the wrench ultimately realized by the full TAC-QP. Nine additive named diagnostics record the raw command, limited command, and limit-active bit for <code>Mx</code>, <code>My</code>, and <code>Mz</code>.</p>
+<p>Humanoid walking compositions may register a separate <code>bounded_yaw_force_distribution</code> task with only its <code>Mz</code> weight and gain nonzero. This preserves a fixed task catalog across disabled/enabled ablations without restoring the broad force-distribution <code>Fx/Fy</code> rows. Contact inclusion continues to use the shared <code>force_capacity_qp</code> threshold. This remains a soft contact-force objective; neither its command limit nor its task name implies a hard bound on achieved centroidal moment.</p>
+<p>Initialization conflict checks are active-row aware. A centroidal yaw <code>M_z</code> row may coexist with force-distribution <code>F_x/F_y</code>; an actual shared nonzero row still emits the conflict warning. Zero-duration activation requests apply immediately, while delayed or nonzero-duration ramps retain their existing interpolation contract.</p>
+<p>HDF5 contact-capacity semantic version 2 publishes group <code>estimated_group_capacity</code> (<code>C</code>), group <code>group_reference_retention</code> (<code>R</code>), point <code>contact_authority</code> (<code>A</code>), and point <code>force_capacity_qp</code> (<code>Q</code>). The internal release hold <code>H</code> is not a separate dataset. Offline consumers use stored <code>Q</code> directly; an exact composition check must replay <code>H</code> from <code>R</code> and must not substitute <code>R</code> for <code>H</code>. The force-allocation cascade separately publishes <code>contact_capacity</code>, which is the exact same stored <code>Q</code> consumed by Layer 1. The contact-diagnostic <code>normal_force</code> is the QP decision <code>n^T lambda</code>, not measured plant or simulator load. Legacy support/release fields are not loaded as aliases.</p>
+<p>The always-on controller diagnostics also publish the final QP-predicted total-body linear centroidal acceleration in world coordinates, with an explicit validity bit. It is computed from the accepted <code>ddq</code>, the shared centroidal matrix and its drift term, and never depends on HDF logging being enabled. Runtime realization observers may consume this diagnostic without turning logging into behavioral authority.</p>
+<p>QP gradients, <code>ddq</code>, tracking error, gains, task weights, and absolute reference displacement do not enter retention. Tasks without explicit <code>intent_contacts</code> do not participate. The removed ddq-gradient estimator's pressure configuration and diagnostics are not retained in the C++, Python, or HDF5 contracts. TAC-QP does not own or cache a contact estimator, estimator snapshot, or observer residual.</p>
+<h2 id="tac-qp-signal-conditioning-contract">TAC-QP Signal Conditioning Contract<a class="headerlink" href="#tac-qp-signal-conditioning-contract" title="Permanent link">&para;</a></h2>
+<p>Default TAC-QP signal conditioning activates model stiffness feedforward filtering and passive-elasticity diagnostics when the robot model exposes nonzero stiffness and bias terms include stiffness. Callers may still override or disable this explicitly with <code>set_signal_conditioner()</code> before <code>initialize()</code>, but integrated apps should not need an app-local setter call just to avoid chasing passive spring oscillations.</p>
+<h2 id="humanoid-walking-controller-contract">Humanoid Walking Controller Contract<a class="headerlink" href="#humanoid-walking-controller-contract" title="Permanent link">&para;</a></h2>
+<p><code>configure_humanoid_walking_controller</code> builds one catalog for one <code>HumanoidWalkingReferenceContract</code>, which the planner selects in code, never a profile. <code>SupportRelative</code> (Digit DCM, the default) swings foot-to-foot between support anchors, measures base height above the support anchor, runs Layer-1 vertical regulation from those heights and leaves the momentum task for the runtime to activate. <code>BaseRelative</code> (Digit ALIP) swings the foot link from the base, measures base height above the foot link, applies no Layer-1 vertical feedback but bounds the commanded vertical acceleration, and builds the momentum task active. Both contracts share one creation order, which is the QP's row order, and every task constructor and config read; only the swing tasks are named by the contract. <code>make_humanoid_walking_force_allocation_config</code> takes the same contract. Under both contracts, when the centroidal-momentum task has active linear rows, Layer 1's horizontal CoM-velocity gain and its horizontal CoM-acceleration bound are that task's linear <code>kp</code> and <code>rate_limit</code>: one value serving both layers, not two knobs kept equal by hand. The builder keeps foot-position objectives for swing tracking. When contact-group kinematic stabilization is enabled, no separate stance-foot horizontal pose objective is published; the group task owns stance horizontal kinematics and the fixed stance-yaw reference remains a separate anchor identity.</p>
+<p><code>FrameHeightAxis</code> is available in C++ and Python. The <code>make_frame_height_task</code> binding preserves the historical six-argument call by defaulting to <code>ReferenceFrameZ</code>; callers may explicitly select <code>WorldZ</code>.</p>
+<p><code>FrameOrientationGainFrame</code> is available in C++ and Python. <code>make_frame_orientation_task</code> defaults to <code>World</code>, which applies the per-axis <code>kp</code>, <code>kd</code> and <code>weight</code> to world x, y and z; this is bitwise the historical behavior. <code>Heading</code> applies them in the tracked frame's heading frame, world rotated about z by the yaw of the frame's forward axis, so x is roll and y is pitch at any heading. The target remains a world angular acceleration, and equal x and y entries give the same objective in both frames. Logged errors and PD terms stay in world; the logged cost and residual are evaluated in the frame the weights act in. The humanoid walking pelvis blocks accept an optional <code>gain_frame: world | heading</code>, and an absent key means world.</p>
+<h2 id="experimental-contact-group-kinematic-stabilization">Experimental Contact-Group Kinematic Stabilization<a class="headerlink" href="#experimental-contact-group-kinematic-stabilization" title="Permanent link">&para;</a></h2>
+<p><code>ContactGroupKinematicStabilizationTask</code> is an experimental, opt-in ddq-only task. A <code>ContactKinematicGroupSpec</code> names one rigid contact-bearing frame and an arbitrary-size fixed set of point frames with positive normalized weights; it does not assume four corners, a sole polygon, or a perceived terrain surface. The task controls the weighted world-horizontal centroid and the radius-normalized centered point constellation. Common world-vertical motion is absent from the centroid coordinates and cancels exactly from the centered coordinates, so it remains a true null direction rather than a weakly weighted axis. One point therefore supplies only horizontal translation, two distinct points additionally constrain the observable orientation of their line, and three or more non-collinear points expose full rigid-link orientation.</p>
+<p>The task has no capture/release state machine. The selected binary point topology defines the instantaneous weighted centroid and observable centered shape. The task reseeds its latent anchor only when the selected topology changes while group capacity is zero; otherwise its effective group scale is the maximum selected point capacity <code>Q</code>. Capacity therefore ramps the same fixed kinematic objective continuously on admission and release. Controller reset clears the latent anchor. Point-force variables, point friction cones, force allocation, and force distribution remain separate contracts.</p>
+<h2 id="experimental-stance-foot-yaw-momentum-rate-constraint">Experimental Stance-Foot Yaw-Momentum-Rate Constraint<a class="headerlink" href="#experimental-stance-foot-yaw-momentum-rate-constraint" title="Permanent link">&para;</a></h2>
+<p><code>StanceFootYawMomentumRateConstraint</code> is an experimental, opt-in, softened two-row <code>ddq | sigma</code> inequality about a fixed world-horizontal reference point. For <code>d = c - p</code>, it evaluates</p>
+<p><code>H_P,z = h_G,z + d_x h_G,y - d_y h_G,x</code></p>
+<p>and constrains</p>
+<p><code>[A_g,z + d_x A_g,y - d_y A_g,x] ddq +</code> <code>[A_g_dot_v,z + d_x A_g_dot_v,y - d_y A_g_dot_v,x]</code></p>
+<p>to a tolerance band around <code>clamp(-kp H_P,z, +/-rate_limit)</code>. This equation is exact for the fixed reference supplied by the caller. A moving reference would require the additional point-velocity term and is outside this contract.</p>
+<p>References are supplied through the replacement-style <code>set_stance_foot_yaw_references()</code> controller API. Each keyed reference carries an explicit validity bit and fixed <code>anchor_world_xy</code>. Invalid or missing references fail closed. Among the statically bound points selected by binary <code>A</code>, the maximum stored <code>Q</code> tightens the tolerance continuously; zero capacity opens the rows by <code>open_margin</code>. The fixed catalog and two slack slots remain present. Thirteen named diagnostics expose reference validity, selected capacity/count, anchor coordinates, about-point momentum, raw/limited target, effective tolerance, predicted moment, and both slacks.</p>
+<p>The primitive consumes total-body centroidal quantities. Multiple active instances do not isolate per-foot contact moments and can conflict in double support. Composition owners must therefore select one support reference at a time (or design an explicit net-support/per-contact-force formulation). The constraint does not infer partial-contact geometry, contact feasibility, or a measured center of pressure, and it does not replace force allocation or the centroidal-momentum task.</p>
+<h2 id="experimental-stance-foot-yaw-force-distribution-task">Experimental Stance-Foot Yaw Force-Distribution Task<a class="headerlink" href="#experimental-stance-foot-yaw-force-distribution-task" title="Permanent link">&para;</a></h2>
+<p><code>StanceFootYawForceDistributionTask</code> is an experimental scalar <code>LambdaC</code> cost for contact-force yaw moment about one fixed world-horizontal planner stance anchor. It is point-force-only. For the selected anchor <code>P</code>, every configured three-dimensional contact-force slot contributes to</p>
+<p><code>M_P,z = sum_i [((p_i - P) x f_i)_z]</code>.</p>
+<p>The target is <code>clamp(-kp H_P,z, +/-rate_limit)</code>, using the same about-anchor momentum equation and replacement-style <code>StanceFootYawReference</code> map as the stance-foot yaw-momentum-rate constraint. Exactly one valid reference owner is required. Zero owners, multiple owners, malformed references, missing cache data, or no selected point with positive <code>Q</code> fail closed and leave the QP cost unchanged. Every configured LambdaC column is scaled by its own stored <code>Q</code>; binary <code>A</code> therefore selects heel/toe topology without another planner gate.</p>
+<p>The task logs its target and modeled <code>M_P,z</code>, plus named diagnostics for the selected owner and anchor, <code>H_P,z</code>, raw/limited targets, about-CoM contact moment, orbital term, about-anchor moment, and modeled contact count. The identity <code>M_P,z = M_G,z + [((c - P) x F)]_z</code> is therefore directly auditable. It does not measure ground torque, infer partial contact, or replace Layer-1 force allocation. Digit owns the walking lifecycle and exclusive stance selection; the reusable task remains opt-in.</p>
+<h2 id="tac-qp-reference-contract">TAC-QP Reference Contract<a class="headerlink" href="#tac-qp-reference-contract" title="Permanent link">&para;</a></h2>
+<p>TAC-QP tracking tasks own the finite continuous-reference future they sample. The vector and SO(3) trajectory setters install a planner-authored preview with caller-owned adoption and join times. <code>TaskBase::tick()</code> samples those trajectories into the position/orientation, velocity, and acceleration values consumed by the task objective.</p>
+<p>Vector and SO(3) current-value setters remain for fixed holds and direct consumers. A current-value setter clears the corresponding future trajectory, so current and future reference authority cannot silently coexist.</p>
+<p><code>VectorReferenceTrajectory</code> and <code>OrientationReferenceTrajectory</code> are the task-owned sampling mechanics. Vector intervals use complete-jet quintic Hermite interpolation and endpoint hold; SO(3) intervals use Lie-group Hermite interpolation with shortest-path quaternion continuity. Each trajectory owns its candidate and bounded prefix splice; no separate realizer object exists. A trajectory keeps its knot storage through <code>clear</code>, <code>set_knots(const&amp;)</code>, copy-assignment and <code>install</code>, and <code>knots()</code> is a span over the live knots. The first <code>install</code> reserves room for every candidate knot plus both splice ends, so later same-shape futures install and sample without allocating. Tail-retarget, endpoint-retime, reshape, and mutable-trajectory APIs are not part of TAC-QP.</p>
+<p>Task activation is deliberately not another RHRS channel. A producer selects only a binary enabled state through <code>ramp_activation(task, enabled, duration)</code>. Each task realizes a change with a linear ramp, using a 20 ms default unless the producer supplies a positive duration. Repeating the same target is idempotent; a reversal starts from the activation commanded at that instant. Controller assembly uses <code>set_initial_task_enabled()</code> before <code>initialize()</code> to establish an initial endpoint without inventing a runtime transition; the call is rejected after initialization. This is structural initial state, not a zero-duration planner command. There is no activation trajectory, derivative jet, sample-time clamp, or contact-derived activation multiplier. Continuous physical contact authority remains the separate <code>Q = A * C * H</code> path.</p>
+<h2 id="walking-runtime-boundary">Walking Runtime Boundary<a class="headerlink" href="#walking-runtime-boundary" title="Permanent link">&para;</a></h2>
+<p>Robot walking lifecycle, task catalogs, contact admission, and task-reference policy are app-owned. The maintained Digit app binds its fixed DCM catalog to already-created TAC-QP tasks and calls their independent trajectory setters. TAC-QP owns the installed finite task previews but does not define a locomotion planner, catalog, editing policy, or semantic motion-plan contract.</p>
+<h2 id="owned-examples">Owned Examples<a class="headerlink" href="#owned-examples" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>examples/cpp/control/joint_servo_demo.cpp</code></li>
+<li><code>examples/cpp/control/tac_qp_posture_demo.cpp</code></li>
+<li><code>examples/python/control/joint_servo_demo.py</code></li>
+<li><code>examples/python/control/tac_qp_posture_demo.py</code></li>
+</ul>
+<p>These are module-level API illustrations and smokeable verification aids. They must stay two-link fixture demos, not integrated robot control workflows.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<p><code>pixi run python -m cyber_suite.control.audit.walking_log</code> reports drops in the allocator's <code>force_allocation_cascade.net_wrench</code>, computed from solved point forces. These are controller-output diagnostics, independent of simulator contact truth. The report does not establish measured support loss or airborne motion; that interpretation requires a separate world-force/CoM-momentum check.</p>
+<ul>
+<li>C++ contract tests: <code>pixi run test control</code></li>
+<li>Python binding tests: <code>pixi run py-test control</code></li>
+<li>C++ examples: <code>build/default/modules/control/control_joint_servo_demo</code>; <code>build/default/modules/control/control_tac_qp_posture_demo</code></li>
+<li>Python examples: <code>pixi run python examples/python/control/joint_servo_demo.py</code>; <code>pixi run python examples/python/control/tac_qp_posture_demo.py</code></li>
+<li>TAC-QP, joint-servo, and <code>cyber_suite.control.plotting.walking_runtime</code> package/HDF5 schema parity: <code>pixi run py-test control</code></li>
+<li>Plotting CLI smoke: <code>pixi run plot control &lt;control_or_runtime_log.h5&gt; --summary-only</code></li>
+<li>Digit walking application: <code>pixi run build --target digit_corta_walking</code>; <code>pixi run test -R '^cyber_suite_digit_walking\.(corta_boundary|corta_liveness|safety_config)$' --output-on-failure</code></li>
+</ul>
+<p>Focused contracts cover exact <code>Q=A*C_control*H</code>, Layer-1/Layer-2 parity, fail-closed bindings, contact-group stabilization, fixed-anchor yaw equations, task catalogs, logging, Python schema loading, and allocation-free runtime paths. The fixed ALIP catalog has zero measured Servo allocations from estimator authority through first adoption, first swings, walking and stop. <code>TACQPController::prepare_solver_workspaces()</code> is an opt-in C++ startup API for initialized Eiquadprog controllers. It prepares every equality rank and contact-acceleration enable/disable bound count for the installed catalog, then seals the solver cache. Other bound-count changes are refused; callers must not recover by rebuilding the solver on the real-time path. This does not qualify arbitrary task catalogs or mutable contact topology.</p>
+<p><code>TaskBase::prepare_reference_storage(maximum_knots)</code> and trajectory <code>prepare_storage</code> size fixed-dimension knot and splice storage before adoption without replacing the live reference. ALIP calls these during <code>Servo::start</code>. Other controller and estimation scratch is initialized during startup before estimator authority. The contact null-space projector retains a workspace per stacked row count. Startup, exceptional error handling and reconfiguration are outside the measured normal path. The integrated evidence and exact boundary, a malloc probe gating the Digit walking Servo under both reference contracts, and scenario-level walking behavior are app-owned and recorded in <code>apps/digit/walking/VALIDATION.md</code>.</p>
+<p>Archived TRON1 walking is not a compatibility consumer for this contract and is intentionally outside this validation gate. It requires its own current design before reactivation.</p>
+<h2 id="non-goals">Non-goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Scenario-level walking app policy</li>
+<li>DCM-MPC optimization, policy inference, estimation, app CLI/viewer/logging, or generic behavior-tree ownership</li>
+<li>Robot-specific task/contact names in TAC-QP trajectory APIs</li>
+<li>Point-contact, heel/toe, or edge-contact inference; terrain perception; force/tactile sensing; or planned partial-contact gait transitions</li>
+<li>TSC controller migration; migrated plotters only inspect existing TSC logs</li>
+<li>TSC controller bridge migration</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+                
+
+<div class="document-origin">Source: <code>modules/control/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

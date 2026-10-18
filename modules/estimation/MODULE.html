@@ -1,0 +1,1940 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/modules/estimation/MODULE.html">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Estimation - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#estimation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Estimation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contact-credibility-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact Credibility Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#point-support-startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Point-support startup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-estimator-deployment-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State Estimator Deployment Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#experimental-joint-state-observer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental joint-state observer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#momentum-observer-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Momentum Observer Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamics-support-gate-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamics Support Gate Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invariant-ekf-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invariant EKF Contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Invariant EKF Contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contact-group-local-odometry-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact-Group Local-Odometry Contract
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">Lifecycle: candidate</span>
+  
+  <a href="../../markdown/modules/estimation/MODULE.md.txt" download="MODULE.md">Markdown source</a>
+</div>
+
+<div class="module-contract-context"><strong>Module contract</strong> · <a href="../../docs/design/system-architecture.html#module-estimation">Back to the module explanation</a><p>This page renders the owning MODULE.md. Its lifecycle and validation statements are preserved from the source.</p></div>
+
+
+
+                  
+  
+
+
+
+
+<h1 id="estimation">Estimation<a class="headerlink" href="#estimation" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>State and contact-evidence estimation for robot/control workflows, focused on the signals needed before the control module is migrated.</p>
+<h2 id="public-api">Public API<a class="headerlink" href="#public-api" title="Permanent link">&para;</a></h2>
+<p><code>JointStateObserver</code> additionally supports the experimental <code>impact-imm</code> algorithm: one smooth constant-acceleration mode and one velocity-jump mode per joint, with likelihood-weighted means and total mixture covariance including between-mode dispersion. It publishes acceleration/full q/qd/qdd covariance and innovation-mode probability; that probability is not physical contact confidence. <code>position_only</code> discards the velocity observation for differenced encoders. Fixed sensor/process assumptions are configurable and are not hardware calibration. Updates are transactional and use preallocated storage. <code>StateEstimatorOptions::shared_joint_state</code> declares that composing momentum/contact consumers use the same current observer posterior; absent/false retains legacy selection and true requires an enabled group-velocity joint observer.</p>
+<p><code>SharedStateEstimate</code> freezes a current physical joint/base posterior into preallocated floating-base q/v, the InEKF 15-state covariance and per-joint q/qd covariance, stamped by sensor time, source sequence and authority epoch. Each capture invalidates prior contact evidence; current DSG evidence can be attached once with the exact same stamps. Base tangent velocities are derived from the physical base posterior. Marginals omit cross-joint/base correlation. Contact support/capacity remain uncalibrated scores and force variance is explicitly unavailable (NaN), never interpreted as zero uncertainty. The class owns no correction, control smoothing, probability calibration or authority policy.</p>
+<p><code>KinematicStateFilter</code> provides a preallocated q/v EMA for composing apps. Floating-base pose passes through, velocity blocks have independent cutoffs, timestamps strictly increase within an epoch, and reset or epoch change re-primes from the current sample. It does not replace physical estimator input or its uncertainty. <code>StateEstimatorOptions::raw_joint_measurement</code> optionally propagates configured encoder q/qd covariance in group-velocity correction, with information scale 1. It is mutually exclusive with the joint observer; an absent profile block preserves disabled behavior. The raw covariance runtime matches an explicit InEKF covariance update in the focused contract. Digit walking retains the joint observer default after a noisy raw-input regression; its shared-state and experimental raw evidence are app-owned.</p>
+<ul>
+<li><code>types.hpp</code></li>
+<li><code>state.hpp</code></li>
+<li><code>invariant_ekf.hpp</code></li>
+<li><code>contact_group_velocity.hpp</code></li>
+<li><code>contact_group_odometry.hpp</code></li>
+<li><code>stationary_gravity_dwell.hpp</code></li>
+<li><code>kinematics_estimator.hpp</code></li>
+<li><code>joint_state_observer.hpp</code></li>
+<li><code>momentum_observer.hpp</code></li>
+<li><code>state_estimator_options.hpp</code></li>
+<li><code>state_estimator_runtime.hpp</code></li>
+<li><code>kinematic_state_filter.hpp</code></li>
+<li><code>shared_state_estimate.hpp</code></li>
+<li><code>flat_support_local_initializer.hpp</code></li>
+<li><code>contact_credibility_channel.hpp</code></li>
+<li><code>contact_credibility_estimator.hpp</code></li>
+<li><code>contact_credibility_queries.hpp</code></li>
+<li><code>dynamics_support_gate.hpp</code></li>
+<li><code>estimation_profile.hpp</code>: the YAML loader for one estimation deployment, built as <code>cyber_suite_estimation_profile</code> so the filter itself carries no YAML dependency. It reads <code>dynamics_support_gate</code> and <code>state_estimation</code> with the foundation <code>ProfileReader</code>: unknown keys are rejected and renamed keys keep their migration message. The optional joint observer block means disabled when absent; every key inside a stated block is required. Every mode's block is required whichever mode is selected, so a campaign edits only the mode, authority or initialization. The loader applies the linear-velocity policy of the contact-group modes, so the tilt-bootstrap parameters are not keys. <code>estimation_profile_yaml</code> emits the full schema, which the loader reads back, and <code>applied_estimation_yaml</code> emits the selected composition for resolved reports. Digit walking loads <code>apps/digit/walking/config/profiles/estimation.yaml</code> and TRON1 walking <code>apps/tron1/walking/config/profiles/estimation.yaml</code>.</li>
+<li>Python package: <code>cyber_suite.estimation</code></li>
+</ul>
+<p>Group-velocity contact correction preserves the stacked joint q/qd covariance and cross-foot correlation. Exactly symmetric joint covariances permit one block triangle to be accumulated and mirrored; accepted asymmetric covariance inputs retain the full calculation. Exact zero kinematic partials skip only zero outer products. Measurement/state timestamps, support-point fitting, confidence scaling, correction authority and Joseph covariance propagation are unchanged.</p>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Eigen</li>
+<li><code>cyber_suite_foundation</code></li>
+<li><code>cyber_suite_robot</code></li>
+<li>pybind11 for Python bindings</li>
+<li>yaml-cpp and <code>cyber_suite_foundation_profile</code>, for <code>cyber_suite_estimation_profile</code> only</li>
+</ul>
+<h2 id="contact-credibility-contract">Contact Credibility Contract<a class="headerlink" href="#contact-credibility-contract" title="Permanent link">&para;</a></h2>
+<p>CCC remains an available estimation component for applications that explicitly choose it. TAC-QP does not depend on CCC types or snapshots. The accepted Digit design uses DSG-owned group capacity at the controller boundary; migration of other applications that still use CCC is intentionally deferred until that design has final behavioral evidence.</p>
+<h2 id="point-support-startup">Point-support startup<a class="headerlink" href="#point-support-startup" title="Permanent link">&para;</a></h2>
+<p><code>FlatStartOptions::support_geometry</code> is the profile's required <code>flat_start.support_geometry: planar-footprints | point-supports</code>. The <code>point-supports</code> option accepts exactly one finite kinematic point per support group, retaining quiet-IMU gravity/bias initialization and agreement between support heights. It does not weaken footprint tilt tests or enable point-contact tilt corrections. TRON1 states <code>point-supports</code> with the group-velocity mode, whose correction is linear-velocity only; Digit states <code>planar-footprints</code>. The focused <code>FlatSupportStartup</code> regression is in the existing estimation contract suite.</p>
+<h2 id="state-estimator-deployment-contract">State Estimator Deployment Contract<a class="headerlink" href="#state-estimator-deployment-contract" title="Permanent link">&para;</a></h2>
+<p><code>state_estimator_options.hpp</code> owns the vocabulary for deploying a floating-base InEKF: correction mode, output authority, initialization source, flat-start tolerances, and the support-group set. These are three independent axes -- which filter, how much of it reaches control, where its initial state came from -- and a run picks one value on each, so a hardware campaign is a sweep rather than a rewrite. Every mode is kept deliberately, <code>ImuOnly</code> included: it is the dead reckoning baseline the contact-corrected modes are measured against.</p>
+<p><code>state_estimator_runtime.hpp</code> deploys the filter: startup, gravity alignment, frame qualification, the startup deadline, fault latching, and authority. The filter itself only predicts and corrects; everything between "a robot powered on" and "control may run on this estimate" is the runtime, and none of it is robot-specific.</p>
+<p>The runtime never calls back into its owner. Each entry point returns a <code>StateEstimatorTransition</code> naming what changed -- the filter acquired a state, the frame qualified, authority was promoted, a fault latched and whether it is fatal -- and the caller decides what those milestones mean for its controller, its planner, and its operator. That is what keeps the runtime testable without any of them, and what keeps application policy out of the module. Output flows the same way: <code>applied_base_state()</code> returns which base rows the configured authority permits writing, and the caller writes them, so the module never takes a dependency on a control state type.</p>
+<p><code>flat_support_local_initializer.hpp</code> builds the initial state a real robot can actually produce -- a stationary IMU window for attitude, the encoders and the model's contact geometry for a support-centroid origin. It has no simulator, contact-sensor, or terrain dependency. Its caller owns the retry deadline: a rejected attempt is an ordinary outcome, and <code>rejection_reason()</code> names the precondition that failed.</p>
+<p>Neither header assumes a biped. <code>support_groups</code> is a list, and the initializer levels and centroids across whatever it names.</p>
+<h2 id="experimental-joint-state-observer">Experimental joint-state observer<a class="headerlink" href="#experimental-joint-state-observer" title="Permanent link">&para;</a></h2>
+<p><code>JointStateObserver</code> estimates each continuous/unwrapped joint's <code>(q, qd)</code> at its sensor timestamp, with three explicit experimental algorithms:</p>
+<ul>
+<li><code>constant-velocity</code>: the original Kalman observer, including white acceleration process noise and correlated encoder noise. Its acceleration tracking error failed Digit walking qualification.</li>
+<li><code>constant-acceleration</code>: an opt-in three-state <code>(q, qd, qdd)</code> Kalman observer with configured, fixed sensor covariance and continuous white-jerk process noise. <code>jerk_spectral_density</code> has units rad²/s⁵ and <code>initial_acceleration_std_radps2</code> sets the initial acceleration uncertainty; both are required when this algorithm is selected. The exact discrete constant-acceleration transition and integrated white-jerk covariance use the supplied sample interval. A Joseph covariance update publishes the q/qd marginal, including its cross term. The initial sample seeds q/qd directly with zero acceleration mean. This model can have gain peaking and phase lag; it is an experiment, not a qualified replacement for controller filtering.</li>
+<li><code>adaptive-polynomial</code>: a causal quadratic fit to position and velocity over 2, 4, 8, 16 or 32 samples, evaluated at the newest timestamp. Choose the longest history whose normalized fit residual is within the 99% chi-square threshold (2N-3 degrees of freedom). The fit represents constant acceleration exactly; general motion still has approximation error.</li>
+</ul>
+<p>Polynomial mode estimates common sensor noise from third position differences and second velocity differences (white-noise variance factors 20 and 6), using a median absolute value across joints followed by a trailing 127-sample median. The configured position/velocity sigmas seed the first samples; numerical floors are 1e-7 rad and 1e-5 rad/s. This assumes comparable, independent sensor noise across joints; widespread rapid motion can contaminate the noise estimate. Nonzero position/velocity measurement correlation is explicitly unsupported in this mode. The acceleration PSD applies only to constant-velocity mode.</p>
+<p>A one-step constant-acceleration predictor checks new samples against four innovation standard deviations. An isolated large sample is withheld. A same-direction large innovation on the following sample confirms a change and starts a new fitting history for that joint. A persistent jump therefore takes one sample to confirm; past published estimates are never rewritten. The fit covariance is inflated by excess residual, and a withheld innovation adds its squared discrepancy to the marginal variances. Model selection, cleaned samples and noise estimation make these covariances approximate, not calibrated posterior probabilities. No mechanical loop-closure projection is performed.</p>
+<p>Cross-joint independence is assumed; no commanded acceleration, torque, simulator truth or terrain input is used. <code>covariances()</code> returns a separate 2x2 <code>(q, qd)</code> matrix for each joint. Construction allocates; successful updates and reset do not. Invalid dimensions, nonfinite samples and non-increasing timestamps leave the previous estimate intact. Polynomial mode requires uniform sampling: an interval change above max(1e-10 s, 1e-6 times the prior interval) reprimes its sample/noise history from the current measurement.</p>
+<p><code>StateEstimatorRuntime</code> optionally owns this observer and uses its current sample for flat-start geometry and group-velocity correction. The base InEKF keeps its 15-state core. The optional <code>state_estimation.joint_state_observer</code> profile block defaults to disabled when absent; the original six keys remain required when present. Its optional <code>algorithm</code> key defaults to <code>constant-velocity</code> for compatibility. Digit's app profile explicitly enables <code>impact-imm</code> and the ALIP/DCM shared physical-state composition; the reusable options remain disabled by default. Enabled modes other than <code>group-velocity</code> are rejected. Runtime contact correction consumes one fresh prediction; repeated correction without a new prediction is rejected. This deployment supports at most 64 scalar joints, with matching position and velocity counts.</p>
+<p>The contact update propagates joint uncertainty through derivatives of WORLD point velocity with respect to q and qd, including each joint's q/qd cross covariance and shared encoder covariance between feet. An optional <code>JointStateUncertainty::joint_covariances</code> span supplies unequal joint marginals; an empty span retains the common-covariance interface. Support weights are held fixed during linearization. Confidence scales the joint covariance by a congruence, alongside the existing contact-noise floor. <code>measurement_std_world</code> records the resulting marginal standard deviations. The robot backend must implement <code>contact_velocity_derivatives</code>; unsupported or nonfinite derivatives fail explicitly when this path is enabled.</p>
+<p>Successive observer outputs are correlated. The explicit <code>contact_information_period_s</code> scales the entire stacked measurement covariance by <code>max(1, period/dt)</code> as an information-rate guard. This is an approximation, not exact temporal whitening or joint/base cross-covariance tracking. It does not establish statistical consistency. Contact admission and speed gates are unchanged. Hardware calibration and walking robustness remain qualification questions; Digit adopts the experimental observer as an app default without promoting the observer's lifecycle or claiming those qualifications.</p>
+<h2 id="momentum-observer-contract">Momentum Observer Contract<a class="headerlink" href="#momentum-observer-contract" title="Permanent link">&para;</a></h2>
+<p>The observer first requests the model's optional direct <code>M*v</code>, <code>C.transpose()*v</code> and gravity products at the exact input q/v, with its existing preallocated M/C path as the backend fallback. Reset, update and same-instant rebase use the same products. Passive force still uses the live model options and remains on the known-force side; torque hold, trapezoidal integration, residual feedback and IMU authority are unchanged. Direct-product and full-matrix parity, affected contracts and warmed allocation probes are retained under <code>artifacts/servo_computation_20261010/</code>.</p>
+<p><code>MomentumObserver</code> estimates external and otherwise unmodeled generalized forces from generalized momentum. Every update unconditionally includes the <code>RobotModel::passive_generalized_force(q, qd)</code> result on the known-force side of the observer. Backends without a passive-force model retain the base zero-force behavior. Model-provided damping, friction, and stiffness therefore enter the known-force model rather than being deliberately left in the external residual. In sampled operation, the state-dependent known force <code>tau_passive + C.transpose()*qd - g</code> is trapezoided between consecutive state samples. The actuator torque argument remains the zero-order-held force applied over that elapsed interval, and residual feedback remains explicit at the left endpoint. The observer retains its full generalized-force residual; model error, holonomic reactions, and other forces not supplied through the known-force contract may remain in it.</p>
+<h2 id="dynamics-support-gate-contract">Dynamics Support Gate Contract<a class="headerlink" href="#dynamics-support-gate-contract" title="Permanent link">&para;</a></h2>
+<p><code>MomentumObserver::rebase</code> changes a measurement representation at the last update's same physical instant while preserving the residual and accumulated integral. It shifts the initial momentum reference by the representation's momentum difference and refreshes the known-force integration endpoint. The composing owner must first integrate the elapsed interval with the old representation and the actual held torque. It must not use rebase to discard a physical impact. Digit uses it once when switching from raw-joint local-frame qualification to the shared posterior; DSG history and readiness thresholds are preserved.</p>
+<p>DSG's exact nonnegative ridge fit reuses two bounded caches of Gram matrices and subset LLT factors within one update, keyed by exact point membership and compatibility scales. Every new sample invalidates the caches, so changed geometry, internal projection or velocity compatibility cannot reuse stale factors. Other group topologies can evict slots safely. A finite, nonnegative full unconstrained solution with positive ridge is already the unique constrained optimum and returns immediately; otherwise the existing exhaustive support enumeration remains. Rank projection, ridge, force/support thresholds and filter history are unchanged. Coplanar Digit geometry, separating points and zero-ridge parity are checked against the retained original algorithm.</p>
+<p><code>DynamicsSupportGateEstimator</code> is an experimental support gate. It produces one continuous load-bearing gate per contact group from dynamics residual evidence, contact Jacobians, and contact-point velocities. An optional <code>internal_force_basis</code> supplies generalized-force directions that must not be attributed to contact. DSG computes their numerical column space and applies the same orthogonal-complement projection to the residual and every contact-normal column before the nonnegative fit. This is equivalent to eliminating unrestricted nuisance-force coefficients; projecting only the residual is not part of the contract. Empty or rank-zero bases preserve the unprojected behavior. Malformed or nonfinite bases invalidate the whole sample, and a basis spanning the complete residual space publishes no support. It does not consume acceleration, terrain height, planned foothold height, terrain-nearness predicates, contact normal directions, or measured contact forces. An optional first-order low-pass (<code>residual_filter_time_constant</code>, zero bypasses it) acts on the input residual before projection and fitting; its seed clears with the support filters. A momentum-observer residual carries <code>K_O*M*(velocity error)</code> unfiltered, and the nonnegative fit rectifies that zero-mean error into positive support, so a caller feeding raw encoder velocity should set it. Each point contributes only its gravity-up linear Jacobian column. Positive upward separation reduces that point's column continuously; stationary and descending points retain full compatibility. An optional horizontal point-speed band (<code>horizontal_speed_low</code>/<code>_high</code>, both zero disables it) multiplies that compatibility, falling smoothly from full to none across the band: a point bearing load on the ground is nearly stationary. For each group, deterministic nonnegative ridge regression first removes normal-load residual explainable by all other groups and then attributes the remainder to the selected group. Each fit is solved exactly: the ridge makes the minimizer unique, and it is the nonnegative candidate with the best objective among the unconstrained solves on every subset of columns. One side of a split may hold at most <code>kMaximumFitColumns</code> (8) points; a larger input is rejected. An exactly indistinguishable residual therefore fails closed instead of being shared arbitrarily. DSG exposes no point-contact gate or physical contact-location estimate. The authored normal-force score is raw support <code>S_raw</code>. One exact symmetric first-order filter produces <code>S</code>, and <code>C=clip((S-support_on)/(support_full-support_on),0,1)</code> produces normalized group capacity. Residual explainability remains diagnostic and does not attenuate support or capacity.</p>
+<p>The per-group split is only well determined when one group can explain the residual. Two coplanar feet load nearly the same residual direction, so in double support many splits explain it about equally well, and the returned split moves inside that near-null space between ticks. The exact-collinearity guarantee above does not extend to this near-collinear case: it does not fail closed. Measured on Digit at 2 m/s, a foot carrying 802 N of true normal force was attributed 30 N while the opposite foot took the difference. Consumers must therefore not read one group's <code>group_capacity</code> or <code>group_support_force</code> as evidence that that group is or is not bearing load while another group may share it. The sum across groups is not in the null space and tracks body weight; single-support splits are sound.</p>
+<p>Invalid whole-estimator samples clear all filter seeds and publish no groups. Invalid points are omitted; a group with no valid point publishes no output, loses its filter seed, and reseeds directly from its next valid raw sample. DSG owns only group support and normalized capacity. It does not own planner topology, reference retention, pointwise contact authority, or QP force policy.</p>
+<h2 id="invariant-ekf-contract">Invariant EKF Contract<a class="headerlink" href="#invariant-ekf-contract" title="Permanent link">&para;</a></h2>
+<p><code>InvariantEKF</code> owns IMU prediction plus two additive floating-base contact updates. The existing named-frame API anchors contact position. The group-velocity API selects one effective support point inside each configured rigid contact-group footprint by minimizing confidence-gated kinematic velocity over simplex weights, then stacks one 3D zero-velocity observation per admitted group. Floating-base linear and angular velocity are supplied to Pinocchio in the base tangent frame. The measurement Jacobian directly linearizes effective contact velocity against the right-invariant attitude, world velocity, and base-frame gyro bias. That full linearization is enabled for the first 0.15 s of applied updates and thereafter only when the configured contact footprint plane lies within 5 degrees of gravity-level; steeper or degenerate footprints retain the velocity-only row. This gate is derived from estimated pose and kinematics and does not consume terrain truth or a mapped surface normal. The default Schmidt-style gain mask permits velocity, roll/pitch, roll/pitch gyro bias, and accelerometer-bias correction while blocking all position, gravity-axis yaw, and gravity-axis gyro-bias correction. The stricter <code>LinearVelocityOnly</code> correction mode retains only world linear velocity and accelerometer-bias rows and disables the full attitude Jacobian and tilt bootstrap. It is intended for consumers that want contact-aided velocity without granting uncertain support geometry attitude authority. The filter uses an LDLT innovation solve and Joseph covariance update. Diagnostics expose group admission, weights, effective point kinematics, measurement trust, rejection reason, raw/masked corrections, and removed gauge terms.</p>
+<h3 id="contact-group-local-odometry-contract">Contact-Group Local-Odometry Contract<a class="headerlink" href="#contact-group-local-odometry-contract" title="Permanent link">&para;</a></h3>
+<p><code>contact_group_odometry.hpp</code> is implemented as an additive InEKF update. It preserves the public <code>State</code> and its <code>15 x 15</code> core covariance marginal in error order <code>[delta_theta, delta_v, delta_p, delta_bg, delta_ba]</code>, while the filter internally augments covariance with correlated 3D nuisance anchors for frozen effective contact points. Group velocity remains the sole velocity authority; group odometry applies only the translation rows selected by <code>group_odometry_position_correction_projector()</code>.</p>
+<p>Each configured group moves explicitly through <code>Absent</code>, <code>Candidate</code>, <code>Anchored</code>, and <code>Suspended</code>. Confidence, anchor dwell, effective-point speed, measurement trust, update cadence, innovation, geometry, and numerical-health checks fail closed with named reject reasons. Release and re-anchor update the correlated covariance consistently. Diagnostics expose anchor lifecycle, frozen weights, innovations, correction projection, covariance health, continuity epoch, and unanchored duration.</p>
+<p>Digit owns initialization, estimator selection, and control authority. The CORTA walking application supports group odometry only with flat-support-local initialization and validates its authority milestones and artifact diagnostics. Terrain perception, global localization, and hardware transport remain non-goals.</p>
+<p>The module does not choose contact confidence, sensor-frame calibration, initialization policy, control authority, or privileged truth; those remain app or hardware-adapter responsibilities.</p>
+<p><code>apps/digit/walking/digit_corta_walking</code> is the live consumer. It adapts foot-level DSG/schedule confidence to corner-position, group-velocity, or group-odometry observations and owns the <code>shadow</code>, <code>velocity-only</code>, <code>velocity-orientation</code>, and <code>closed-loop</code> output selectors. They do not select filter policy: group-velocity and group-odometry use <code>LinearVelocityOnly</code> regardless of output authority. Stationary-IMU startup, local-frame readiness, and authority handoff remain app policy. The module still owns no control-authority decision. Scenario evidence does not promote the estimator beyond candidate or claim hardware readiness.</p>
+<h2 id="owned-examples">Owned Examples<a class="headerlink" href="#owned-examples" title="Permanent link">&para;</a></h2>
+<ul>
+<li>None in this slice. Estimation examples should stay thin and be added only after the control-facing contracts settle.</li>
+</ul>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>C++ contract tests: <code>pixi run test estimation</code></li>
+<li>Joint observer: <code>JointStateObserver.*</code> pins constant-velocity noise reduction, polynomial acceleration/change response, constant-acceleration model tracking and q/qd covariance, correlated covariance where supported, timestamp/reset/cadence behavior, runtime routing and unequal-joint stacked contact covariance against finite differences. Impact IMM adds noise reduction/clean jump response, full mixture covariance, position-only independence and transactional rejection. <code>SharedStateEstimate.*</code> pins sensor/sequence/epoch identity, stale contact rejection and atomic attachment. The allocation target includes polynomial, constant-acceleration and IMM observation, physical/contact capture and momentum rebase across support phases.</li>
+<li>2026-10-10: 88 estimator tests and 4 allocation guards pass. The production IMM matches four independent frozen trajectories below 2e-10 normalized error. Digit adopts the shared physical composition after a bounded four-case matched comparison; three flat cases complete and both upstairs arms fail. Joint velocity error improves 18–79%, base velocity error changes by less than 0.001 m/s, and median Servo cost increases by 0.3–11.9 µs. Estimation remains candidate, contact uncertainty uncalibrated and controller EMA retained; see Digit VALIDATION.md for exact limits and provenance.</li>
+<li>2026-10-04: 78 estimator tests and 4 allocation tests pass. The opt-in constant-acceleration candidate improves the bounded Digit 0.6 m/s noisy walking comparison but fails sustained combined-noise walking. At 1.0 m/s, model error can make its joint-velocity RMSE worse than raw encoders. Process-noise tuning is a tracking/phase/noise tradeoff; this mode is not a qualified replacement for controller filtering. See Digit VALIDATION.md.</li>
+<li>2026-10-03: 77 estimator tests and 4 allocation tests pass. Independent replay matches polynomial C++ q/qd within 1.4e-13 rad / 6.1e-12 rad/s with identical history selection. On saved walking trajectories it reduces nominal and 3x joint error. Digit completes 5/9 cases versus baseline 6/9, including a lateral regression; this remains opt-in. The original constant-velocity arm was 2/9. See Digit VALIDATION.md for exact cases, artifacts and statistical limits.</li>
+<li>Python binding tests: <code>pixi run py-test estimation</code></li>
+<li>Digit estimator modes, output authority, initialization, milestones, and artifact gates: <code>pixi run test -R '^cyber_suite_digit_walking\.(corta_estimator_output_authorities|corta_telemetry|artifact_truth_join)$' --output-on-failure</code></li>
+</ul>
+<p>Last verified: see the current focused results in <code>apps/digit/walking/VALIDATION.md</code>.</p>
+<p>Hardware boundary: the linear-velocity policy of the contact-group modes was chosen on MuJoCo evidence, whose gyro has no bias wander. Against Agility's simulator through its low-level API (walking VALIDATION.md, 2026-10-14), the simulated gyro bias wandered by about 1 mrad/s, and Digit's group-velocity composition, with no tilt correction after startup, drifted 1° in pitch over 30 s of standing; controlling on it, the robot fell. Roll/pitch aiding for long or hardware sessions is open.</p>
+<h2 id="non-goals">Non-goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Control contact scheduling or support-authority ownership</li>
+<li>TAC-QP task construction</li>
+<li>LOAM, scan matching, or mapping surfaces from the old repo</li>
+<li>Hardware sensor drivers or app-level estimator orchestration</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+                
+
+<div class="document-origin">Source: <code>modules/estimation/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1133 @@
+---
+Status: working
+Owner: modules/locomotion, apps/digit/walking
+Last reviewed: 2026-10-18
+Code anchors: modules/locomotion/include/cyber_suite/locomotion/dcm/dcm_planner.hpp, modules/locomotion/src/dcm_planner.cpp, modules/locomotion/MODULE.md, apps/digit/walking/config/profiles/dcm.yaml
+output: pdf_document
+geometry:
+  - margin=1in
+papersize: letter
+fontsize: 11pt
+linestretch: 1.15
+---
+
+# DCM Footstep Planner Formulation (Progress Tracking + Heading)
+
+This deep reference explains the DCM model, heading-aware geometry and alternative optimization formulations. Its current implementation is the C++ `locomotion::dcm::DcmPlanner`, alongside the independent ALIP kernel. The [module contract](../../modules/locomotion/MODULE.md), [kernel implementation](../../modules/locomotion/src/dcm_planner.cpp) and [Digit profile](../../apps/digit/walking/config/profiles/dcm.yaml) own the actual API and assembled problem.
+
+## Current implementation map
+
+| Topic | Current C++ behavior | Retained derivation or alternative |
+| --- | --- | --- |
+| Model and heading | Constant-height DCM; desired heading precomputed outside the QP; yaw-rate and absolute-target commands | Section 1 derives the shared dynamics and frames |
+| Timing and cadence | First-step timing optimized before commitment; command-scaled planar reference cadence is unconditional | The former `command_scaled_reference_gait` switch is retired |
+| Objective | Six authorable weights: length, width, width symmetry, timing, progress and lateral | Python gait-smoothness, operating-envelope and swing weights are retired |
+| Geometry and viability | Hard physical gait and correct-side topology rows; viability slacks have an exact-penalty weight, with explicit stopping/recovery handling | The two-envelope hard/soft program below is the retired Python variant, not the current matrix layout |
+| Swing capability | No swing-speed or swing-acceleration rows | The swing-capability derivation is an uninstalled alternative |
+| Terminal storage | A reserved coordinate and final rows remain pinned/inactive to preserve the established numerical layout | The old terminal schedule is not an authorable controller feature |
+| Terrain extensions | Current numerical solve remains planar | Disjoint-region MIQP and variable-height sections are mathematical extensions, not deployed terrain capability |
+
+The Python implementation was retired on 2026-09-18. Its two-envelope QP remains here to explain the modeling choices and comparisons; sections that describe it are labeled accordingly. The current C++ solver does not have a maintained Python/CVXPY parity backend. Numerical feasibility does not certify swing tracking, controller feasibility, persistent-turn invariance or physical recovery.
+
+The current [Digit profile](../../apps/digit/walking/config/profiles/dcm.yaml) allows 0.30–0.60 s solver duration, with a separate 0.42–0.48 s reference cadence band. The [walking coordinator](walking-coordinator-boundary.md) owns lifecycle and installed-command admission; the numerical kernel does not own a Servo gait state machine.
+
+## 1) Core model, frames, and notation
+
+### 1.1) DCM definition (flat terrain)
+
+In LIPM-like walking with constant CoM height, define the DCM (a.k.a. capture point)
+
+$$
+z \;=\; x_c + \frac{1}{\lambda}\dot{x}_c,\qquad \lambda = \sqrt{\frac{g}{z_c}}.
+$$
+
+We plan in the horizontal plane, so $z_k, p_k \in \mathbb{R}^2$.
+
+### 1.2) Step-indexed variables
+
+At (touchdown of) step $k$:
+
+- DCM: $z_k \in \mathbb{R}^2$
+- Stance foot position: $p_k \in \mathbb{R}^2$
+- Desired heading (world yaw): $\theta_k \in \mathbb{R}$. This is the state of the command-side heading generator, not the measured yaw of the stance foot or robot body.
+
+  Store this state on an unwrapped real line so repeated turns remain continuous. The retired Python command integrated scalar yaw rate directly and therefore computes no wrapped target-angle error.
+
+- Stance flag: $l_k \in \{0,1\}$ with
+  - $l_k = 0$ = **right** stance
+  - $l_k = 1$ = **left** stance
+  - stance sign: $s_k := (-1)^{l_k} \in \{+1,-1\}$
+
+> **Conventions:** some earlier drafts use the opposite encoding for left/right stance. All formulas in this note assume $l_k=0$ (right) and $l_k=1$ (left).
+
+- Step displacement (world frame):
+  $$
+  u_k^w := p_{k+1}^w - p_k^w \in \mathbb{R}^2.
+  $$
+- Step duration $T_k$ encoded by timing factor
+  $$
+  \sigma_k := e^{\lambda T_k} \in [\sigma_{\min},\sigma_{\max}],\qquad \sigma_{\min} > 1.
+  $$
+  On flat terrain with constant $\lambda$, these bounds correspond to
+  $$
+  \sigma_{\min} = e^{\lambda T_{\min}},\qquad \sigma_{\max} = e^{\lambda T_{\max}}.
+  $$
+
+The stance alternates:
+
+$$
+l_{k+1} = 1 - l_k,\qquad s_{k+1} = -s_k.
+$$
+
+### 1.3) Desired-world-heading solve chart (pre-computed per solve)
+
+Rotation from desired-heading coordinates (forward/left) to world:
+
+$$
+R(\theta) =
+\begin{bmatrix}
+\cos\theta & -\sin\theta\\
+\sin\theta & \cos\theta
+\end{bmatrix}.
+$$
+
+At each admitted touchdown, freeze one solve chart with measured translation and planner-owned orientation:
+
+$$
+o_1^w:=p_1^w,
+\qquad
+Q_1:=R(\theta_1),
+\qquad
+\widetilde r:=Q_1^\top(r^w-o_1^w).
+$$
+
+Thus $\widetilde p_1=0$. Every preview foothold and DCM node in that solve uses this same chart; predicted nodes are not re-originated. From here onward, unless a world superscript is shown, $p_k$ and $z_k$ denote these solve-chart coordinates and the tilde is dropped. The DCM dynamics are unchanged by this rigid coordinate change.
+
+Accordingly, from this point forward
+
+$$
+u_k:=p_{k+1}-p_k=Q_1^\top u_k^w.
+$$
+
+Define relative node headings
+
+$$
+\delta_k:=\theta_k-\theta_1,
+\qquad \delta_1=0.
+$$
+
+The corresponding desired-heading axes in the solve chart are
+
+$$
+\hat{x}_k :=
+\begin{bmatrix}\cos\delta_k\\ \sin\delta_k\end{bmatrix},
+\qquad
+\hat{y}_k :=
+\begin{bmatrix}-\sin\delta_k\\ \cos\delta_k\end{bmatrix}.
+$$
+
+Equivalently, the world axes remain the columns of $R(\theta_k)$.
+
+For turning, express each step in the frame at the midpoint of its two endpoint headings. Define
+
+$$
+\alpha_k := \theta_{k+1}-\theta_k,
+\qquad
+\bar\delta_k := \delta_k + \frac{\alpha_k}{2},
+$$
+
+and let $\hat x_{k+1/2},\hat y_{k+1/2}$ be the columns of $R(\bar\delta_k)$ in the solve chart, or $R(\theta_k+\alpha_k/2)$ in world. The desired-heading step coordinates are
+
+$$
+\nu_k := R(\bar\delta_k)^\top u_k
+=
+\begin{bmatrix}
+\nu_k^x\\
+\nu_k^y
+\end{bmatrix}
+=
+\begin{bmatrix}
+\hat{x}_{k+1/2}^\top (p_{k+1}-p_k)\\
+\hat{y}_{k+1/2}^\top (p_{k+1}-p_k)
+\end{bmatrix}.
+$$
+
+Equivalently in world coordinates, $\nu_k=R(\theta_k+\alpha_k/2)^\top u_k^w$.
+
+The measured stance-foot translation is therefore only the chart origin. Its yaw, which can be distorted by uneven terrain, never enters $Q_1$, $\delta_k$, or any planned axis. At admitted touchdown, re-anchor translation at the new measured contact but advance orientation only through $\theta_1\leftarrow\theta_2^{\mathrm{accepted}}$. The body and feet are downstream tracking systems: they follow the desired-world heading; they do not define it.
+
+### 1.4) Step-to-step DCM dynamics
+
+Assuming CoP is at the stance foot $p_k$ during step $k$, the DCM update is
+
+$$
+z_{k+1} = p_k + (z_k - p_k)\sigma_k
+= \sigma_k z_k + (1-\sigma_k)p_k.
+$$
+
+Define DCM error w.r.t. the stance foot:
+
+$$
+e_k := z_k - p_k.
+$$
+
+Then using $p_{k+1}=p_k+u_k$,
+
+$$
+e_{k+1} = \sigma_k e_k - u_k.
+$$
+
+In node desired-heading coordinates,
+
+$$
+\eta_k := R(\delta_k)^\top e_k,
+$$
+
+the same update is
+
+$$
+\boxed{\;
+\eta_{k+1}
+= \sigma_k R(-\alpha_k)\eta_k
+- R(-\alpha_k/2)\nu_k.
+\;}
+$$
+
+This exact coupled recursion reduces to $\eta_{k+1}=\sigma_k\eta_k-\nu_k$ when $\alpha_k=0$. The finite-horizon planner uses it directly; projecting the scalar straight-heading invariant envelope into a rotating preview does not claim the nonzero-heading set is invariant.
+
+### 1.5) Simplifying assumptions
+
+The following assumptions are made throughout this formulation:
+
+- **CoP at stance foot:** no ankle torque exploitation; the center of pressure is fixed at the stance foot position during each step.
+- **Single support only:** the double support phase is not modeled; transitions are instantaneous.
+- **Point-contact / flat feet:** foot rotation dynamics are not QP states; desired-yaw trajectory screening enforces the downstream acceleration limit and a rate envelope coherent with the planner's own increment/timing range.
+- **Constant CoM height:** the LIPM assumption $z_c = \text{const}$ holds within each step (on flat terrain, globally; on variable-height terrain, per-step).
+- **No swing-foot translation trajectory optimization:** only the landing position is optimized. The mandatory yaw interpolation is constructed algebraically after the solve; swing-foot collision avoidance remains a separate downstream responsibility.
+- **Pre-computed heading:** the heading sequence $\{\theta_k\}$ is fixed before the optimization to preserve linearity.
+
+---
+
+## 2) Flat terrain planner: one heading-aware QP
+
+The dynamics, heading construction and physical gait geometry motivate the current kernel. The complete objective and two-envelope assembly developed in this section describe the retired Python variant. Use the implementation map above to distinguish shared mathematics from optional or removed terms; do not copy its variable layout or config keys into the current C++ app.
+
+### 2.1) Planner inputs
+
+At each solve the planner receives:
+
+- the measured stance translation, DCM, stance side, elapsed step time, and held step duration;
+- the last admitted step's command-relative fore-aft residual, physical width, and duration (or the launch seed $0,W_{\mathrm{nom}},T_{\mathrm{nom}}$);
+- the planner-owned accepted desired-world heading $\theta_1$;
+- horizon, gait limits, timing limits, nominal gait, hard-set numerical tolerance, and objective weights;
+- commanded desired-heading-frame velocity $(v_x,v_y)$; and
+- one signed body yaw rate $\omega$.
+
+The desired heading is command state, not a measured robot frame. Session/reset initializes it from the accepted app state. An app or upstream navigation source that wants to face an absolute world heading owns that feedback law and supplies a yaw rate before this boundary; measured body and stance-foot yaw are downstream tracking feedback only.
+
+All finite translational and heading commands proceed to the same QP after structural validation and increment clamping. There is no velocity-domain or turning-profile certification gate. The accepted-plan governor may report a realized translational velocity no larger than the request, but it does not pre-certify $v_x$ or $v_y$ as a condition for turning.
+
+### 2.2) Pre-compute the continuous bounded heading sequence
+
+To preserve convexity, $\theta_k$ is not a decision variable. The command-side generator builds the unwrapped desired-world sequence before QP assembly. The fixed preview duration is $T_{\mathrm{nom}}$.
+
+The sole maintained command rule is:
+
+$$
+\alpha_k
+=
+\operatorname{clamp}\!\left(
+\omega T_{\mathrm{nom}},
+-\alpha_{\max},
++\alpha_{\max}
+\right).
+$$
+
+Advance
+
+$$
+\theta_{k+1}=\theta_k+\alpha_k.
+$$
+
+The increment is continuous within its clamp bounds. There is no quantization, same-sign snapping, certified table, or nonzero deadband. Zero and nonzero increments use the same generator.
+
+Although $\sigma_1$ is optimized, $T_{\mathrm{nom}}$ is fixed before the QP. Therefore every $\theta_k$, $\alpha_k$, node/midpoint axis, rotation, and constant-twist chord remains constant in the solve. Retiming changes the reported accepted average body rate to
+
+$$
+\omega_{\mathrm{real}}=\frac{\alpha_1}{T_1},
+$$
+
+but it does not change the accepted geometric increment.
+
+There is no special turn-in-place mode. Setting $v_x=v_y=0$ zeros the translational reference while nonzero $\alpha_k$ rotates the same alternating-step gait.
+
+At an accepted touchdown, advance the persistent heading only through $\theta_1\leftarrow\theta_2^{\mathrm{accepted}}$. Re-anchor chart translation at the measured new stance contact, but never re-anchor chart orientation from measured foot or body yaw. The accepted payload carries the heading sequence. The consuming application owns its body and foot orientation trajectories.
+
+### 2.3) Decision variables (flat terrain)
+
+For a horizon of $N$ steps, the decision variables are
+
+$$
+\{p_k\}_{k=2}^{N+1},\qquad
+\{z_k\}_{k=2}^{N+1},\qquad
+\sigma_1,\qquad
+\rho,\qquad
+\{\varepsilon_k^x,\varepsilon_k^y\}_{k=1}^{N}\ge0,\qquad
+\varepsilon_{\mathrm{sw}}\in\mathbb{R}_{\ge0}^2.
+$$
+
+$\varepsilon_k^x$ and $\varepsilon_k^y$ are meter-valued excursions outside the nominal-cadence operating envelope. They do not relax the outer viable set. $\rho\in[0,1]$ is the existing terminal schedule relaxation; its upper bound is set to zero when the terminal schedule is disabled. $\varepsilon_{\mathrm{sw}}$ relaxes only the preferred swing acceleration band, never the hard swing capability rows. Thus the implemented problem has $6N+4$ scalar decision variables.
+
+The current-step timing $\sigma_1$ is optimized on every precommit solve. Future timing is fixed at the authored nominal preview duration:
+
+$$
+\sigma_k \equiv \sigma_{\mathrm{preview}} = e^{\lambda T_{\mathrm{preview}}},
+\qquad k=2,\dots,N.
+$$
+
+This preserves a convex QP because $\sigma_1$ appears in the $k=1$ dynamics only where $(z_1,p_1)$ are known constants. Optimizing future timing would make the recursion bilinear; see Section 2.8.
+
+### 2.4) Objective: cumulative progress tracking
+
+The retired Python objective assigned one owner to each behavior. Cumulative prefix progress tracks the commanded fore-aft displacement, complete-cycle cumulative progress tracks lateral translation, and width terms shape the alternating gait. The hard first-successor controlled-invariant set closes DCM feedback around the one preview state that receding-horizon execution actually reaches. Two high-priority quadratic slack costs discourage leaving the nominal DCM envelope or exceeding the preferred swing acceleration. Hard reach, width, swing-capability, dynamics, and outer-envelope rows remain the final authority.
+
+There is deliberately no separate per-step length objective. It would track the same command as cumulative progress while giving equal importance to deeper preview steps that this MPC will discard. There is likewise no fixed one-step, all-preview, or two-step DCM-periodicity cost. Section 2.4.4 explains why capturability is enforced as a reachable set rather than attraction to one arbitrarily selected walking orbit.
+
+#### 2.4.1) Gait geometry
+
+Define the **step width** in the desired-heading midpoint frame (always positive):
+
+$$
+W_k := s_k \nu_k^y.
+$$
+
+The absolute width-shaping cost is
+
+$$
+J_{\text{width}} = \sum_{k=1}^{N} w_w(W_k - W_{\text{nom}})^2.
+$$
+
+This term regulates nominal stance width. For lateral translation and turning, Section 2.4.1.2 removes the commanded body chord and heading geometry before evaluating physical width. The old preview-only adjacent-width term is replaced by the admitted-step smoothness cost in Section 2.4.5, so the first action is not left unregularized at every receding-horizon solve.
+
+#### 2.4.1.1) The reference gait, and the stride/cadence preferences
+
+**Retired Python implementation, 2026-09-05.** The coherent command-scaled reference gait derived below was implemented in the retired Python kernel as `dcm_planar_reference_gait`, behind `planner.command_scaled_reference_gait`. It resolves one $(L_{\text{ref}}, W_{\text{ref}}, T_{\text{ref}})$ per solve and supplies it wherever the solve _predicts_ rather than decides: deeper preview DCM propagation, the heading increment, the preview command chords, the preview swing reach, the soft operating envelope, and the launch smoothness seed. It changes no hard row -- $\sigma_1$ still ranges over the whole timing interval and the hard $T_{\min}$ envelope is still evaluated at $\sigma_{\min}$.
+
+The two _objective_ halves, an absolute stride preference and the timing target $w_\sigma(\sigma_1-\sigma_{\text{ref}})^2$, are present as `weights.reference_length` and `weights.reference_timing` and both default to zero.
+
+**Digit ships the whole mechanism disabled**, on a matched measurement rather than on the analysis below: enabling it takes flat `vx=1.0` from 11 admitted steps to 6, and flat `vx=0.20` from zero high-severity support-force findings to four. See [the reference-gait entry](../../notes/journal/entries/2026-09-05-reference-gait-restored-and-measured-off.md) and, for the objective halves, [the timing-reference ablation](../../notes/journal/entries/2026-09-04-timing-reference-restoration-ablation.md).
+
+The rest of this section is the derivation and the historical rationale for why an _independent_ stride and timing pair is the wrong shape. That part is unchanged and still governs.
+
+The legacy choice $L_{\text{nom}} = v_{\text{des}} T_{\text{nom}}$ together with $w_\sigma(\sigma_1-\sigma_{\text{nom}})^2$ creates two **independent** set points. The first grows with the command; the second does not. Nothing in the objective expresses speed as $L/T$, so raising $v_{\text{des}}$ is met entirely by a longer stride, and cadence moves only when the hard row $|\nu^x|\le L_{\max}$ makes that impossible. Measured on a speed sweep ($L_{\max}=0.5$, $T_{\text{nom}}=0.40$, $T_{\min}=0.30$), $T_1$ sits at exactly $0.4000$ up to $v_{\text{des}}=1.2$ and then jumps to $0.3137$ once the stride pins to $L_{\max}$. One authority is spent before the other is touched, and the handover is a discontinuity.
+
+These values are a pre-solve **objective preference**, not the optimized plan and not the task reference ultimately sent to the controller. Making the $k=1$ length residual timing-consistent — replacing $L_{\text{nom}}$ with $L_{\text{nom}} + a_v(\sigma_1-\sigma_{\text{nom}})$, which is the correct linearization of $v_{\text{des}}T_1(\sigma_1)$ and matches what Sections 2.4.2 and 2.4.3 already do — removes the inconsistency but changes nothing: a term that tracks speed is degenerate along the iso-speed line, and $w_\sigma$ resolves the degeneracy straight back to $\sigma_{\text{nom}}$.
+
+The **coherent command-dependent gait preference** below is the one that was implemented. It uses the spatial range $[0,L_{\max}]$ and the temporal range $[T_{\min},T_{\text{nom}}]$ in equal proportion. Let $r$ be their shared normalized utilization:
+
+$$
+\boxed{\;
+r(v_{\mathrm{des}}^g)
+=\frac{|v_{\mathrm{des}}^g|\,T_{\text{nom}}}
+{L_{\max}+|v_{\mathrm{des}}^g|\,(T_{\text{nom}}-T_{\min})},
+\qquad
+L_{\text{pref}}=\operatorname{sign}(v_{\mathrm{des}}^g)\,r\,L_{\max},
+\qquad
+T_{\text{pref}}=T_{\text{nom}}-r\,(T_{\text{nom}}-T_{\min}).
+\;}
+$$
+
+$r$ is precisely the value that makes $L_{\text{pref}}/T_{\text{pref}}=v_{\mathrm{des}}^g$ — solve $rL_{\max}=|v_{\mathrm{des}}^g| \big(T_{\text{nom}}-r(T_{\text{nom}}-T_{\min})\big)$ and restore the sign through $L_{\mathrm{pref}}=\operatorname{sign}(v_{\mathrm{des}}^g)rL_{\max}$ — so the preference is a coherent gait nominal rather than a pair of unrelated set points, and both quantities move continuously with the command. $r=1$ occurs exactly at $|v_{\mathrm{des}}^g|=L_{\max}/T_{\min}$, so the two authorities saturate at the same speed. The governance in Section 2.1 guarantees $r\in[0,1]$; a defensive clamp is allowed only with the same reported saturation and governed value, never while publishing the raw velocity. At $v_{\mathrm{des}}^g=0$ it degenerates correctly to $L_{\text{pref}}=0$, $T_{\text{pref}}=T_{\text{nom}}$.
+
+At $L_{\max}=0.75$, $T_{\text{nom}}=0.40$, $T_{\min}=0.30$:
+
+| $v_x$ | $L_{\text{pref}}$ | $T_{\text{pref}}$ | reserve $1-r$ |
+| ----: | ----------------: | ----------------: | ------------: |
+|   0.4 |           0.152 m |           0.380 s |           80% |
+|   0.8 |           0.289 m |           0.361 s |           61% |
+|   1.2 |           0.414 m |           0.345 s |           45% |
+|   1.6 |           0.527 m |           0.330 s |           30% |
+|   2.0 |           0.632 m |           0.316 s |           16% |
+|   2.5 |           0.750 m |           0.300 s |            0% |
+
+$T_{\text{pref}}$ then replaces $T_{\text{nom}}$ **consistently** in the timing anchor, preview DCM propagation $\sigma_{\text{pref}}=e^{\lambda T_{\text{pref}}}$, translational preferences, and heading increment. The bounds of Section 2.5(c) separately use the fresh-step timing range because the next executed step retimes when replanned.
+
+$\sigma_1$ remains a decision variable around this preference. Its nominal gait range is $[\sigma_{\min},\sigma_{\max}]$, while the authoritative online interval is $[\sigma_1^{\mathrm{lo}},\max(\sigma_1^{\mathrm{lo}},\sigma_{\max})]$ from Section 2.5(a.1). Thus the usual range is unchanged until the elapsed-time floor overtakes it; after that, the $T_{\max}$ preference deliberately yields to causality. Nothing here adds a decision variable: every affected preference quantity is a constant of the solve, and the problem stays a convex QP.
+
+Measured on the same sweep, each configuration started from its own steady state: stride and cadence both move from the first speed, commanded speed is tracked exactly through $1.2$ m/s, and $L_{\max}$ saturation moves from $v_x=1.6$ to $v_x=2.0$ against an unchanged $L_{\max}/T_{\min}$ ceiling — the reserve costs no top speed.
+
+The deferred C++ backend retains a private command-scaled resolver. The retired Python backend did not use that output or expose those preferences as objective weights.
+
+#### 2.4.1.2) Exact constant-twist preference in the midpoint frame
+
+For each fixed, pre-computed increment $\alpha_k$, define
+
+$$
+\gamma_k:=\operatorname{sinc}\!\left(\frac{\alpha_k}{2}\right),
+\qquad
+\operatorname{sinc}(x):=
+\begin{cases}
+\sin x/x,&x\ne0,\\
+1,&x=0,
+\end{cases}
+$$
+
+and integrate the commanded desired-body/tangent-frame translational velocity over the fixed preview duration:
+
+$$
+\boxed{
+d_k:=\gamma_k T_{\mathrm{nom}}
+\begin{bmatrix}v_{\mathrm{des}}\\v_y\end{bmatrix}.
+}
+$$
+
+This is the exact constant-body-twist chord expressed in the edge-midpoint heading frame. It is the planner's progress target. An application trajectory need not use constant twist as its instantaneous time law; this chord is an objective target, not an executed reference. If the nominal feet lie at lateral offsets $\mp W_{\mathrm{nom}}/2$ from the desired body path, the corresponding footstep preference is
+
+$$
+\boxed{
+\nu_k^{\mathrm{pref}}
+=d_k+
+\begin{bmatrix}0\\s_kW_{\mathrm{nom}}\cos(\alpha_k/2)\end{bmatrix}.
+}
+$$
+
+Define the physical-width proxy
+
+$$
+\overline W_k:=
+\frac{s_k(\nu_k^y-d_k^y)}{\cos(\alpha_k/2)}.
+$$
+
+The bounded increment must keep
+
+$$
+\cos(\alpha_k/2)>0
+$$
+
+with a numerical floor, so the physical-width proxy remains well conditioned. The heading-aware absolute width cost is
+
+$$
+J_{\mathrm{width}}
+=\sum_{k=1}^{N}w_w(\overline W_k-W_{\mathrm{nom}})^2.
+$$
+
+For the executed step only, make $d_1$ timing-aware without changing $\alpha_1$:
+
+$$
+T_1^{\mathrm{lin}}(\sigma_1)
+:=T_c
++\frac{\sigma_1-\sigma_c}
+       {\lambda\sigma_c},
+\qquad
+d_1(\sigma_1)
+:=\gamma_1T_1^{\mathrm{lin}}(\sigma_1)
+\begin{bmatrix}v_{\mathrm{des}}\\v_y\end{bmatrix}.
+$$
+
+Here $\sigma_c$ is the midpoint of the currently admissible growth-factor interval and $T_c=\log(\sigma_c)/\lambda$. All rotations and trigonometric factors remain constants of the solve, while $d_1$ is affine in $\sigma_1$. The progress objective therefore remains convex quadratic. With $v_{\mathrm{des}}=v_y=0$, the same preference produces ordinary alternating steps around a stationary desired body path; no turn-in-place mode exists.
+
+The chord is exact at fixed $T_{\mathrm{nom}}$ for future steps; the current-step duration correction is first order in $\sigma_1$, not an exact evaluation of $\log\sigma_1$. For the active feasible timing interval, record
+
+$$
+\epsilon_T^{\mathrm{lin}}
+:=\max_{\sigma\in[\sigma_1^{\mathrm{lo}},\sigma_1^{\mathrm{hi}}]}
+\left|\frac{\log\sigma}{\lambda}-T_1^{\mathrm{lin}}(\sigma)\right|,
+$$
+
+which occurs at an interval endpoint. Declare and validate the operating range over which this objective approximation is acceptable. Outside that range, report degraded velocity-preference accuracy rather than claiming exact current-step constant-twist chord evaluation. This approximation changes no hard dynamics or viability row.
+
+#### 2.4.2) Cumulative forward progress tracking
+
+This was the retired Python planner's mean fore-aft displacement-tracking objective. Cumulative progress makes later preview steps react to an earlier preview deficit and naturally gives the executed first action the greatest weight. The hard first-successor invariant set separately closes DCM-state feedback. This term is not cross-solve integral action.
+
+Define the cumulative desired-heading forward displacement from step 1:
+
+$$
+F_k := \sum_{i=1}^{k-1} \nu_i^x
+= \sum_{i=1}^{k-1} \hat{x}_{i+1/2}^\top(p_{i+1} - p_i),
+\qquad k = 2,\dots,N+1.
+$$
+
+Using the constant-twist chords from Section 2.4.1.2, the timing-aware reference progress is
+
+$$
+F_k^{\text{des}}(\sigma_1)
+:=d_1^x(\sigma_1)+\sum_{i=2}^{k-1}d_i^x,
+\qquad k=2,\dots,N+1.
+$$
+
+The progress tracking cost:
+
+$$
+J_{\text{progress}} = \sum_{k=2}^{N+1} w_F\left(F_k - F_k^{\text{des}}(\sigma_1)\right)^2.
+$$
+
+**Key properties:**
+
+- **Within-horizon deficit compensation (not cross-step integral action).** Let $\epsilon_i:=\nu_i^x-d_i^x$. Then $F_k-F_k^{\text{des}}=\sum_{i<k}\epsilon_i$, so within a single solve a short early step is felt by every later term. **This does not accumulate across solves.** $F_k$ is measured from the current $p_1$, so it resets at every touchdown and the planner carries no commanded-versus-realized progress state. Genuine integral action would require such a state, and on a divergent plant it would also require its own anti-windup treatment; neither is specified here. Do not read this term as eliminating steady-state position error.
+- **Natural time-discounting.** Step 1's error appears in all $N$ terms; step $N$'s error appears in only 1 term. This is appropriate for an MPC that executes only step 1.
+- **Timing coupling.** $d_1(\sigma_1)$ adjusts the reference when the optimizer changes current-step duration.
+- **Convexity.** $F_k$ is linear in $\{p_k\}$ and $F_k^{\text{des}}$ is linear in $\sigma_1$, so $J_{\text{progress}}$ is convex quadratic. Cross-terms between $p_k$ and $\sigma_1$ appear in the Hessian but the QP structure is preserved.
+
+#### 2.4.3) Lateral velocity (when $v_y \neq 0$)
+
+Lateral velocity arises from the body-chord component $d_k^y$. Remove the nominal rotating foot offset from each step:
+
+$$
+\chi_k^y:=\nu_k^y-s_kW_{\mathrm{nom}}\cos(\alpha_k/2),
+$$
+
+Only complete same-foot cycles are compared, because a single foot-to-foot step contains the alternating stance-width offset. For cycle endpoint $m\in\{2,4,\ldots,2\lfloor N/2\rfloor\}$, define
+
+$$
+C_m^y:=\sum_{k=1}^{m}\chi_k^y,
+\qquad
+C_m^{y,\mathrm{des}}(\sigma_1):=
+d_1^y(\sigma_1)+\sum_{k=2}^{m}d_k^y.
+$$
+
+The Digit application additionally supplies one bounded carried error $E_y$ in meters. Its sign convention is requested minus measured lateral progress over completed same-foot cycles. The QP residual and cost are
+
+$$
+\boxed{
+r_m^y=C_m^y-C_m^{y,\mathrm{des}}(\sigma_1)-E_y,
+\qquad
+J_{\text{lat}}=w_{\text{lat}}\sum_{m\in\{2,4,\ldots\}}(r_m^y)^2.
+}
+$$
+
+Thus a positive realized deficit asks the QP to plan the missing progress once; it does not alter the private gait preference before problem construction.
+
+At the application boundary, after a newly admitted transition closes a same-foot cycle,
+
+$$
+E_y^+
+=\operatorname{clip}\!\left(
+E_y+\Delta y_{\mathrm{requested}}-\Delta y_{\mathrm{measured}},
+-(W_{\max}-W_{\min}),
++(W_{\max}-W_{\min})
+\right).
+$$
+
+Requested and measured displacements are integrated on the same control-tick intervals in the accepted desired-heading chart. The state resets on session reset, zero lateral command, or command-sign reversal. There is no enable flag, filter coefficient, integral gain, or pre-QP displacement correction. The geometry-derived clip is anti-windup; hard width and viability rows remain the final authority if the requested make-up progress is infeasible.
+
+When $v_y = 0$, all lateral body-chord reference displacements vanish, the carried state is reset, and width regulation in $J_{\text{width}}$ drives symmetric stepping.
+
+#### 2.4.4) Capturability feedback without a fixed periodic point
+
+Velocity progress alone does not constrain the unstable step-to-step DCM state, while driving DCM error to zero would describe standing capture rather than commanded walking. The maintained planner therefore closes DCM feedback with the reachable sets in Section 2.5(c), not with a preferred point:
+
+- the reconstructed current state must lie in the hard $T_{\min}$ controlled-invariant envelope;
+- the executable successor $(e_2^x,q_2)$ must remain in that same hard set; and
+- slacks against the inner $T_{\mathrm{nom}}$ envelope measure and penalize loss of ordinary-cadence capture reserve.
+
+This admits the family of walking states that can be continued by a legal step. Width preference, cumulative commanded progress, and admitted-step smoothness select among those states. There is no authored lateral DCM center, contraction pole, or Poincare-map residual in the QP objective.
+
+The hard row applies only to the successor that can execute before replanning. Deeper preview timing is fixed at $T_{\mathrm{nom}}$ and those nodes are discarded. Requiring the final preview node to enter the nominal envelope would reject some states near the valid $T_{\min}$ capture boundary even though a new solve at the first successor can select another legal duration. A hard terminal capture set would require either controllable future timing or a backward- reachable set derived for the fixed preview cadence; neither is claimed here.
+
+#### 2.4.5) Admitted-step gait smoothness
+
+The MPC executes only its first step and discards the rest of the preview at the next support exchange. Adjacent-preview differences alone therefore do not penalize the discontinuity between the action that was just executed and the new first action. Define the command-relative fore-aft correction
+
+$$
+r_k^x:=\nu_k^x-d_k^x
+$$
+
+and let $(r_{\mathrm{prev}}^x,\overline W_{\mathrm{prev}},T_{\mathrm{prev}})$ be the last admitted step. The application advances this boundary only after contact admission and holds it fixed through every replan in the new step. At launch it is initialized to
+
+$$
+(r_{\mathrm{prev}}^x,\overline W_{\mathrm{prev}},T_{\mathrm{prev}})
+=(0,W_{\mathrm{nom}},T_{\mathrm{nom}}).
+$$
+
+For the preview sequences, define boundary-seeded differences
+
+$$
+\Delta r_1^x=r_1^x-r_{\mathrm{prev}}^x,
+\qquad
+\Delta r_k^x=r_k^x-r_{k-1}^x,\quad k=2,\dots,N,
+$$
+
+$$
+\Delta \overline W_1=\overline W_1-\overline W_{\mathrm{prev}},
+\qquad
+\Delta \overline W_k=\overline W_k-\overline W_{k-1},
+\quad k=2,\dots,N,
+$$
+
+and, because only the first duration is an online decision,
+
+$$
+\Delta T_1=T_1^{\mathrm{lin}}(\sigma_1)-T_{\mathrm{prev}}.
+$$
+
+One public dimensionless weight acts on the three physically normalized residuals:
+
+$$
+\boxed{
+J_{\mathrm{smooth}}=w_{\mathrm{smooth}}\left[
+\sum_{k=1}^{N}\left(\frac{\Delta r_k^x}{L_{\max}}\right)^2
++\sum_{k=1}^{N}\left(
+\frac{\Delta\overline W_k}{W_{\max}-W_{\min}}
+\right)^2
++\left(\frac{\Delta T_1}{T_{\max}-T_{\min}}\right)^2
+\right].
+}
+$$
+
+This is action regularization, not a periodic-orbit or Lyapunov objective. It does not restore an absolute per-step length or timing target, and it cannot by itself prove contraction of the step-to-step DCM map.
+
+#### 2.4.6) Soft operating-envelope penalty
+
+The outer invariant envelope in Section 2.5(c) is hard. Inside it, the maintained implementation gives the narrower nominal-cadence envelope a soft quadratic penalty:
+
+$$
+J_{\mathrm{env}}=w_{\mathrm{env}}\sum_{k=1}^{N}
+\left[(\varepsilon_k^x)^2+(\varepsilon_k^y)^2\right].
+$$
+
+This is a soft-constraint penalty, not a DCM-periodicity target. It selects a preferred region without choosing a nominal point inside that region, and it does not change the outer hard feasible set.
+
+#### 2.4.7) Swing operating penalty
+
+Section 2.5(d) defines nonnegative per-axis slacks $\varepsilon_{\mathrm{sw}}$ on the preferred swing-acceleration band. Their penalty is
+
+$$
+J_{\mathrm{swing}}=w_{\mathrm{swing}}
+\lVert\varepsilon_{\mathrm{sw}}\rVert_2^2.
+$$
+
+The physical swing-acceleration and mean-speed rows remain hard. This soft inner row is what lets the QP trade stride against the current-step duration without an authored cadence target.
+
+#### 2.4.8) Complete objective
+
+$$
+J = J_{\text{width}} + J_{\text{progress}} + J_{\text{lat}}
+  + J_{\text{smooth}} + J_{\text{env}} + J_{\text{swing}}
+  + w_\rho\rho + J_{\text{ridge}}.
+$$
+
+Every width/progress/smoothness/slack residual above is affine in $(p_k,z_k,\sigma_1)$ after $\{\alpha_k\}$ is selected. Consequently the complete objective remains convex quadratic for straight walking, translating turns, and turn-in-place. The terminal relaxation is linear, and the small relative ridge keeps every solver variable in a positive-definite Hessian block.
+
+**Interpretation:** with zero translational command, $d_k=0$ and the robot uses the same alternating gait to turn in place. With nonzero translation, the constant-twist chord makes the reference follow the commanded arc. The forward cumulative term discourages deficit only within the current horizon. Lateral cumulative tracking additionally receives the bounded cross-solve same-foot progress error from Section 2.4.3.
+
+### 2.5) Constraints (flat terrain)
+
+#### (a) DCM dynamics (QP with first-step timing only)
+
+For the **current** step:
+
+$$
+z_{2} = \sigma_{1} z_1 + (1-\sigma_{1})p_1.
+$$
+
+For the remaining horizon (fixed reference timing), for $k=2,\dots,N$:
+
+$$
+z_{k+1} = \sigma_{\text{pref}} z_k + (1-\sigma_{\text{pref}})p_k.
+$$
+
+#### (a.1) Elapsed-time floor on the current-step timing
+
+$\sigma_1$ encodes the **total** duration $T_1$ of the current step, measured from its own touchdown — not the remaining swing time. A solve issued at elapsed time $\tilde t$ must therefore never command $T_1 < \tilde t$, which would place the landing in the past. The static bound $\sigma_{\min} \le \sigma_1$ does not express this: once $\tilde t > T_{\min}$ it admits landing times that have already elapsed.
+
+Impose instead
+
+$$
+\boxed{\;
+\sigma_1^{\text{lo}} := \max\big(\sigma_{\min},\; e^{\lambda(\tilde t + \Delta T)}\big)
+\;\le\;
+\sigma_1
+\;\le\;
+\sigma_1^{\text{hi}} := \max\big(\sigma_1^{\text{lo}},\; \sigma_{\max}\big),
+\qquad \Delta T \ge 0 .
+\;}
+$$
+
+**Key properties:**
+
+- **Causality.** $\Delta T = 0$ recovers the minimal requirement $T_1 \ge \tilde t$: the step may end now, but not earlier.
+- **Executable-policy reserve.** The equality case is an algebraic limit. A composing robot profile chooses $\Delta T>0$ so its swing policy has a finite remaining interval.
+- **Executable reserve.** $\Delta T > 0$ additionally reserves a minimum _remaining_ swing time, so a consumer is not handed a landing time its swing policy cannot reach. Choose $\Delta T$ as the shortest swing segment the foot controller can traverse.
+- **The ceiling yields, not causality.** When $\tilde t + \Delta T$ overruns $T_{\max}$, $\sigma_1^{\text{hi}}$ rises to meet the floor. An earlier draft clamped the _floor_ down to $\sigma_{\max}$ instead, which returns $T_1 < \tilde t$ — a landing already in the past — and preserves neither causality nor the promised swing reserve. $T_{\max}$ is a gait-shape preference; causality is not, so the preference is what gives way. The scalar timing interval stays nonempty either way; its coupling through dynamics and hard gait/viability rows can still make the full QP infeasible.
+- **Soft self-commitment.** The floor meets a candidate duration when $\tilde t+\Delta T=T_1$. Thus the available retiming window closes as the reserved landing time approaches, not necessarily only as $\tilde t\to T_1$. Section 2.7 makes that closure explicit and extends it to landing position and desired touchdown heading.
+- **Not a commitment.** The floor moves with $\tilde t$ but leaves $\sigma_1$ free above it. Timing is re-optimized at **every** solve; freezing it for the duration of a step would remove the cheapest and fastest disturbance response the planner has.
+
+#### (b) Kinematic feasibility (desired-heading midpoint frame)
+
+For $k=1,\dots,N$:
+
+$$
+-L_{\max} \le \hat{x}_{k+1/2}^\top(p_{k+1}-p_k) \le L_{\max},
+$$
+
+$$
+W_{\min} \le s_k\,\hat{y}_{k+1/2}^\top(p_{k+1}-p_k) \le W_{\max}.
+$$
+
+These constraints are linear because $\hat{x}_{k+1/2},\hat{y}_{k+1/2}$ are pre-computed constants. They are the mathematical gait box; the online rows use the once-tightened execution bounds defined in Section 2.5(c) and formalized in Section 2.9.
+
+They are not a swing-speed certificate. Reaching $L_{\max}$ or $W_{\max}$ at $T_{\min}$ repeatedly may be infeasible for the full robot even though every landing lies in this box. A physically meaningful online swing constraint must start from the measured or currently commanded swing-foot position, velocity, and acceleration, the remaining time to touchdown, and calibrated directional velocity/acceleration limits. Those values are not part of the numerical `DcmPlannerState` today, so the maintained QP does not pretend that a second displacement box proves swing reachability. Adding the necessary state and calibration is a separate app-to-kernel contract change.
+
+#### (c) Hard outer invariant envelope and soft operating envelope
+
+At each predicted touchdown define the desired-heading coordinates
+
+$$
+e_{k+1}^x:=\hat x_{k+1}^\top(z_{k+1}-p_{k+1}),
+\qquad
+q_{k+1}:=s_{k+1}\hat y_{k+1}^\top(z_{k+1}-p_{k+1}).
+$$
+
+$q$ is the stance-folded lateral DCM error. Negative $q$ is permitted by the reduced model: it means the DCM is outboard of the current stance foot, but it does not permit the next foot to cross because signed step width remains an independent hard constraint. The planner has no $q_{\mathrm{periodic}}$ field, no $q>0$ row, and no measured-state ankle allowance.
+
+##### Timing-controlled invariant-set derivation
+
+At zero heading increment, the stance-folded recursion is
+
+$$
+q^+=W-\sigma q,
+\qquad W\in[W_{\min},W_{\max}],
+\qquad \sigma\in[\sigma_{\min},\sigma_{\max}].
+$$
+
+Seek the widest interval $[L,U]$ for which every state has at least one legal width and timing that returns the successor to the interval. At $q=U$, the largest achievable successor uses the widest, fastest step and must reach $L$; at $q=L$, the smallest achievable successor uses the narrowest, fastest step and must reach $U$. The boundary conditions are therefore
+
+$$
+W_{\max}-\sigma_{\min}U=L,
+\qquad
+W_{\min}-\sigma_{\min}L=U.
+$$
+
+Solving them gives
+
+$$
+\boxed{
+L(\sigma)=\frac{\sigma W_{\min}-W_{\max}}{\sigma^2-1},
+\qquad
+U(\sigma)=\frac{\sigma W_{\max}-W_{\min}}{\sigma^2-1}.
+}
+$$
+
+The longitudinal map $e_x^+=\sigma e_x-u_x$ with $|u_x|\le L_{\max}$ has the symmetric invariant interval
+
+$$
+\boxed{
+|e_x|\le B_x(\sigma),
+\qquad B_x(\sigma)=\frac{L_{\max}}{\sigma-1}.
+}
+$$
+
+The ordinary timing authority is the complete interval $\sigma\in[\sigma_{\min},\sigma_{\max}]$. Since the least unstable factor $\sigma_{\min}$ produces the widest invariant intervals, the hard outer envelope is
+
+$$
+\mathcal V_{\mathrm{hard}}=
+[-B_x(\sigma_{\min}),B_x(\sigma_{\min})]
+\times[L(\sigma_{\min}),U(\sigma_{\min})].
+$$
+
+This does not make $T_{\min}$ a recovery mode. It proves the existential statement behind controlled invariance: a state on the outer boundary may need the shortest ordinary step, while an interior state may use any feasible timing. For Digit simulation $T_{\min}=0.30$ s is ordinary solver authority, and no cost or mode switch is attached merely to selecting it.
+
+The nominal-cadence envelope uses exactly the same equations at $\sigma_{\mathrm{nom}}=e^{\lambda T_{\mathrm{nom}}}$:
+
+$$
+\mathcal V_{\mathrm{nom}}=
+[-B_x(\sigma_{\mathrm{nom}}),B_x(\sigma_{\mathrm{nom}})]
+\times[L(\sigma_{\mathrm{nom}}),U(\sigma_{\mathrm{nom}})].
+$$
+
+It is narrower and is imposed softly at every predicted touchdown:
+
+$$
+|e_{k+1}^x|\le B_x(\sigma_{\mathrm{nom}})+\varepsilon_k^x,
+$$
+
+$$
+L(\sigma_{\mathrm{nom}})-\varepsilon_k^y
+\le q_{k+1}\le
+U(\sigma_{\mathrm{nom}})+\varepsilon_k^y,
+\qquad \varepsilon_k^x,\varepsilon_k^y\ge0.
+$$
+
+These slack variables measure departure from nominal operation. They are not recovery authority and cannot weaken $\mathcal V_{\mathrm{hard}}$.
+
+The physical width row $W_{\min}\le s_k\hat y_{k+1/2}^\top(p_{k+1}-p_k)\le W_{\max}$ remains separately hard. It prevents leg crossing at landing; the invariant envelope constrains the DCM state. Neither substitutes for the other.
+
+The reconstructed initial state $(e_1^x,q_1)$ must lie in $\mathcal V_{\mathrm{hard}}$ and is passed into the dynamics unchanged. The QP then imposes the same hard envelope on $(e_2^x,q_2)$, the only successor that will execute before the next solve. It does not impose the timing-controlled outer envelope on nodes $k\ge3$: their timing is fixed at $\sigma_{\mathrm{preview}}$, so doing so would silently remove the timing choice used in the invariant-set proof and can reject a valid negative $q_1$. The soft nominal envelope still shapes every preview node. This is the receding-horizon recursive-feasibility contract.
+
+For nonzero $\alpha_k$, the exact two-axis recursion is coupled. The implementation applies the same scalar limits to projections in each next desired-heading frame as a finite-horizon contract; it does not claim a recursively invariant turning set.
+
+### 2.5.1) Complete two-envelope QP (retired Python variant)
+
+For every precomputed heading sequence define
+
+$$
+W_k:=s_k\hat y_{k+1/2}^\top(p_{k+1}-p_k),
+$$
+
+$$
+e_{k+1}^x:=\hat x_{k+1}^\top(z_{k+1}-p_{k+1}),
+\qquad
+q_{k+1}:=s_{k+1}\hat y_{k+1}^\top(z_{k+1}-p_{k+1}).
+$$
+
+The retired Python variant solved the following online problem
+
+$$
+\begin{aligned}
+\min_{\{p_k,z_k\},\,\sigma_1,\,\rho,
+      \,\{\varepsilon_k^x,\varepsilon_k^y\},
+      \,\varepsilon_{\mathrm{sw}}} \quad &
+J_{\mathrm{width}}+J_{\mathrm{progress}}+J_{\mathrm{lat}}
++J_{\mathrm{smooth}}+J_{\mathrm{env}}+J_{\mathrm{swing}}
++w_\rho\rho+J_{\mathrm{ridge}}\\
+\text{s.t.}\quad&
+z_2=\sigma_1z_1+(1-\sigma_1)p_1,\\
+&
+z_{k+1}=\sigma_{\mathrm{preview}}z_k+
+(1-\sigma_{\mathrm{preview}})p_k,\quad k=2,\dots,N,\\
+&
+-L_{\max}^{\mathrm{exec}}
+\le\hat x_{k+1/2}^\top(p_{k+1}-p_k)
+\le L_{\max}^{\mathrm{exec}},\\
+&
+W_{\min}^{\mathrm{exec}}\le W_k\le W_{\max}^{\mathrm{exec}},\\
+&
+B_x(\sigma_{\min})\ge |e_2^x|,\\
+&
+L(\sigma_{\min})\le q_2\le U(\sigma_{\min}),\\
+&
+|e_{k+1}^x|\le B_x(\sigma_{\mathrm{nom}})+\varepsilon_k^x,\\
+&
+L(\sigma_{\mathrm{nom}})-\varepsilon_k^y
+\le q_{k+1}\le
+U(\sigma_{\mathrm{nom}})+\varepsilon_k^y,\\
+&
+\varepsilon_k^x,\varepsilon_k^y\ge0,
+\qquad k=1,\dots,N,\\
+&
+\sigma_1^{\mathrm{lo}}
+\le\sigma_1\le
+\max(\sigma_1^{\mathrm{lo}},\sigma_{\max}),\\
+&0\le\rho\le\rho_{\max},\\
+&\text{fixed terminal midpoint rows parameterized by }\rho,\\
+&\text{hard and preferred swing-capability rows from Section 2.5(d).}
+\end{aligned}
+$$
+
+The reconstructed initial state must independently satisfy $|e_1^x|\le B_x(\sigma_{\min})$ and $L(\sigma_{\min})\le q_1\le U(\sigma_{\min})$. A violation receives the explicit `initial_state_outside_viable_set` status; the state is not projected. The gait rows and first-successor outer envelope are hard and independently postchecked at their mathematical boundaries. Nominal-envelope slack exists in both axes but never enters those hard rows. $\rho_{\max}=0$ disables the terminal schedule without changing graph structure; $\rho_{\max}=1$ enables its bounded relaxation.
+
+All heading quantities are constants, so this is a convex QP for $\alpha_k=0$ and $\alpha_k\ne0$ with identical dimensions. At horizon $N$, the retired Python layout had $6N+4$ decision variables and $2N$ equality rows. Persistent turning and start/cruise/stop regimes change parameter values, not the problem dimensions.
+
+That retired runtime assembled dense matrices for the repository's dual active-set QP adapter. Its cached DPP-compliant CVXPY problem and parity checks belonged to the retired implementation; they are not available reproduction commands for the current C++ kernel. A small regularization relative to the normalized physical objective remains on every variable so the active- set Hessian stays positive definite.
+
+### 2.6) Heading-aware tracking and guarantee boundary
+
+Turning is represented by the same three mechanisms for translation and turn-in-place:
+
+1. the command-side generator advances planner-owned world headings independently of measured foot/body yaw;
+2. gait geometry and progress use desired-heading midpoint axes and the exact constant-twist chord; and
+3. the hard outer invariant envelope is projected onto the executable successor, while the soft nominal envelope discourages operation near the outer-set boundary without selecting one periodic DCM point.
+
+For constant nonzero $\alpha$, define $\omega_{\mathrm{preview}}=\alpha/T_{\mathrm{nom}}$. With $v_y=0$, the preview chord traces the endpoint displacement of a constant-twist circle. With $v_x=v_y=0$, the same formulation turns in place.
+
+The guarantee is finite-horizon DCM consistency plus hard gait feasibility and one-step preservation of the straight-heading outer invariant envelope. The soft envelope is an operating preference, not a guarantee. Because heading rotation couples the error axes, this document does not claim recursive invariance for persistent turning. Integrated simulation is the current evidence boundary.
+
+### 2.7) Late-step kernel commitment
+
+The numerical kernel replans only before the configured commit phase $\phi_c$. Before commitment, a successful solve replaces its held numerical result. At or after commitment, it bypasses optimization and republishes that held result unchanged. Bypass is a successful kernel status, not a failure.
+
+Elapsed time and the held step duration are explicit kernel inputs. The kernel does not own a support-transition clock, swing trajectory, body-yaw trajectory, contact admission rule, or controller task. A composing application must keep those meanings coherent with the elapsed time it supplies. Resetting the kernel at an admitted support transition clears the held result so a new step cannot bypass into the previous landing.
+
+The accepted geometric increment remains $\alpha_1=\theta_2-\theta_1$, and the accepted average rate remains $\omega_{\mathrm{real}}=\alpha_1/T_1$. These are numerical outputs; they do not prescribe the instantaneous orientation trajectory used by a robot controller.
+
+### 2.8) Timing: what changes if $\sigma_k$ is variable?
+
+If you optimize $\sigma_k$ for $k\ge2$, the DCM dynamics
+
+$$
+z_{k+1} = \sigma_k z_k + (1-\sigma_k)p_k
+$$
+
+become **bilinear** in decision variables $(\sigma_k,z_k,p_k)$.
+
+Common ways to handle this:
+
+1. **Optimize only $\sigma_1$, fix $\sigma\_{k\ge2}=\sigma\_{\text{pref}}$** (baseline in this note; preserves QP/MIQP structure because $(z_1,p_1)$ are constants).
+2. **Convex relaxations / successive convexification** (McCormick envelopes or iterative linearization) for full-horizon timing optimization.
+
+> **Decision: option 1 is structural, not a default.** Optimizing $\{\sigma_k\}_{k\ge2}$ leaves the QP class — successive convexification turns a single convex solve into an iterated nonlinear program with no bounded solve time and no single feasibility certificate, neither of which a per-tick footstep planner can carry. Therefore the numerical preview fixes $\sigma_{k\ge2}=\sigma_{\text{pref}}$.
+>
+> This does not pin the closed-loop cadence. The next solve again optimizes its current step timing. Deeper fixed-cadence rows are preview regularization for both straight and turning commands; no future $\sigma_k$ becomes an online decision variable.
+
+The first-order linearization of step duration around $\sigma_{\text{pref}}$ is:
+
+$$
+T_k = \frac{1}{\lambda}\log\sigma_k
+\approx T_{\text{pref}}
++ \frac{1}{\lambda\sigma_{\text{pref}}}
+(\sigma_k-\sigma_{\text{pref}}).
+$$
+
+This is used in the progress tracking objective (Section 2.4.2) to adjust the preference when $\sigma_1$ deviates from the command-dependent preference. In a variable-timing extension with all $\sigma_k$ optimized, the preferred progress would need per-step timing corrections—feasible but denser in the Hessian.
+
+### 2.9) Hard feasibility rows and soft operating rows
+
+This table describes the retired two-envelope formulation. Current C++ physical gait/topology rows remain hard, while configured viability slack is separately reported and penalized. It has no soft nominal-cadence envelope or swing-capability rows.
+
+Constraint authority is uniform across heading increments:
+
+- **Hard:** step reach, physical width, timing/input validity, DCM dynamics, initial and executable-successor outer DCM envelope, and terminal rows after their explicit schedule relaxation $\rho$.
+- **Quadratically penalized:** longitudinal and lateral excursions from the nominal-cadence operating envelope.
+
+A positive execution tightening keeps solver tolerance from weakening hard boundaries:
+
+$$
+L_{\max}^{\mathrm{exec}}=L_{\max}-\epsilon_{\mathrm{hard}},
+\quad
+W_{\min}^{\mathrm{exec}}=W_{\min}+\epsilon_{\mathrm{hard}},
+\quad
+W_{\max}^{\mathrm{exec}}=W_{\max}-\epsilon_{\mathrm{hard}}.
+$$
+
+After solving, independently check the mathematical bounds $|u_x|\le L_{\max}$, $W_{\min}\le W\le W_{\max}$, and $|e_2^x|\le B_x(\sigma_{\min})$ and $L(\sigma_{\min})\le q_2\le U(\sigma_{\min})$. A hard-envelope violation is never accepted as a solver-tolerance convention.
+
+The operating-envelope penalty is
+
+$$
+\min\;J+w_{\mathrm{env}}\sum_{k=1}^{N}
+\left[(\varepsilon_k^x)^2+(\varepsilon_k^y)^2\right],
+\qquad \varepsilon_k^x,\varepsilon_k^y\ge0.
+$$
+
+This L2 cost is not an exact penalty. A nonzero slack reports how far a preview lies outside preferred nominal operation. It does not relax hard gait geometry or the outer invariant envelope. The full robot may have additional recovery authority through ankle torque, foot roll, or double support, but ordinary walking neither models nor spends that authority here. A separate recovery planner, with explicit physical semantics, is deferred.
+
+Slack therefore does not make the planner unconditionally feasible. Hard gait or outer-envelope infeasibility, invalid input, solver failure, and yaw-trajectory screening can still reject a candidate.
+
+### 2.10) Command admission, saturation, and failure handling
+
+1. **Validate structure and hard initial viability.** Reject nonfinite state, commands, timing, or heading bounds. Reconstruct the step-start DCM and require it to lie in the outer longitudinal/lateral envelope. Negative $q_1$ is admissible when $q_1\ge L(\sigma_{\min})$; do not project it.
+2. **Clamp heading continuously.** Apply the scalar yaw-rate rule in Section 2.2. Clamping is ordinary command saturation and is reported through the selected $\alpha$ and realized $\alpha_1/T_1$; it is not unsupported turning.
+3. **Invoke one candidate QP.** Every finite bounded heading sequence uses the one row construction. No asset lookup, command cell, profile, kernel, QP bank, or fallback straight solve is consulted.
+4. **Screen the result.** Require a solved backend status, acceptable residual, and hard mathematical gait/outer-envelope postchecks.
+5. **Retain or report failure.** A failed precommit refresh leaves an already accepted result unchanged. If no initial result exists, report failure to the caller. Postcommit ticks bypass optimization and republish the held result.
+
+Planner diagnostics distinguish solved, bypass, invalid input, degenerate bounds, initial state outside the viable set, and solver failure. They report QP dimensions, timing bounds, hard and nominal envelopes, raw initial DCM error/utilization, both nominal-envelope slacks, swing demand/slack, solver residuals, and lateral commanded/planned/residual progress. There is no unsupported-turning or asset-validation status.
+
+## 3) Extension: stepping stones (discontinuous footholds) → MIQP
+
+On stepping stones, each foot placement must lie in a union of convex regions (polytopes):
+
+$$
+\mathcal{S}^w = \bigcup_{j=1}^{M}\mathcal{S}_j^w,
+\qquad
+\mathcal{S}_j^w := \{p^w\in\mathbb{R}^2 \mid A_j^w p^w \le b_j^w\}.
+$$
+
+Terrain regions are world-fixed. Because unsuperscripted $p_k$ is a frozen solve-chart coordinate, use $p_k^w=o_1^w+Q_1p_k$ in membership rows (or pretransform each region once into that same frozen chart).
+
+Introduce binary region indicators $\delta_{k j}\in\{0,1\}$ for each planned step $k$ and region $j$:
+
+$$
+\sum_{j=1}^{M}\delta_{k j} = 1,\qquad k=2,\dots,N+1.
+$$
+
+Big-$M$ membership constraints:
+
+$$
+A_j^w(o_1^w+Q_1p_k)
+\le b_j^w + M_{\text{big}}(1-\delta_{k j}),
+\qquad
+k=2,\dots,N+1,\;\; j=1,\dots,M.
+$$
+
+Everything else (dynamics, kinematics, capture, and progress tracking objective) stays the same. The problem class becomes **MIQP** because of the binaries.
+
+**Practical notes:**
+
+- The desired-world heading sequence is still pre-computed; without this, the heading-aligned stride constraints would become nonlinear.
+- Choose $M_{\text{big}}$ as tightly as possible (use environment bounding boxes) to avoid weak relaxations.
+- If your solver supports _indicator constraints_, prefer them over big-$M$ for numerical stability.
+
+---
+
+## 4) Extension: variable height terrain (discrete heights per region)
+
+Assume each region/stone has an associated height $h_j$ (stairs, platforms, uneven stepping stones). The key modeling question is how height changes the DCM constant.
+
+### 4.1) Step-dependent DCM constant
+
+A common approximation is
+
+$$
+\lambda_k = \sqrt{\frac{g}{z_{c,k}}},
+$$
+
+where $z_{c,k}$ is the effective CoM height above the stance foot during step $k$.
+
+**Important modeling choice:** if the controller enforces an (approximately) constant CoM height _relative to the current stance foot_, then $z_{c,k}$ can be treated as constant and $\lambda_k \approx \lambda$ even on stairs/platforms. In that case, “variable height” mainly enters through **3D kinematics/collision** and region feasibility, not through the 2D DCM constant. If instead $z_{c,k}$ varies with terrain (or you want a conservative bound), then $\lambda_k$ becomes step-dependent as below.
+
+If heights are discrete and tied to region selection, you can precompute per-region parameters $(\lambda_j,\sigma_{j,\min},\sigma_{j,\max})$ and then _activate_ them according to the selected region.
+
+### 4.2) Region-dependent timing bounds (MIQP-friendly)
+
+Precompute for each region $j$:
+
+$$
+\sigma_{j,\min} = e^{\lambda_j T_{\min}},\qquad \sigma_{j,\max} = e^{\lambda_j T_{\max}}.
+$$
+
+### 4.2.1) Optimized current timing and fixed-preview region dynamics
+
+Keep the command-dependent preferred time $T_{\text{pref}}$ fixed for future steps, giving the per-region factors
+
+$$
+\sigma_{j,\text{pref}} := e^{\lambda_j T_{\text{pref}}},
+$$
+
+while retaining the ordinary optimized current-step factor.
+
+For $k=1$, the current stance region $j_1$ and $\lambda_{j_1}$ are known. Optimize $\sigma_1$ with the corresponding region-specific timing bounds and elapsed-time floor, and impose directly
+
+$$
+z_2=\sigma_1 z_1+(1-\sigma_1)p_1.
+$$
+
+This remains affine because $(z_1,p_1)$ are known. No $\delta_{1j}$ is introduced.
+
+For future $k=2,\dots,N$, the planned stance $p_k$ has the region indicator $\delta_{kj}$ already defined in Section 3. Activate the fixed-preview dynamics component-wise:
+
+$$
+-M_{\text{big}}(1-\delta_{k j})
+\le
+z_{k+1} - \sigma_{j,\text{pref}} z_k - (1-\sigma_{j,\text{pref}})p_k
+\le
+M_{\text{big}}(1-\delta_{k j}),
+\qquad j=1,\dots,M,\;\;k=2,\dots,N.
+$$
+
+This keeps the problem MIQP (or MILP plus quadratic objective): $\sigma_1$ remains the sole timing decision, while no $\sigma_{k\ge2}$ decision variables are introduced. Region-conditional optimization of future $\sigma_k$ is a different extension; combined with free $z_k,p_k$ it reintroduces the bilinearity described in Section 2.8 and is not part of this MIQP baseline.
+
+### 4.3) Height-dependent straight-heading invariant envelopes
+
+For $\alpha=0$, define the region-dependent fresh lower factor
+
+$$
+\sigma_{k,\mathrm{fresh}}
+:=\max(\sigma_{k,\min},e^{\lambda_k\Delta T}).
+$$
+
+The scalar quantities of Section 2.5(c) become step-dependent:
+
+$$
+ B_{x}^{(k)} = \frac{L_{\max}}{\sigma_{k,\mathrm{fresh}}-1},
+\qquad
+L^{(k)}=
+\frac{\sigma_{k,\mathrm{fresh}}W_{\min}-W_{\max}}
+     {\sigma_{k,\mathrm{fresh}}^2-1},
+\qquad
+U^{(k)}=
+\frac{\sigma_{k,\mathrm{fresh}}W_{\max}-W_{\min}}
+     {\sigma_{k,\mathrm{fresh}}^2-1}.
+$$
+
+Region-selection binaries activate the corresponding precomputed hard outer and soft nominal envelopes. Both hard axes remain slack-free; both nominal axes may use operating-envelope slack. For nonzero heading this retains the same finite-horizon, not recursive-turning-invariance, interpretation.
+
+**Cross-height note:** viability at touchdown $k+1$ is naturally expressed using the _next_ stance parameters (height, $\lambda$, timing bounds) because the next admissible control is chosen from that stance.
+
+### 4.4) Vertical kinematic constraints (minimal set)
+
+If heights are part of region definitions, add at least a step-to-step height change limit:
+
+$$
+|h_{k+1} - h_k| \le H_{\max},
+$$
+
+or asymmetric bounds for up/down steps.
+
+For discrete regions, this can be enforced via pairwise region transitions (big-$M$ on $(\delta_{k,i},\delta_{k+1,j})$) if needed.
+
+---
+
+## 5) Summary by complexity level
+
+| Setting | Heading | Timing | Terrain | Problem class |
+| --- | --- | --- | --- | --- |
+| Flat | continuous bounded, precomputed | optimize $\sigma_1$, fix preview | continuous | QP |
+| Stepping stones | continuous bounded, precomputed | optimize $\sigma_1$, fix preview | union of polytopes | MIQP |
+| Discrete heights | continuous bounded, precomputed | optimize $\sigma_1$, region-fixed preview | union plus heights | MIQP |
+
+For flat terrain, zero heading, translating turns, and turn-in-place all use the first row with identical QP dimensions. The outer longitudinal/lateral envelope is hard for the reconstructed initial state and executable successor; the nominal-cadence envelope is soft in both axes over the preview. For nonzero heading, the scalar derivation is a finite-horizon contract rather than a proof of recursive turning invariance.
+
+## 6) Implementation checklist
+
+1. Initialize desired world heading to zero on reset. Permit explicit app or navigation assignment while inactive; never initialize it from measured body or stance-foot yaw.
+2. Form the frozen solve chart from captured stance translation and the planner-owned desired heading. Mid-step replans retain that chart.
+3. Back-propagate the latest measured DCM to step start:
+   $$
+   z_1=p_1+e^{-\lambda\tilde t}\left(\xi(\tilde t)-p_1\right).
+   $$
+4. Validate finite state, command, limits, and hard-set tolerance. Admit the reconstructed state only inside the timing-controlled outer envelope; negative $q_1$ inside $[L,U]$ is passed through unchanged.
+5. Build the fixed preview duration/factor, current timing bounds, and the continuous bounded heading sequence from one command snapshot.
+6. Precompute node axes, midpoint axes, constant-twist progress chords, the hard $T_{\min}$ invariant envelope, and the soft $T_{\mathrm{nom}}$ operating envelope.
+7. Update the numeric data for the fixed-dimension QP: current-step timing, fixed preview timing, hard gait/outer-envelope rows, soft nominal and swing rows, the fixed last-admitted-step boundary, terminal schedule, and heading-aware objectives.
+8. Solve through the runtime dual active-set adapter and independently postcheck hard reach, width, executable-successor viability, dynamics, and terminal rows. Record solver status, dimensions, timing, both envelopes and slacks, swing demand, and lateral progress.
+9. Convert the accepted first foothold to world coordinates. Publish $T_1$, $(\theta_1,\theta_2)$, $\alpha_1$, and $\omega_{\mathrm{real}}=\alpha_1/T_1$ atomically.
+10. Splice the C1 desired-yaw trajectory from the currently published desired yaw/rate to the accepted endpoint. Screen rate against at least $\alpha_{\max}/T_{\min}$ and screen acceleration against its configured bound; reject an inadmissible trajectory without a second QP. Replan only before the commit phase; bypass and hold the accepted plan afterward.
+11. At admitted touchdown, advance desired heading to the accepted endpoint, promote the accepted command-relative fore-aft residual, physical width, and duration to the next solve's fixed gait boundary, and re-anchor the translation.
+
+## 7) Validation contract for turning
+
+### 7.1) Focused formulation and module checks
+
+The maintained checks must establish:
+
+- yaw-rate increments equal $\operatorname{clamp}(\omega T_{\mathrm{nom}}, -\alpha_{\max},+\alpha_{\max})$ without snapping;
+- zero, positive, negative, and saturated yaw rates integrate into continuous unwrapped headings with the same per-step bound;
+- $\alpha=0$ retains established straight behavior;
+- arbitrary finite nonzero $\alpha$ reaches the ordinary QP without a velocity-domain or asset gate;
+- QP dimensions depend only on horizon and match for straight, translating turns, and turn-in-place;
+- every accepted preview satisfies hard reach and width, while its executable successor satisfies the hard longitudinal/lateral outer envelope;
+- nominal-envelope slack in either axis cannot cross hard gait or outer-set rows;
+- desired world heading is independent of measured body and stance-foot yaw; and
+- the accepted yaw trajectory is C1, respects the planner-coherent rate envelope and configured acceleration limit, and preserves nonzero body rate across touchdown while swing-foot yaw holds its landing endpoint independently.
+
+### 7.2) Integrated Digit scenarios
+
+Run with a static configuration and ordinary command ramps:
+
+- turn-in-place in both directions for at least two swing landings;
+- translating left and right arcs;
+- zero-yaw straight regression;
+- precommit yaw-rate changes and postcommit hold;
+- a multi-revolution turn generated by sustained yaw rate; and
+- uneven terrain where measured stance yaw differs from desired world heading.
+
+Each scenario must complete the expected step sequence, keep the DCM QP solved or bypassed without unsupported-turning admission, track nonzero desired yaw in the requested direction, preserve hard viability/gait rows, and either complete terminal capture or report an explicit existing failure mode.
+
+The focused flat-ground positive-direction turn-in-place and translating-arc runs are historical implementation evidence. They do not replace the remaining signed-rate, saturation, rough-terrain, or repeatability matrix, and they are not hardware or safety qualification.
+
+### 7.3) Required diagnostics and pass boundary
+
+Log on one clock:
+
+- requested scalar yaw rate;
+- accepted unwrapped $\theta_1$, $\theta_2$, $\alpha_1$, $T_1$, and $\omega_{\mathrm{real}}$;
+- desired-yaw trajectory position/rate/acceleration and endpoint continuation;
+- measured body and foot yaws as downstream tracking signals only;
+- solve-chart origin/orientation, stance side, foothold, and plan/step identity;
+- hard reach, width, and executable-successor viability residuals;
+- hard/nominal invariant envelopes, both nominal-envelope slacks, swing demand/slack, raw initial utilization, and carried lateral-progress error; and
+- solver status, dimensions, iterations, residual, solve time, and acceptance/bypass/capture-hold outcome.
+
+The historical DCM-planner HDF5 schema stores each raw planar QP vector once in the frozen solve chart and names that chart explicitly. It stores desired headings as unwrapped world scalars and command/published velocities in the desired-heading tangent frame. Offline analysis derives the constraint views:
+
+$$
+e_k^{\theta_k}=R(\theta_k-\theta_1)^T(z_k-p_k),\qquad
+u_k^{\bar\theta_k}=R\!\left(\frac{\theta_k+\theta_{k+1}}{2}-\theta_1\right)^T
+(p_{k+1}-p_k).
+$$
+
+Thus DCM-envelope plots use each node heading, reach/width plots use each edge-midpoint heading, and closure rotates the committed $e_2$ into the incoming node/solve heading before comparing it with the next measured $e_1$. The file does not duplicate these derived projections or mix them into the raw preview arrays.
+
+A scenario passes only when the hard mathematical postchecks hold and accepted heading/result identities remain coherent through replacement and commitment. Nominal-envelope slack is allowed and must be reported in both axes; the hard outer envelope has no slack. Focused QP tests and simulation artifacts establish formulation and software behavior only; application task trajectories and physical walking need separate validation.

@@ -1,0 +1,131 @@
+---
+Status: canonical
+Owner: repo
+Last verified: 2026-10-18
+Code anchors: AGENTS.md, pixi.toml, apps/*/pixi.toml, scripts/project_layout.py, scripts/orient.py, scripts/audit.py, scripts/retire_worktree.py, scripts/create_g1_project.py, .github/workflows/ci.yml
+---
+
+# Development Workflow And Project Management
+
+Cyber Suite develops a reusable package and robot projects in one repository. Use the primary checkout for serial work and reuse the current branch across related steps. Create a separate branch or worktree when isolation or review needs it, in the location the user chooses; a new branch is not required for every step. A robot project is a package consumer with its own Pixi manifest, while a worktree is a checkout of a Git branch. Creating or finishing a robot project does not require keeping a separate worktree.
+
+This guide connects the shared [agent instructions](../../AGENTS.md), [project index](../../apps/README.md), [remote-development setup](remote-development.md) and [handoff protocol](../../notes/handoffs/README.md). The owner contracts remain the authority for behavior and qualification.
+
+## Start From The Actual Checkout
+
+Read [current status](../status/CURRENT.md), then run these commands from the repository root on the execution host:
+
+```bash
+hostname
+pwd -P
+git status --short --branch
+git worktree list
+pixi run --locked orient
+```
+
+Read the owning `MODULE.md` or `APP.md` and its `VALIDATION.md`. For an unfinished task, read its one relevant handoff and compare the recorded branch, code checkpoint, dirty scope and evidence with the checkout. Orientation discovers project contracts, documentation and active handoffs in this checkout; it does not inventory unfinished work on other branches. Fetch and inspect branch relationships when preparing an integration, instead of treating an old plan or chat as current Git state.
+
+Keep one active writer per task branch. Reuse the current task branch when continuing its work. Before switching an existing checkout to another task, inspect and preserve its dirty changes and check for running builds, viewers or training jobs that depend on its files. Keep unrelated work out of the task's commits. Creating a new worktree is an isolation choice, not a routine prerequisite for every task.
+
+## Choose The Command Owner
+
+| Surface | Run commands from | Purpose |
+| --- | --- | --- |
+| Shared package, modules and root-owned validation apps | Repository root | Build reusable code, exercise in-tree integration, orient and audit documents |
+| Digit | `apps/digit` | Digit simulation, walking, IK and learning |
+| TRON1 | `apps/tron1` | TRON1 walking, IK and learning |
+| Unitree G1 | `apps/unitree-g1` | 23-DoF standing, walking and learning; source for student exports |
+| Mapping validation | Repository root | `apps/perception/mapping` scenarios; this remains a root-owned app |
+
+Use `pixi task list` in the chosen folder to see its default commands and `pixi task list -e learn` for learning. Keep Pixi tasks for everyday build, launch, validation, plotting, learning and repository management; invoke specialist tools directly as listed below. A manifest path makes the owner explicit when invoking a project from the repository root:
+
+```bash
+pixi run --locked --manifest-path apps/digit/pixi.toml check
+pixi run --locked --manifest-path apps/tron1/pixi.toml check
+pixi run --locked --manifest-path apps/unitree-g1/pixi.toml check
+```
+
+Run these checks when the change affects project code, dependencies or runtime configuration; use the documentation checks below for prose-only edits. Project `check` builds against the installed `cyber_suite` package, which is the boundary an independent student repository uses. Root `check` configures, builds, runs CTest and audits the in-tree checkout. An in-tree pass alone does not establish that the installed package exposes everything a project needs.
+
+Each project owns its manifest and lockfile. Its default environment contains the compiled package; `pixi run -e learn ...` uses its separate Python learning environment. Root robot launch aliases and a root learning environment are no longer the entry points. Preserve each manifest/lock pair, use `--locked` for reproducible checks, and deliberately regenerate the owning lockfile when dependencies change. Project environments are detached into Pixi's cache by their tracked `.pixi/config.toml`; do not transfer environments or reuse another checkout's CMake build directory.
+
+### Specialist Tools
+
+The task cleanup removes the aliases below, while retaining their implementations. Run the direct command from the indicated folder in its default environment unless `-e learn` is shown. Append the same tool arguments as before; Python script paths are relative to the owning project. Shared `python -m cyber_suite...` tools can also run in an installed robot-project environment, so analysis paths remain relative to that project. Use the tool's `--help` for its options.
+
+| Folder | Former task | Direct command |
+| --- | --- | --- |
+| Root or robot project | `corta-graph` | `pixi run python -m cyber_suite.corta DUMP.json` |
+| Root or robot project | `corta-timing` | `pixi run python -m cyber_suite.corta.timing LOG.h5` |
+| Root or robot project | `corta-telemetry` | `pixi run python -m cyber_suite.corta.telemetry LOG.h5 --list` |
+| Root or robot project | `walk-audit` | `pixi run python -m cyber_suite.control.audit.walking_log LOG.h5` |
+| Root or robot project | `perception-playback` | `pixi run python -m cyber_suite.perception.playback LOG.h5` |
+| Root | `perception-view` | `pixi run python apps/perception/mapping/tools/view_results.py OUTPUT_DIR` |
+| Root | `g1-prepare-model` | `pixi run python assets/robots/unitree_g1/tools/prepare_model.py` |
+| `apps/digit` | `viser` | `pixi run python walking/tools/viser_view.py --log LOG.h5` |
+| `apps/digit` | `sim-gap-compare` | `pixi run python learning/tools/sim_gap_compare.py BUNDLE` |
+| `apps/digit` (`learn`) | `sim-gap-record` | `pixi run -e learn python learning/tools/sim_gap_record.py BUNDLE` |
+| `apps/digit` (`learn`) | `export-hold-bundle` | `pixi run -e learn python learning/tools/export_hold_bundle.py` |
+| `apps/tron1` | `verify-sensor-boundary` | `pixi run python walking/tools/verify_sensor_boundary.py LOG.h5` |
+| `apps/unitree-g1` | `view` | `pixi run python walking/tools/view.py --run RUN_DIR` |
+
+Prepare required inputs and binaries first: TRON1 sensor replay needs `pixi run build`, the simulation-gap tools need a policy bundle and recorded training rollouts, and model regeneration deliberately writes generated assets. Live viewers remain available through robot launch commands such as `walk --viser`; the direct viewer scripts serve inspection and replay. The model generator has no `--help` mode. Dated validation records and historical notes retain their original task names and revisions; use this table when replaying them with current tools.
+
+## Keep Task State With Its Owner
+
+| Information | Home | How it is used |
+| --- | --- | --- |
+| Repository overview and shared rules | `docs/status/CURRENT.md`, `AGENTS.md`, `docs/policies/` | Current orientation and authority |
+| Module behavior | `modules/<module>/MODULE.md` and its validation | Reusable API and demonstrated boundary |
+| Robot app behavior and acceptance | `apps/<robot>/<app>/APP.md` and `VALIDATION.md` | Project status; no duplicate per-project `CURRENT.md` |
+| Robot-only plans, investigations, ideas and handoffs | `apps/<robot>/notes/<category>/` | Working or historical context |
+| Shared designs, cross-project work and repository tasks | Root `notes/<category>/` | Working or historical context |
+| Consolidated research decisions | Root `notes/journal/` | Historical rationale under the journal policy |
+| Bulk logs, plots, checkpoints and scratch work | Ignored output owned by the producing workflow | Evidence and replay inputs; preserve deliberately when transferring or retiring |
+
+Use a plan when the task needs staged work or unresolved design choices. Record its owner, dependencies, acceptance criteria and next action, and update the existing plan as those choices settle. Routine changes can proceed from the owning contract. A plan's completed phase is not a substitute for current validation, and a note never becomes authority simply by being written.
+
+Before a requested pause, machine transfer or agent switch, update one task handoff in the owning note home using the [handoff template](../templates/HANDOFF.md). Record the actual revision plus any uncommitted delta, user decisions, evidence locations and next action. Commit and push only within the user's authorization; ignored evidence needs separate transfer. When the task finishes, fold lasting results into the owner and retire the handoff under the [handoff rules](../../notes/handoffs/README.md#retire).
+
+## Validate The Changed Boundary
+
+| Change | Evidence to collect |
+| --- | --- |
+| Documentation or documentation organization | Root `pixi run --locked audit`, orientation, changed links and `git diff --check` |
+| Shared C++ or package interface | Owning module checks, affected in-tree integration and affected standalone project checks |
+| Robot project code or configuration | That project's `pixi run --locked check` and the scenarios required by its `VALIDATION.md` |
+| Learning or policy export | Owning `learn` tasks, saved configuration and the applicable policy-parity check |
+| Physical behavior | App scenarios and artifact review against explicit completion, tracking, constraint and failure criteria |
+
+Use the smallest evidence that proves the change; do not add unit tests or run broad native/GPU sweeps for a documentation edit. Digit and TRON1 standalone checks run their existing CTest and Python contracts. G1 checks its installed-package build, model parity and bounded standing acceptance. Training, wider walking qualification and hardware validation remain separate.
+
+Existing [root CI](../../.github/workflows/ci.yml) runs the audit and root `check` on pull requests and pushes to `main`, with the build gate on Ubuntu and macOS. Project CI is optional. Run affected standalone checks manually before integration and report the command, platform, revision, result and remaining limits; a later project CI job can invoke the same check. Do not infer a green CI run from the workflow definition.
+
+## Student Projects And Remote Execution
+
+Unitree G1 is the student template. From the repository root, `pixi run create-g1-project DESTINATION --revision COMMIT` exports the committed project and its licensed asset snapshot, pins the C++ and Python dependencies to the same source revision and records provenance. Follow the [student-project guide](student-projects.md) to generate a project lockfile, validate a fresh clone and upgrade dependencies. The exporter does not create or publish a remote repository, and no project CI workflow is required.
+
+Ubuntu is the primary execution host; the MacBook normally connects through VS Code Remote - SSH. Verify the actual host and viewer connection using the [remote-development guide](remote-development.md). Code commits and lockfiles travel through Git; environments, credentials and ignored run data do not.
+
+For Digit learning at OSC, follow the [deployment guide](../../apps/digit/learning/OSC_DEPLOYMENT.md) and [workflow explanation](../../apps/digit/learning/OSC_WORKFLOW.md). The container must match `apps/digit/pixi.lock`; the former root learning lock is not the project environment. Record source revision, image checksum, input provenance, job ID and output location. Environment and GPU smokes establish deployment readiness, while training outcomes need their own evidence.
+
+## Integrate And Retire Worktrees
+
+Integration brings a branch's commits into `main`; removing a worktree only removes its checkout. Branch deletion and remote publication are separate actions. Keep them explicit in the requested scope.
+
+1. Inspect the primary checkout, task branch, remote state and uncommitted changes. Review the diff and validation for the exact commits to integrate. Preserve unrelated work before changing branches; do not replace a checkout's branch with a hard reset.
+2. Integrate through the authorized review path. The [authorization rules](../../AGENTS.md#authorization) require maintainer-approved pull requests for changes to authority. After integration, verify that the intended commits are reachable from `main`, check the resulting diff and run the validation warranted by any conflict resolution. Report the resulting commit and push state separately.
+3. Before removing a secondary checkout, stop or move processes that use it and move the active agent session out of it. Inventory its tracked changes, untracked files and ignored output. A clean `git status` does not account for ignored artifacts or commits absent from `main`.
+4. Preserve needed evidence, checkpoints, logs and other local files outside the checkout being retired. Keep provenance with the producing commit, command and checksums or a verified inventory. Keep bulk evidence ignored; publish a bounded capsule only when a maintained document needs its figure. A named branch or verified Git bundle can retain unmerged commits, but neither saves uncommitted files or ignored output.
+5. Run the repository's retirement report from a retained checkout, resolve its findings and separately inspect output outside its scan. Then remove only the intended secondary checkout using its managing app's archive operation or `git worktree remove` where appropriate. Review `git worktree list` afterward; prune stale registrations only after establishing that their directories are gone. Retain branch refs unless their deletion is explicitly requested.
+
+Use the read-only report with an explicit target and comparison base:
+
+```bash
+pixi run --locked retire-worktree --worktree /absolute/path/to/secondary-checkout \
+  --base main --include-data --list-files
+```
+
+The report checks unmerged commits, dirty/untracked files, selected evidence types under root `artifacts/`, `logs/` and `build/`, and agent-history locations. It does not archive output, merge branches or delete the worktree. Its ignored-file scan does not cover every project output directory, checkpoint format or symlink target; supplement it with an inventory of the actual workflow's outputs. Its comparison base must exist. A zero-error result or a waived finding is not a backup.
+
+For Claude history, `--adopt-history` previews moving transcripts into the retained checkout's history directory, and `--adopt-history --apply` performs that history move. `--apply` alone does not remove a worktree. Preserve required ignored files separately before a managed archive too. See the report's `--help` before using history options, and keep repository handoffs as the portable record of unfinished work.

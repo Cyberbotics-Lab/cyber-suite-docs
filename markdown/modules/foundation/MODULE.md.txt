@@ -1,0 +1,55 @@
+---
+Status: candidate
+Owner: repo
+---
+
+# Foundation
+
+## Purpose
+
+Small shared math primitives that are needed by multiple modules and are safe to depend on broadly, the strict reader that profile loaders share, and the lookup that finds package data in this repository and in an installed package.
+
+## Public API
+
+Header-only APIs under `cyber_suite/math/`:
+
+- `scalar.hpp`: scalar clamps, saturation, sigmoid, angle wrapping, and IIR gain formulas.
+- `filter.hpp`: first-order scalar IIR helper.
+- `interp.hpp`: interpolation and smoothstep helpers.
+- `ramp.hpp`: scalar and templated smooth ramps.
+- `quaternion_conventions.hpp`: quaternion convention helpers.
+- `so3.hpp`: SO(3) math helpers.
+- `se3.hpp`: SE(3) transform helpers.
+
+Header-only API under `cyber_suite/config/`, in the separate `cyber_suite_foundation_profile` target so that math users never depend on yaml-cpp:
+
+- `profile_reader.hpp`: `ProfileReader`, the strict YAML profile reader. Every key a loader reads is required, duplicate keys are rejected, and `finish()` rejects every key no read consumed, so the allowed keys are exactly the keys read and no separate allow-list exists. Errors name the source and the key path. `optional_section` reads a block whose presence is itself the setting; `sequence` opens each mapping of a list under the same `finish()`; `has` and `fail` let a loader name a key that moved or read a scenario's optional run choice. Consumers are the coordinator, estimation, ALIP and DCM planner and humanoid-walking controller profiles, and every Digit walking profile and scenario.
+
+Compiled API under `cyber_suite/data/`, in the `cyber_suite_foundation_data` shared library:
+
+- `data_path.hpp`: package data lookup. A data path is a relative path as the repository lays the file out (`assets/robots/tron1_pf/mjcf/robot.xml`), in code or in YAML. `search_roots()` lists, in order, the current directory (the project running), each directory in `CYBER_SUITE_DATA_PATH`, the installed package's `<prefix>/share/cyber_suite` (found from the library's own location, so a relocated installation resolves), and the source tree of a build that was never installed. `find(path)` returns the first match, or the path unchanged when it is absolute or found from the current directory; `resolve(path)` returns the path unchanged when nothing matches, so the caller's own error names it. The sim and robot loaders resolve every model, robot YAML, mesh directory and terrain catalog they open, and the control module resolves a collision safety profile. `cyber_suite.data` is the Python twin.
+
+## Dependencies
+
+C++20 standard library and Eigen3. `cyber_suite_foundation_profile` adds yaml-cpp; `cyber_suite_foundation_data` adds the platform's `dladdr`.
+
+## Owned Examples
+
+None yet.
+
+## Validation
+
+Contract tests live in `modules/foundation/tests` and are run through `pixi run test` after `pixi run build`.
+
+The data lookup is validated by use, not by a unit test (2026-10-15, branch `robot-projects`): root runs of TRON1 walking and of Digit on `up-stairs` produce the same logs before and after the sim and robot loaders called it, and a project outside the repository, linked against an installed package, opens a TRON1 robot YAML, its MJCF and the terrain catalog from `<prefix>/share/cyber_suite`.
+
+## Non-goals
+
+- Robot models
+- Solver wrappers
+- Runtime scheduling
+- App-specific utilities
+
+## Notes
+
+This module preserves the stable `cyber_suite::math` namespace and `cyber_suite/math/*.hpp` include path for compatibility while the owning module is `foundation`.

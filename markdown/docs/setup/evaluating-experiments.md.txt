@@ -1,0 +1,64 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-18
+Code anchors: apps/digit/walking/VALIDATION.md, modules/logging/MODULE.md, notes/evidence/2026-10-18-handbook-walking/manifest.yaml
+---
+
+# Evaluate an experiment
+
+A useful experiment answers a specific question under known conditions. Preserve a baseline, change the intended variable and decide which observations would support or reject the claim. Save enough context that someone else can explain the result without replaying the conversation that produced it.
+
+## Completion is one measurement
+
+<figure class="teaching-figure evidence-figure" markdown="1">
+
+![Historical recorded example: all nine lateral-walking runs completed, but the policy's median speed was 0.136 m/s for a 0.200 m/s command; ALIP and DCM were closer.](../assets/handbook/lateral-tracking.svg)
+
+<figcaption>Recorded October 1 simulation. Hollow circles are per-run plateau velocities; squares are medians of three seeds. This predates the current drive model and teaches how to read evidence, rather than rank today's controllers.</figcaption>
+
+[Open full-size plot](../assets/handbook/lateral-tracking.svg)
+
+</figure>
+
+The policy's median shortfall is about 0.064 m/s, or 32% of the command, despite all three runs completing. That observation identifies a tracking question. It does not identify the cause, establish acceptable stopping or qualify the controller on other terrain. The [figure capsule](../../notes/evidence/2026-10-18-handbook-walking/README.md) and [retained source data](../assets/handbook/lateral-tracking.csv) make the numbers inspectable.
+
+## Write the comparison before running it
+
+| Record | Example |
+| --- | --- |
+| Question | Does a planner change improve stopping in this flat scenario? |
+| Baseline | Exact source revision, resolved config and existing outcome |
+| Intended change | One app profile or one owning implementation change |
+| Held fixed | Model, terrain, actuation, state source, shared gains, seed and command schedule |
+| Outcomes | Completion/fall/timeout, tracking, stopping, effort and constraint diagnostics |
+| Evidence location | Separate ignored artifact directories for each arm |
+
+If a comparison necessarily changes several things, name them. Swapping ALIP for DCM deliberately changes a planner profile and reference contract. Running two different default scenarios also changes the motion schedule, so it cannot isolate the planner.
+
+## Read the artifact at several boundaries
+
+First compare the commanded and measured behavior. Then inspect the reference that was authored and the reference actually installed. Finally inspect estimated state, contact evidence, actuator saturation, constraint/fallback diagnostics and timing where they bear on the question.
+
+Keep diagnostic truth separate from controller inputs. Align channels by their recorded timestamps and schema, rather than assuming row number means the same instant across streams. A viewer can reveal a suspicious event, but a decimated scene stream may omit the peak or transition needed to explain it.
+
+For a Digit walking log, run the app-owned plotter from `apps/digit`:
+
+```bash
+pixi run --locked plot-walking artifacts/experiment/baseline.h5 \
+  -o artifacts/experiment/baseline-plots
+```
+
+Use a separate output directory for the candidate. The [running guide](../../apps/digit/walking/RUNNING.md) explains logging choices; the [app validation](../../apps/digit/walking/VALIDATION.md) records acceptance criteria and prior evidence.
+
+## Keep evidence proportional to the claim
+
+A single run can demonstrate a failure or help diagnose a mechanism. It generally cannot establish a broad operating envelope. Preserve all selected outcomes, state the number of seeds and scenarios, and distinguish a measured improvement from an untested explanation.
+
+Working logs, plots and notebooks stay in ignored `artifacts/`. Promote a figure into a bounded [evidence capsule](../policies/evidence-policy.md) when a maintained document needs it. Keep the reduced data, renderer, source revision and limitations together. A figure that survives without its conditions is easy to misuse.
+
+## Give an agent a bounded task
+
+> Reproduce this Digit baseline, then compare the candidate on the same scenario and seeds. Preserve the robot model, state source, actuation, command schedule and shared calibration. Inspect commanded versus measured velocity, installed references, saturation, stopping and failures. Keep each arm's artifacts separate and report what the evidence establishes before proposing another change.
+
+The deliverable is a result you can assess: a small set of annotated figures, a comparison table and a conclusion with a clear boundary.

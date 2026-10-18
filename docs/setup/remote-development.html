@@ -1,0 +1,2092 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/setup/remote-development.html">
+      
+      
+        <link rel="prev" href="evaluating-experiments.html">
+      
+      
+        <link rel="next" href="../../apps/digit/learning/OSC_WORKFLOW.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Remote development - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#remote-development-and-viewers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Remote development
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="remote-development.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#code-and-agent-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code And Agent Sessions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactive-viewers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Viewers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactive Viewers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#digit-rerun-in-a-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit Rerun In A Browser
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#native-digit-rerun-on-a-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Native Digit Rerun On A Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#digit-walking-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit Walking In The Browser
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mjlab-policies-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mjlab Policies In The Browser
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isaac-streaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Isaac Streaming
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-workstation-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First Workstation Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#code-and-agent-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code And Agent Sessions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactive-viewers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Viewers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactive Viewers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#digit-rerun-in-a-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit Rerun In A Browser
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#native-digit-rerun-on-a-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Native Digit Rerun On A Client
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#digit-walking-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit Walking In The Browser
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mjlab-policies-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mjlab Policies In The Browser
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isaac-streaming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Isaac Streaming
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-workstation-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First Workstation Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">working</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../markdown/docs/setup/remote-development.md.txt" download="remote-development.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="remote-development-and-viewers">Remote development and viewers<a class="headerlink" href="#remote-development-and-viewers" title="Permanent link">&para;</a></h1>
+<p>Use the Ubuntu execution host for builds, simulation, GPU training and artifacts. You can work directly on that machine or connect from a Linux, Windows or macOS client through SSH. A browser viewer needs no local robot build. The examples below use <code>ubuntu-workstation</code> as an SSH alias; substitute the host configured for your account.</p>
+<table>
+<thead>
+<tr>
+<th>Where you work</th>
+<th>Where to run Pixi</th>
+<th>Where to open the viewer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>At the Ubuntu machine</td>
+<td>Its local terminal</td>
+<td>Its local browser or desktop</td>
+</tr>
+<tr>
+<td>Through VS Code Remote - SSH</td>
+<td>The remote integrated terminal</td>
+<td>Your client browser, with the reported port forwarded</td>
+</tr>
+<tr>
+<td>Through a plain SSH session</td>
+<td>The remote shell; use tmux for persistent work</td>
+<td>Your client browser, with an SSH local port forward</td>
+</tr>
+</tbody>
+</table>
+<p>Evidence is stated for each viewer path below. Browser/tunnel recipes are independent of owning a MacBook; a successful SSH connection alone does not establish GPU setup or working display access. This guide covers project execution and viewing, not personal laptop or operating-system provisioning.</p>
+<h2 id="code-and-agent-sessions">Code And Agent Sessions<a class="headerlink" href="#code-and-agent-sessions" title="Permanent link">&para;</a></h2>
+<p>Open the Ubuntu checkout through VS Code's <strong>Remote-SSH: Connect to Host</strong>. Use the remote integrated terminal for agents and Pixi commands; verify <code>hostname</code>, <code>pwd</code> and <code>git status --short</code> there. Install/authenticate agent CLIs on Ubuntu. For extensions, check their documented remote support and actual execution location rather than assuming every extension runs remotely. <a href="https://code.visualstudio.com/docs/remote/ssh">VS Code documents remote terminals and extension placement</a>.</p>
+<p>Use the same Ubuntu user and checkout when working at the desktop. For a CLI session that must survive a client disconnect, run it inside <code>tmux</code> and reattach from the next terminal. Native agent resume can continue a saved session on that host; cross-agent continuity uses the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/handoffs/README.md">task handoff</a>. Reconnecting to Ubuntu does not require synchronizing source to a client-side clone.</p>
+<p>Follow the <a href="development-workflow.html">development workflow</a> to choose the command owner. Keep each root or project <code>pixi.toml</code> with its own <code>pixi.lock</code> in Git. On a new checkout, install the root environment with <code>pixi install --locked</code> and run root <code>pixi run --locked orient</code>; then use the owning robot project's manifest for its build, viewer and standalone <code>check</code>. Learning uses that project's <code>learn</code> environment. The root and robot default environments target macOS ARM64 and Linux x86-64; learning platform requirements remain in each project's manifest and validation.</p>
+<p>Each host owns its environments, builds, credentials and local agent state. Project <code>.pixi/config.toml</code> files are tracked configuration that place environments in Pixi's cache; transfer that configuration, not the generated environments or CMake build trees. Retain essential instructions, skills and decisions in repository-owned files. Do not make correct continuation depend on plugins installed only on the other computer.</p>
+<p>For occasional development on another supported host, transfer the task branch and handoff together using the handoff protocol. Store source references relative to the repository; record host plus path for artifacts outside Git. Keep long-run artifacts on Ubuntu or explicit artifact storage, with producing commit, command and checksums where needed for replay.</p>
+<h2 id="interactive-viewers">Interactive Viewers<a class="headerlink" href="#interactive-viewers" title="Permanent link">&para;</a></h2>
+<p>SSH supplies the terminal connection. A desktop graphics session or a streamed viewer is a separate connection. Prefer these paths:</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Simulation/render host</th>
+<th>Client display path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full MuJoCo UI, picking and perturbations</td>
+<td>Ubuntu desktop graphics session</td>
+<td>Remote desktop with verified GPU acceleration</td>
+</tr>
+<tr>
+<td>Existing Digit walking scene and telemetry</td>
+<td>Ubuntu simulation, client browser rendering</td>
+<td>Rerun web page over one forwarded TCP port, Tailscale or a private LAN</td>
+</tr>
+<tr>
+<td>Digit walking scene only, any planner, nothing installed on the client</td>
+<td>Ubuntu simulation and viser server, client browser rendering</td>
+<td>viser web page over a forwarded TCP port</td>
+</tr>
+<tr>
+<td>Trained mjlab policy, with command sliders and checkpoint switching</td>
+<td>Ubuntu simulation and policy, client browser rendering</td>
+<td>viser web page over a forwarded TCP port</td>
+</tr>
+<tr>
+<td>Isaac Sim / Isaac Lab viewport</td>
+<td>Ubuntu NVIDIA GPU</td>
+<td>Isaac Sim WebRTC client compatible with installed version</td>
+</tr>
+</tbody>
+</table>
+<p>MuJoCo rendering needs an OpenGL context. EGL/OSMesa support offscreen rendering; they do not transport an interactive window to a remote client. Qualify a GPU-capable remote desktop for the full UI instead of making X11 forwarding the default. Launch the app from a terminal inside that desktop session so it receives the correct display context. See <a href="https://mujoco.readthedocs.io/en/stable/programming/visualization.html">MuJoCo visualization</a>.</p>
+<h3 id="digit-rerun-in-a-browser">Digit Rerun In A Browser<a class="headerlink" href="#digit-rerun-in-a-browser" title="Permanent link">&para;</a></h3>
+<p>From the Ubuntu checkout's Digit project (<code>apps/digit</code>), add <code>--rerun-web</code> to any run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">6</span><span class="w"> </span>--rerun-web
+</code></pre></div>
+<p>Then open <code>http://localhost:9090</code> on the client, the same link every time. As with the viser page, one TCP port carries everything: forward 9090 with VS Code's Ports view or <code>ssh -N -L 9090:127.0.0.1:9090 ubuntu-workstation</code>. To use Tailscale or a private LAN directly instead, add <code>--web-bind 0.0.0.0</code> (or Ubuntu's Tailscale address) and open <code>http://&lt;ubuntu-tailscale-name&gt;:9090</code>. The Ubuntu process serves its bundled Rerun web viewer and installs the current walking dashboard, including robot meshes, textured terrain, sky-blue background, base-following camera and telemetry plots. The client needs no repository checkout or local Rerun/Pixi installation; the first visit downloads the 50 MB viewer, which the browser caches.</p>
+<p>The Rerun server listens only on Ubuntu loopback. A launcher-owned relay on port 9090 (<code>--web-port</code>) serves the page and forwards the viewer's gRPC-web telemetry from the server's loopback port 9876 (<code>--port</code>), so both share one origin. Its <code>/</code> redirects to the viewer pointed back at whatever address the browser used. Its default bind is loopback. After simulation completion, keep the launch terminal open to inspect or scrub the recording; Ctrl+C closes the server it started. If a launch reports its port in use, an earlier launch is usually still serving playback: stop it with Ctrl+C rather than choosing new ports, and the link stays the same. The app still logs HDF5 on Ubuntu. The native workflow below remains available when preferred.</p>
+<p>The browser's plot channels are sampled at up to 50 Hz to keep ingestion manageable; its robot scene is also 50 Hz. HDF5 retains the full 1 kHz Servo telemetry. The native modes below retain full scalar drill-down; use those or the stored artifact to investigate faster signals.</p>
+<p>Verified 2026-10-12 on Ubuntu Chrome over the workstation's private Tailscale address: the ALIP run completes and the web viewer renders the robot, terrain, background and dashboard plots. Rendering on other client platforms and network latency remain to be checked from the Mac; see the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-12-rerun-browser-launch">walking validation</a>.</p>
+<p>The one-port relay was verified the same day on Ubuntu only, with headless Chrome on loopback. <code>http://127.0.0.1:&lt;web-port&gt;</code> redirected to the viewer, which rendered the robot, terrain and live dashboard through the relay. In the same browser it ingested about as fast as the server's own page, and the 50 MB viewer download took 0.12 s against 0.10 s direct. The relay path from another client, by forward or Tailscale, is untested.</p>
+<h3 id="native-digit-rerun-on-a-client">Native Digit Rerun On A Client<a class="headerlink" href="#native-digit-rerun-on-a-client" title="Permanent link">&para;</a></h3>
+<p>This uses the existing launcher and observer; it is observation-only and does not provide MuJoCo mouse perturbations or interactive control. Use matching Rerun versions from compatible lockfile revisions on both hosts. Replace <code>ubuntu-workstation</code> with your configured SSH alias. Run the following from the client's local checkout/terminal, not a VS Code remote terminal. It uses the repository's root environment, which has Rerun, so the client does not build the Digit project:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>apps/digit/walking/tools/walk.py<span class="w"> </span>--rerun<span class="w"> </span>--attach-only
+</code></pre></div>
+<p>That opens the local viewer and blueprint without starting the simulation or requiring a local walking binary. In another local client terminal, keep this reverse tunnel open:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ssh<span class="w"> </span>-N<span class="w"> </span>-o<span class="w"> </span><span class="nv">ExitOnForwardFailure</span><span class="o">=</span>yes<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-R<span class="w"> </span><span class="m">127</span>.0.0.1:9876:127.0.0.1:9876<span class="w"> </span>ubuntu-workstation
+</code></pre></div>
+<p>From the Ubuntu checkout's Digit project (<code>apps/digit</code>) in the remote terminal, after building the walking target described in <a href="../../apps/digit/walking/RUNNING.html">RUNNING.md</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--headless<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--rerun-connect<span class="w"> </span>rerun+http://127.0.0.1:9876/proxy
+</code></pre></div>
+<p>The launcher activates the walking dashboard in the existing client viewer, including its close robot camera and sky-blue background, through the same endpoint used by the C++ observer. The Ubuntu observer connects to Ubuntu loopback port 9876, which SSH forwards to the client viewer. The Ubuntu SSH server must permit remote forwarding and the port must be free there. Do not add <code>--rerun</code> on Ubuntu for this recipe: that would spawn a viewer on Ubuntu. For simultaneous runs choose a distinct viewer/tunnel port and update all three commands consistently. Keep the client viewer and tunnel open while observing; simulation and HDF5 logging stay on Ubuntu. Re-establish the tunnel and check live delivery after reconnecting.</p>
+<h3 id="digit-walking-in-the-browser">Digit Walking In The Browser<a class="headerlink" href="#digit-walking-in-the-browser" title="Permanent link">&para;</a></h3>
+<p>Experimental. This shows the Plant scene only: robot, terrain and foot-corner contact forces, with no plots and no interaction with the simulation. It needs no Rerun version match and no local checkout. From the Ubuntu checkout's Digit project (<code>apps/digit</code>) in the remote terminal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--viser<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">8</span>
+</code></pre></div>
+<p>Then open <code>http://localhost:8080</code> on the client, after forwarding the port with VS Code's Ports view or from a plain client terminal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ssh<span class="w"> </span>-N<span class="w"> </span>-L<span class="w"> </span><span class="m">8080</span>:127.0.0.1:8080<span class="w"> </span>ubuntu-workstation
+</code></pre></div>
+<p>The simulation, the viewer process and the session log all stay on Ubuntu. The app copies its scene to the viewer over Ubuntu loopback UDP, and the browser receives poses over one websocket. The page binds <code>127.0.0.1</code> unless <code>--viser-host 0.0.0.0</code> is given. The first load downloads about 3–5 MB of geometry; a live run then needs about 70 kB/s. The page keeps the whole run for scrubbing after it ends, and <code>pixi run python walking/tools/viser_view.py --log RUN.h5</code> in <code>apps/digit</code> replays a saved log the same way. See the walking <a href="../../apps/digit/walking/RUNNING.html#browser-view-viser">RUNNING.md</a>.</p>
+<p>Verified 2026-10-12 on Ubuntu only, with headless Chrome on the same host: DCM on flat ground and up-stairs, and the cadence policy on flat ground, drew correctly live and in replay, with zero dropped scene records. The SSH-forwarded client-browser path was not covered by that check.</p>
+<h3 id="mjlab-policies-in-the-browser">mjlab Policies In The Browser<a class="headerlink" href="#mjlab-policies-in-the-browser" title="Permanent link">&para;</a></h3>
+<p>The Digit project's <code>play</code> task can serve mjlab's viser viewer, a web page that draws the scene in the browser with WebGL. Ubuntu steps the simulation and the policy and sends body poses over a websocket, so an ordinary TCP forward carries it; no video is streamed. It shows a trained policy, not training: mjlab's training script has no live viewer.</p>
+<p>From the Ubuntu checkout's Digit project (<code>apps/digit</code>) in the remote terminal:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>learn<span class="w"> </span>play<span class="w"> </span>Digit-Velocity-Flat-1ms<span class="w"> </span>--viewer<span class="w"> </span>viser<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>--checkpoint-file<span class="w"> </span>learning/checkpoints/runs/digit_velocity/RUN/model_N.pt
+</code></pre></div>
+<p>Then open <code>http://localhost:8080</code> on the client. VS Code Remote - SSH forwards the port from its Ports view. From a plain client terminal, forward it yourself:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>ssh<span class="w"> </span>-N<span class="w"> </span>-L<span class="w"> </span><span class="m">8080</span>:127.0.0.1:8080<span class="w"> </span>ubuntu-workstation
+</code></pre></div>
+<ul>
+<li>Pass <code>--viewer viser</code> explicitly. mjlab's default picks its native MuJoCo window whenever <code>DISPLAY</code> is set, and on the workstation that window opens on the Ubuntu desktop's screen.</li>
+<li>The page has velocity-command sliders, reward-term plots, environment switching, and the run's checkpoints to load while it plays.</li>
+<li>viser listens on all interfaces (<code>0.0.0.0:8080</code>), so other machines on the workstation's network can reach it. Use it on a trusted network or firewall the port.</li>
+<li>When the client reaches the workstation over Tailscale, use the workstation's Tailscale name or <code>100.x</code> address, for the tunnel or directly as <code>http://&lt;tailscale-name&gt;:8080</code>. Its LAN address is not routable from another network: <code>ssh -N</code> to it hangs silently, which looks the same as a working tunnel.</li>
+<li>For periodic clips during training instead, the <code>train</code> task accepts mjlab's <code>--video True</code>; it records one environment under the run's <code>videos/train/</code>.</li>
+</ul>
+<p>Verified 2026-09-28 on Ubuntu: the server started with the M0 policy and served its page on port 8080. Verified 2026-10-06: a macOS browser over Tailscale played the cadence policy from Ubuntu. The <code>--video</code> option is untested.</p>
+<h3 id="isaac-streaming">Isaac Streaming<a class="headerlink" href="#isaac-streaming" title="Permanent link">&para;</a></h3>
+<p>Here, Isaac means Isaac Sim and the viewport used by Isaac Lab, not a new repository dependency. Use the streaming entry point documented for the installed Isaac version; check the matching Isaac Lab AppLauncher options if launching a Lab application. NVIDIA provides a macOS WebRTC client and a web viewer. The host needs a supported NVIDIA GPU/driver and NVENC for streaming.</p>
+<p>Use the port and protocol requirements for the installed NVIDIA version. Ordinary SSH TCP forwarding does not carry a UDP media stream. Use an appropriate private LAN/VPN route and the installed version's networking instructions; keep endpoints on a trusted network. Host support, encoding and client compatibility must be checked before choosing exact launch flags. See <a href="https://docs.isaacsim.omniverse.nvidia.com/latest/installation/manual_livestream_clients.html">NVIDIA livestream clients</a>.</p>
+<h2 id="first-workstation-verification">First Workstation Verification<a class="headerlink" href="#first-workstation-verification" title="Permanent link">&para;</a></h2>
+<p>Record host, OS, GPU/driver, agent versions, Git revision and relevant simulator and viewer versions in the active setup handoff. Verify:</p>
+<ol>
+<li>The remote VS Code terminal and agent operate on the intended Ubuntu clone.</li>
+<li>The scoped Pixi install/build succeeds and orientation finds the handoff.</li>
+<li>The same agent session can be resumed after reconnecting; the other agent can recover the goal and next step from the repository handoff.</li>
+<li>The chosen viewer displays live motion. For the full UI, test camera/picking or interaction; for Rerun, test scene and telemetry receipt separately.</li>
+<li>Disconnect/reconnect behavior and artifact locations are understood. Keep viewer observations distinct from control behavior or timing qualification.</li>
+</ol>
+<p>Headless internal validation and training remain appropriate. When offering commands for human inspection, include the applicable interactive display path.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/setup/remote-development.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="evaluating-experiments.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Evaluate an experiment">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Evaluate an experiment
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-footer__link md-footer__link--next" aria-label="Next: Training at OSC">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Training at OSC
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

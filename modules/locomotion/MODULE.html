@@ -1,0 +1,1809 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/modules/locomotion/MODULE.html">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Locomotion - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#locomotion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Locomotion
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">Lifecycle: experimental</span>
+  
+  <a href="../../markdown/modules/locomotion/MODULE.md.txt" download="MODULE.md">Markdown source</a>
+</div>
+
+<div class="module-contract-context"><strong>Module contract</strong> · <a href="../../docs/design/system-architecture.html#module-locomotion">Back to the module explanation</a><p>This page renders the owning MODULE.md. Its lifecycle and validation statements are preserved from the source.</p></div>
+
+
+
+                  
+  
+
+
+
+
+<h1 id="locomotion">Locomotion<a class="headerlink" href="#locomotion" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Provide small robot-neutral numerical and contact-geometry utilities that a locomotion application may compose, including supported-biped lifecycle and contact coordination. Robot/task mapping and reference-authoring policy remain with the composing application.</p>
+<h2 id="public-api">Public API<a class="headerlink" href="#public-api" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><code>walking/coordinator.hpp</code> and <code>walking/contact_history.hpp</code>: experimental planner-agnostic port of the retired <code>WalkCoordinator</code>'s walking mechanism, built as <code>cyber_suite_walking</code> without DCM, ALIP, robot, controller or runtime dependencies. It has one event per step, an admitted touchdown, and owns Stand/DoubleSupport/Walk, the step clock (started by a step's first accepted plan, phase advanced once per planner tick), commitment, capture hold, the neutral-touchdown Stand gate and binary swing/support-height roles. Admission is <code>SwingContactAdmission</code> replayed over a 64-sample full-rate evidence history: a release seen, a landing window as a fraction of the step, a capacity held for a dwell, and a shared-load hold in body weights. The thresholds and the Stand gate come from the coordinator profile. There is no double-support, liftoff or release stage and no contact-authority role; DSG capacity and TAC-QP release inference own the load transfer. After walking, losing capture validity leaves Stand for capture-recovery preparation, just as a valid outside assessment does. Unknown capture at startup leaves neutral Stand unchanged. Preparation does not lift a foot; the existing accepted-plan launch and touchdown gates remain in force. Capture recovery may retry a launch and return to Stand. Consumers supply the capture assessment, launch readiness, first stance and heading, and keep geometry and task names. Digit and TRON1 walking, under both planners, are its consumers. A consumer that can never certify a standing polygon offers commanded motion once a first stance is viable and no capture assessment, so it never re-enters Stand. The planners register published preview identities with <code>record_preview</code>; admission then uses the duration actually installed at each evidence sample, including delayed retiming. An unknown installed identity fails explicitly. Consumers that do not register previews retain the coordinator-duration convention. A dwell verdict remains pending until the planner consumes it. Subsequent evidence is still checked: loss of qualification clears the verdict and requires a fresh dwell, so a pulse that ends before the planner release cannot authorize a support switch. The configured shared-load exception, if enabled, still defines qualification. The Digit and TRON1 walking apps are the integration surfaces, so no new example is needed. Contract tests cover history order, launch retry, one- command role changes, the 1 kHz dwell, release and window, the shared-load hold, the step clock through retiming, the Stand gate and capture-recovery retry and loss of post-walk capture validity. A replay of recorded DCM runs is the parity check for admission. App scenarios establish walking behavior. Flight, hand contacts, non-periodic motion and hardware transport are outside this contract.</p>
+</li>
+<li>
+<p><code>walking/coordinator_profile.hpp</code>: the coordinator profile loader, built as <code>cyber_suite_walking_profile</code> so <code>cyber_suite_walking</code> stays free of YAML. One <code>coordinator</code> mapping holds the seven admission and Stand-gate fields of <code>CoordinatorConfig</code> under their field names. It is read with the foundation <code>ProfileReader</code>: every key is required, unknown keys are rejected, and range checks are shared with the <code>Coordinator</code> constructor through <code>validate_coordinator_config</code>. Step timing and periods are not profile fields; the consumer sets them. <code>coordinator_section_yaml</code> emits the same fields for resolved reports. Digit and TRON1 walking each load their own <code>config/profiles/coordinator.yaml</code>.</p>
+</li>
+<li>
+<p><code>alip/planner.hpp</code>: independent experimental angular-momentum planner, built as <code>cyber_suite_alip</code> with Eigen and solvers, without linking the DCM kernel. <code>AlipPlanner</code> consumes measured chart-relative position and scaled contact momentum and returns touchdown-relative placements, derived footholds, and explicit accepted, margin-event, held, or failed status. <code>Input::model_height</code> sets the pendulum for one solve (lambda and every height-scaled term); zero selects <code>Config::height</code>, so a consumer can hold an estimated height per step as the DCM adapter does with <code>LipHeightEstimator</code>. <code>Input::recovery</code> opts into margin-priority planning: <code>OnLowMargin</code> tests the exact first successor's divergent-state viability margin; a width/reach boundary alone is not an automatic recovery request. Executed-step geometry remains hard in every solve. <code>Required</code> runs recovery unconditionally, and <code>Disabled</code> preserves the prior objective. Recovery maximizes the first-two-node minimum margin up to the configured floor with ProxQP, then refines tracking with Eiquadprog while retaining that margin. Hard step geometry and timing remain constraints. <code>Plan::recovery_optimized</code> distinguishes a proved primary optimum from a feasible best effort; <code>recovery_degraded</code> also covers negative exact margin. Digit opts in; TRON1 retains <code>Disabled</code>. Optional <code>Config::retiming_rate_s_per_s</code> constrains replacement touchdown times inside the timing feasible set; zero preserves unrestricted timing. From <code>retiming_start_phase</code> of the previously accepted duration, the change is bounded by that rate times elapsed time since the last accepted solve. Early timing and the causal reserve interval after a missed landing remain free. The kernel holds a same-support plan if a bounded replacement fails; new support and <code>reset()</code> clear the timing history. A regressing elapsed time on the same support is invalid when the bound is enabled. Digit opts in at 0.2 s/s from phase 0.4; reusable defaults and TRON1 remain disabled. Optional <code>Input::placement_reach(remaining_s)</code> returns lower and upper bounds on the executed placement <code>nodes[0].r</code>, as a function of the time until the exchange. A consumer passes what its swing can still reach in that time. The bounds are hard rows in every stage. Under SOS2 timing, each timing interval takes them at its earliest exchange, since reach grows with time; without SOS2, the whole interval takes them at its lower end. An empty function leaves the placement free. A reach that admits nothing is invalid input and holds the same-support plan. Digit's ALIP walker supplies it under its swing acceleration limit; TRON1 does not. The current two flat high-speed cases are demonstrated in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-04-alip-stop-shaping-and-incoming-foot-dwell">Digit validation</a>. <code>alip/model.hpp</code> owns the flow, invariant bands, orbit/gain relation and exchange correction. Its consumers are <code>apps/digit/walking</code> and <code>apps/tron1/walking</code> under <code>planner: alip</code>; it owns no swing path, contact admission, controller or hardware interface. Focused mathematical contracts and app scenario artifacts validate it. Disjoint-region MIQP, variable-height planning and predicted limb momentum remain extensions. <code>alip/diagnostics.hpp</code> declares the separate <code>cyber_suite.alip/3</code> stream; implementation choices and certification limits are documented in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/locomotion/src/alip/README.md">the ALIP kernel notes</a>.</p>
+</li>
+<li>
+<p><code>alip/planner_profile.hpp</code>: <code>read_config</code> and <code>write_config</code> read and emit every <code>alip::Config</code> field. The two retiming keys are optional for older profiles (disabled at rate zero, start phase 0.4); existing fields remain required. <code>read_lip_height_estimator</code> reads a <code>lip_height_estimator</code> mapping the same way. Built as <code>cyber_suite_alip_profile</code>, so <code>cyber_suite_alip</code> stays free of YAML.</p>
+</li>
+<li>
+<p><code>dcm/dcm_walking_planner.hpp</code> (<code>dcm::DcmWalkingPlanner</code>): experimental adapter composing <code>walking::Coordinator</code> and the native DCM model, used by Digit and TRON1. <code>update(now, command, observation, history)</code> consumes estimated walking state and ordered full-rate evidence, solves only on coordinator request, and returns <code>WalkIntent</code>. <code>view()</code> exposes planner-local lifecycle and admission; <code>cycle()</code> is a borrowed read-only geometry/clock view. The adapter owns accepted DCM geometry, commanded support charts and heading, startup assessment, step-latched LIP height, progress observers, model feasibility and recovery. It owns no second lifecycle or phase clock. <code>set_config</code> and <code>reset</code> reset coordination and model state; <code>record_preview</code> records emitted timing for delivery-aware evidence replay. Both support policies below are supported. <code>walk_intent.hpp</code> contains the shared DCM config, observation and intent values. <code>detail::DcmWalkingModel</code> is the model implementation behind this adapter, not an independently driven planner. The ordinary numerical QP and app reference policy are unchanged.</p>
+</li>
+<li>
+<p><code>dcm/dcm_planner_profile.hpp</code>: the YAML-facing DCM gait profile, and the resolved-config surface the run report round-trips. <code>read_dcm_planner_profile</code> reads a <code>planner</code> mapping through <code>config::ProfileReader</code>, every key required, and <code>dcm_planner_profile_yaml</code> writes the same keys from one field list, including <code>heading_slew_rate</code>. <code>apply_dcm_planner_profile</code> is the one mapping from a profile onto <code>WalkCoordinatorConfig</code> and <code>DcmPlannerParams</code>; it sets one commit phase for both and clamps the nominal width once. It also carries the <code>lip_height_estimator</code> block and both cycle-progress observers. The fore-aft observer remains separate from the lateral one because it re-aims the published LIP orbit and never enters the footstep QP. The planner runs, when composed by an application, as a deferred 50 Hz node, so it is not one of the hard real-time loops this repository keeps in C++20.</p>
+</li>
+</ul>
+<p>A second, larger weight surface (<code>gait_smoothness</code>, <code>operating_envelope</code>, <code>swing</code>, <code>reference_length</code>, <code>reference_timing</code>) and a swing-capability block (<code>swing_accel_max</code>, <code>swing_accel_pref</code>, <code>swing_speed_max</code>) belonged to the retired Python producer and no longer exist. The QP assembles no swing row; <code>min_step_duration</code> is the manual floor standing in for the leg. The six weights <code>length</code>, <code>width</code>, <code>width_symmetry</code>, <code>timing</code>, <code>progress</code> and <code>lateral</code> remain authorable. The Digit resolver rejects retired <code>weights.dcm_x</code>, <code>weights.dcm_y</code>, <code>viability_over_timing_range</code> and <code>command_scaled_reference_gait</code> keys. The latter two mechanisms are now unconditional timing-range viability and command-scaled planar cadence.</p>
+<ul>
+<li><code>dcm/dcm_planner.hpp</code> (<code>DcmPlanner</code>): the deferred convex-QP footstep planner in C++20, alongside the independent experimental ALIP planner. It retains its legacy yaw-rate/absolute-target heading command in this slice. <code>dcm_reference_cadence_band</code> is the single resolution of the optional <code>reference_min/max_step_duration</code> pair against the solver bounds; five call sites used to open-code it. The <code>robust_reference_governor</code> flag and <code>govern_dcm_reference_velocity</code> are removed: the flag was unreachable from configuration (the resolver rejects the key as retired), the coordinator's fallback bisection was write-only diagnostics, and reducing the commanded speed toward a viability-certified orbit is the actuator the 2026-08-29 entry rejected. The command now reaches the QP verbatim. <code>DcmPlannerCommand::stopping</code> marks coming to rest. It replaces the fore-aft cumulative-progress residual, which is measured from a stance that re-anchors at every touchdown, with a capture residual on each node's fore-aft DCM error, under the same <code>w_progress</code>. A zero progress target would otherwise make each plan step past the DCM and return. <code>plan_recovery</code> is a failure-only native entry point for a fresh admitted support without a held plan. It fixes the first duration at the existing timing floor, projects the initial DCM onto the intersection of the outer admission box and the assembled preview-feasible domain, then solves the ordinary objective at that state and duration. Projection uses a separate convex distance QP; it is not component clipping or a weighted compromise with gait preferences. Its hard preview rows use one additional existing geometric epsilon so roundoff at the projected boundary cannot exclude the fixed state from the second QP. This defines the numerically reserved subset used for the distance solve; the ordinary QP remains unchanged. Existing viability-slack semantics remain. The fixed-timing solve alone adds a curvature of 1e-6 times each enabled slack's weight. A purely linear slack started Eiquadprog at -weight/regularization (-1e10 for Digit) and cost it about 1e-6 of accuracy, the size of that reserve, so mirror-image recoveries could disagree. The slope at zero slack, and so the exact penalty, is unchanged; ordinary solves are untouched. Measurement, estimator state, and controller feedback stay physical; the projected preview is not a certificate for the measured robot state. Invalid input and numerical failures remain explicit failures. No terrain estimate, Servo planning, new YAML parameter, or runtime extreme-step rule is introduced. The former unauthored preview schedule and terminal-constraint API are retired. Every step uses the physical gait box, and the ordinary solve retains strict measured <code>q1 &gt;= 0</code> admission. The unused outboard allowance and orbit attraction costs are gone. Ordinary solves use Eiquadprog; OSQP remains internal to failure-only projection, with no selectable ordinary backend. <code>dcm_problem_size(N)</code> retains solver storage of <code>6N+2</code> variables, <code>2N</code> equalities and <code>9N+4</code> inequalities. One coordinate is pinned to zero and four rows stay inactive; there is no terminal capability behind them. Removing this storage regressed slope/stair stopping in the September 19 terrain/velocity matrix. With the layout retained, the cleanup matches baseline completion outcomes and accepted steps in all 36 cases (25 complete). See the app validation for the measured operating boundary. <code>DcmPlannerCommand::capture_steps</code> optionally requests fore-aft capture in 1..N admitted steps while stopping; zero preserves the ordinary objective. Existing successor fore-aft rows shrink by the straight-heading backward recurrence <code>b_r=(b_{r-1}+L_max)/sigma_nom</code>, starting at <code>b_0=viability_margin_x</code>, intersected with the ordinary viability bound. Nodes at and beyond the deadline must satisfy <code>|e_x|&lt;=b_0</code>; their fore-aft slacks are pinned to zero, and the accepted solution is independently checked. Actual heading-frame dynamics and hard geometry remain in the QP. No row, coordinate, physical reach limit or timing limit is added or relaxed. If the constrained ordinary solve fails, the kernel retries the existing stopping objective with <code>capture_steps=0</code>. Output fields retain whether the accepted or held plan met the requested constraint. Projected recovery is never labeled capture-constrained for the measured state. This is a reduced fore-aft preview condition, not a lateral, swing-realization or physical-stop certificate. Digit's stops request it; continuous stepping never does.</li>
+<li><code>dcm/footstep_planner_math.hpp</code>: LIP orbital energy/velocity helpers and <code>compute_initial_dcm</code>, which recovers the step-start DCM from support-frame CoM and normalized momentum. Its momentum conversion and back-propagation helpers live in <code>dcm::detail</code> and are implementation details, not public entry points.</li>
+<li><code>dcm/dcm_planner_diagnostics.hpp</code>: the C++ kernel's own account of itself -- the channel list, the session constants, and the row builder for one parameter set. It records <code>cyber_suite.dcm_planner/1</code>, which is now the only DCM planner schema; Digit ALIP analysis is owned by the walking app. The retired Python kernel's incompatible <code>cyber_suite.dcm_planner/7</code> is no longer admitted by the reader. The kernel declares what a row contains; an embedder decides only where the rows go and how often, so adding a diagnostic here reaches every consumer's artifact with no edit on their side. It imports no runtime and no telemetry type: an embedder walks the channel list against whatever schema it already owns. Additive <code>recovery/*</code> channels retain the original failure trigger, projection status/residual/time, projected DCM, displacement, and the first successor predicted from the raw state. Raw <code>measured_q1</code>/<code>measured_e_x</code> retain their meanings; <code>planning_q1</code> and the successful preview describe the projected solve. <code>recovery/accepted</code> is an event, not an assertion that a held projected step has physically recovered. The named-channel schema no longer emits terminal relaxation or measured outboard-allowance/used channels. Other channel meanings and the <code>/1</code> tag are unchanged; the offline reader does not require the removed channels. Additive <code>command/capture_steps</code>, <code>output/capture_steps</code>, <code>output/capture_constrained</code>, <code>diagnostics/capture_fallback</code> and <code>diagnostics/capture_solver_status</code> distinguish a requested deadline from an accepted capture preview or an ordinary catch fallback.</li>
+<li>Support policies, in <code>WalkCoordinatorConfig::support_policy</code>. <code>CaptureToStand</code>, the default, is the flat-foot lifecycle. <code>ContinuousStepping</code> is for robots that can never certify a standing polygon, such as TRON1's two point feet. Its first stance is the side whose raw measured DCM lies in the first-step viable box nearest the periodic lateral orbit, with both initial contacts admitted (<code>detail::continuous_launch_stance</code>), and an ordinary solve must still succeed before launch. Double support tests only its latched stance. It never enters <code>Stand</code>; neutral commands continue balance steps without the stopping objective or final-foot alignment. This is model admission, not a physical swing-executability certificate. On 2026-09-25 the policy moved from the retired legacy coordinator into this adapter. Digit remained dataset-identical: DCM on 769 datasets for the canonical run and for the stopping gate, and ALIP on all but its solver wall time. <code>author_desired_yaw_trajectory</code> defaults to true. An app with no body-yaw reference may set it false to consume accepted heading charts without authoring or screening an unused body trajectory; the foothold kernel and support-heading sequence still apply their own limits. For <code>CaptureToStand</code>, commanded startup prepares lateral transfer in <code>DoubleSupport</code> until the measured lateral DCM reaches the existing nominal launch target in the selected stance/heading frame. Elapsed preparation time and a saturated transfer velocity command are not launch authority. A successful first-step solve is also required; a failed attempt stays in preparation and may retry from fresh observations. Capture-recovery entries retain their separate delay/attempt policy. See the app's measured-launch validation boundary. Under a neutral command <code>CaptureToStand</code> sets <code>stopping</code>. A captured stop may align the final landing fore-aft for <code>Stand</code>, but only when the predicted aligned DCM error is within <code>viability_margin_x</code>. That decision is made at the step's first successful solve and held for the rest of the step. Admitted touchdown retires the completed plan and commits the measured new support independently of successor-solve success. On an ordinary successor failure the model immediately attempts <code>plan_recovery</code> in the same release. An accepted projected step starts that support's swing clock without a capture wait. The kernel's outgoing held plan is cleared at the fresh cycle boundary. Failed refreshes with a current executable plan still retain it; ordinary replanning resumes from raw measurements without a recovery latch. Projected capture predictions cannot authorize fore-aft stop alignment. Invalid or numerically rejected recovery still reports failure and can leave no executable plan; this is not a physical capture guarantee or a hold-based recovery policy. The coordinator's phase is gait progress carried as a continuous non-decreasing state advanced once per release before any replan decision, deliberately not <code>elapsed / duration</code>; the kernel's late-step bypass (<code>DcmPlannerState::gait_phase</code>) reads that one state. See <code>notes/journal/entries/2026-09-09-continuous-gait-phase.md</code>. Supporting values: <code>walk_support_state.hpp</code>, <code>support_frame.hpp</code>, <code>walk_observation.hpp</code>, <code>locomotion_types.hpp</code>, <code>desired_yaw_trajectory.hpp</code>, <code>swing_trajectory.hpp</code>, <code>lip_height_estimator.hpp</code>.</li>
+<li><code>dcm/footstep_planner_types.hpp</code>: <code>FootstepPlannerOutput::foothold_world</code> and <code>chart_origin_world</code> are now three-dimensional. <code>foothold_xy</code> and the numerical DCM solve remain planar. A composing app may supply a borrowed <code>WalkObservation::terrain</code> for one update after admitting its age and frame epoch. The coordinator annotates the accepted foothold with the queried landing-minus-support height, in the support chart's vertical gauge, and carries it into <code>WalkIntent</code>. Unknown terrain retains support height with <code>terrain_height_valid=false</code>; valid results include combined height variance. This is an experimental C++ API/ABI change; rebuild consumers. It supplies height to execution, not variable-height DCM/ALIP dynamics or terrain-aware reachability constraints. A held plan retains its last accepted annotation.</li>
+<li><code>phase_reference.hpp</code>: <code>PhaseClock</code> owns affine move progress; <code>PhasePath</code> owns scalar piecewise-quintic geometry; <code>PhaseReference</code> composes them into a convenience scalar move. Coupled references share one clock across paths. A phase-terminal retime changes only the clock. A physical-terminal retime captures the current phase jet before re-expressing the terminal speed and acceleration, so the remaining tail may change but current position and phase derivatives do not. Retargeting preserves that same current jet and future interior landmarks; a terminal retarget also replaces the physical arrival speed, for a landing whose speed is itself re-planned. The edits commute within floating-point tolerance by preserving the anchor, not by writing disjoint state. Because a retime keeps the phase jet, it steps physical velocity by the rate ratio; <code>reanchor</code> instead refits the tail from a caller-supplied physical jet (normally the executing command) converted at the new rate, so a retime and retarget stay C2 in time. Digit ALIP's swing uses it. Invalid initial geometry or terminal data throws without corrupting an existing scalar move; nonpositive remaining time and edits after phase one are inert. Past one, a path extends straight to its configured reach limit. An optional phase-domain brake segment reaches the limit with zero velocity/acceleration; zero brake span retains a mathematical abrupt cap and makes no C2 transport claim. SO(3) is outside this scalar contract. The experimental Digit swing author composes one clock and three paths. See <code>notes/specs/2026-09-10-phase-reference-reimplementation-design.md</code> and the app's validation for numerical versus physical acceptance.</li>
+<li><code>biped_contact_groups.hpp</code>: biped contact-group definitions.</li>
+<li><code>double_support_capture.hpp</code>: geometry-only double-support capture margin assessment, plus the deterministic initial-stance selection the coordinator uses to launch. If only one foot is available, that foot remains stance even when the two-foot polygon cannot be assessed. This selection does not establish capture validity; a focused regression covers either support.</li>
+<li><code>walk_command.hpp</code>: small command-source-neutral planar walking intent.</li>
+<li><code>python/cyber_suite/locomotion/logging/dcm_planner_log.py</code> and <code>plotting/_dcm_planner_plotter.py</code>: the reader and the eight figures for a planner block. The block stores only the raw solve; every margin, utilization, and residual is derived here from the solution and the manifest's constants, so a stored view can never go stale against the parameters it was computed under. Any application that binds a sink gets these figures -- <code>pixi run plot locomotion RUN.h5</code> finds blocks by their own format constant, not by an application's schema. The reader owns the one schema tag it admits rather than importing the producer's, so a producer-side schema bump cannot silently decide what a reader accepts. The step-clock panel uses the recorded per-solve reference cadence, including logs without the retired <code>T_nom</code> constant. The block records solves, not measurements, so realized velocity is offered rather than assumed: an embedder that measures its robot records a world-frame CoM velocity beside the block, the reader picks it up, and <code>state</code> rotates it into the command's chart and draws commanded against realized in both directions. A log without one still plots, and says on the axis that nothing measured the robot. No view divides a foothold by a duration to call the result a velocity -- that ratio holds across a step and alternates with any fore-aft asymmetry between the legs, which on a per-tick axis reads as an excursion the gait never made. Every first-step decision is re-solved at every tick of its own step, so those are drawn as a faint solve trace plus the value <code>committed_hold</code> reports, rather than as a dense curve a reader would take for an outcome. A runtime may preserve stream alignment with manifest-empty rows when a planner did not run; the telemetry adapter consumes each sink generation once and writes an empty row until the next generation. The reader excludes those alignment rows from the solve record while retaining the absolute timestamps of real invocations. Multi-block plots follow first-invocation order and qualify every figure by block identity.</li>
+</ul>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Eigen</li>
+<li>yaml-cpp</li>
+<li><code>modules/foundation</code> -- <code>ProfileReader</code>, for the coordinator profile only.</li>
+<li><code>modules/robot</code></li>
+<li><code>modules/perception</code> -- fixed terrain product and optional height queries.</li>
+<li><code>modules/solvers</code> -- Eiquadprog for the ordinary footstep QP and OSQP for the separate projection QP.</li>
+<li>NumPy and Matplotlib -- the offline log reader and its figures only. No runtime path imports them.</li>
+</ul>
+<h2 id="owned-examples">Owned Examples<a class="headerlink" href="#owned-examples" title="Permanent link">&para;</a></h2>
+<p>None. Integrated locomotion behavior belongs to robot applications.</p>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>pixi run test -R cyber_suite_alip</code> -- independent ALIP algebra, timing, ideal closed-loop chart transitions, app preview/swing contracts and a short integrated CORTA run. These do not establish sustained walking acceptance.</li>
+<li><code>pixi run plot-walking LOG.h5</code> in the Digit project (<code>apps/digit</code>) -- app-owned DCM/ALIP execution and planner diagnostics. The readers live in the Digit project's <code>digit_walking</code> package; standalone ALIP artifact formats are retired. Scenario commands, gates and retained results belong to <code>apps/digit/walking/VALIDATION.md</code>.</li>
+<li><code>pixi run py-test locomotion</code> -- the log reader's contract and its figures. These tests construct no planner, runtime, graph, or telemetry ring, and build their block by hand: a fixture that asked the producer for its own channel names could not fail when reader and kernel drifted apart.</li>
+<li><code>ctest -R cyber_suite_locomotion</code> -- the kernel's own behavioural contract, including its separate allocation binary.</li>
+<li>Walking capability is accepted in the composing app; see <code>apps/digit/walking/VALIDATION.md</code> and <code>apps/tron1/walking/VALIDATION.md</code>.</li>
+</ul>
+<h2 id="non-goals">Non-goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Defining a universal planner, motion-plan schema, coordinator, executor, or recovery framework.</li>
+<li>Owning task catalogs, task activation, contact admission policy, reference sampling, robot frames, or controller bindings.</li>
+<li>Promising walking capability from numerical-kernel tests. Robot behavior is accepted in the composing app.</li>
+</ul>
+<p>The Digit DCM walker intentionally owns its fixed TAC-QP task catalog and trajectory-generation policy under <code>apps/digit/walking</code>. It solves its footstep QP in the planner process, publishes fixed task trajectories from the deferred planner system, and performs contact admission plus controller binding in its 1 kHz C++ servo system. The planner runs in the deferred placement. <code>DcmWalkingPlanner</code> produces a <code>WalkIntent</code>, never a preview: turning one into the app's nine-slot complete-jet catalog is the app's own authoring step, which is why no reference schema appears in this module.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+                
+
+<div class="document-origin">Source: <code>modules/locomotion/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

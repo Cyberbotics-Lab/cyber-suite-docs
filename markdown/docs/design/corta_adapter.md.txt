@@ -1,0 +1,97 @@
+---
+Status: working
+Owner: modules/corta, modules/corta_adapters
+Last reviewed: 2026-10-18
+Code anchors: modules/corta/MODULE.md, modules/corta/CONFORMANCE.md, modules/corta/include/corta/egress.hpp, modules/corta_adapters/MODULE.md, modules/corta_adapters/include/corta/adapters/session.hpp, modules/corta_adapters/include/corta/adapters/delivery.hpp
+---
+
+# CORTA adapters and external boundaries
+
+CORTA connects computation to the outside world through three boundaries with different responsibilities: a Plant paces observation/command exchange, adapters carry asynchronous semantic input and output, and observers consume telemetry. This reference explains the implemented separation and how to choose a boundary for a new device. The [runtime overview](runtime-execution.md) introduces the execution model; the [CORTA design](corta-design-specs.md) specifies its rules. The current [core contract](../../modules/corta/MODULE.md), [adapter contract](../../modules/corta_adapters/MODULE.md) and [conformance index](../../modules/corta/CONFORMANCE.md) own implementation and evidence.
+
+## Three boundaries, three responsibilities
+
+```mermaid
+flowchart TB
+  peer["Simulator or robot"] <--> plant["Plant: clock and exchange"]
+  plant <--> runtime_graph["CORTA graph"]
+  device["Asynchronous device or process"] <--> adapter["Adapter thread"]
+  adapter --> ingress["Ingress: latest boundary sample"]
+  ingress --> runtime_graph
+  runtime_graph --> egress["Egress: bounded queue"]
+  egress --> adapter
+  runtime_graph --> rings["Telemetry rings"]
+  rings --> writer["Storage writer"]
+  writer --> hdf5["HDF5"]
+  writer --> queue["Bounded observer queue"]
+  queue --> viewer["Rerun observer"]
+```
+
+| Boundary | Use it when | What it owns | What remains application-owned |
+| --- | --- | --- | --- |
+| Plant | A peer participates in the synchronous observation/command exchange that defines a tick | Exchange, pacing and the declared terminal-action contract | Robot mapping, controller algorithms and device-specific integration |
+| Adapter with ingress/egress | Data arrives independently of the tick, or semantic output must leave the graph | A connection/thread lifetime and bounded transfers | Message meaning, device mapping, link-loss response and transport configuration |
+| Telemetry observer | Data is for inspection or recording | Bounded observation delivery and drop accounting | Visualization schemas, dashboard and interpretation |
+
+A simulator behind a lockstep gateway is still a Plant. A joystick is an adapter input. A robot drawing in a viewer is an observation. Similar wire protocols do not make these responsibilities interchangeable.
+
+## What is implemented
+
+The original proposal's missing Egress and S-28 work is complete within the current software evidence boundary. `Egress<T>` is implemented, and S-28 is marked `pass` in the [conformance index](../../modules/corta/CONFORMANCE.md). This does not imply distributed clock synchronization, a qualified physical device or a general middleware bridge.
+
+| Surface | Current implementation | Example or consumer |
+| --- | --- | --- |
+| Adapter kernel | `AdapterSession`, one connection and SDK-owned thread, placement reporting, counters and bounded stop/join | [Loopback example](../../examples/cpp/corta/adapter_loopback.cpp) |
+| Typed egress | Value and Block output, preallocated queue, drop-newest overflow and Block lease accounting | [Core egress implementation](../../modules/corta/include/corta/egress.hpp) |
+| Keyboard input | POSIX descriptor, application byte mapping, state/events and terminal restoration | [Keyboard example](../../examples/cpp/corta/adapter_keyboard.cpp) |
+| Joystick input | Linux joystick records, axis/button snapshot, application mapping and optional keepalive | [Joystick example](../../examples/cpp/corta/adapter_joystick.cpp) |
+| Datagram input | Whole datagrams from a borrowed socket, application format, size bound and mapper rejection | [Datagram example](../../examples/cpp/corta/adapter_datagram.cpp); Digit browser operator over loopback UDP |
+| Rerun observation | HDF5-first fan-out, bounded observer queues, exact stream selection and optional schema-specific encoder | [Rerun example](../../examples/cpp/corta/adapter_rerun.cpp); Digit scene and telemetry |
+
+A two-CORTA-application UDP bridge and ROS 2 topic integration remain deferred. The implemented datagram input is narrower: it delivers application-defined operator input to Digit. It provides no acknowledgement, retry or general network-delivery guarantee.
+
+## Input is sampled at a runtime boundary
+
+An adapter thread may perform device reads, decoding, allocation and transport work. It writes through an `IngressWriter<T>` rather than modifying graph state. Runtime samples ingress into the coherent tick boundary. A faster producer may replace several state updates before a consumer observes one; that is intentional latest-value behavior.
+
+Fixed-size trivially copyable Value ingress is not restricted to the target's native atomic width. The implementation coordinates copying against Runtime sampling. Do not infer that the entire boundary is wait-free: the conformance index retains the S-23 limitation for coherent publication sections that can spin behind a preempted producer.
+
+Source identity and clock identity have different meanings. A clock domain names a time basis; a source instance identifies a device/process/session epoch. Zero identities are rejected, cross-domain timestamp comparison has no result, and a changed source instance exposes restart provenance. Assigning an identifier does not synchronize clocks.
+
+## Output leaves through a bounded queue
+
+An egress is an independent graph sink, not one half of a required paired channel. After a successful ordinary Plant write, Runtime captures a new producer generation, stamps its publication provenance and tries to enqueue it. A full queue refuses the newest sample and increments its counter. Encoding and transport happen on the adapter thread.
+
+The tick-side push is the operation with the allocation-free, wait-free evidence and target lock-free-atomic requirement. That evidence does not establish a deadline for the complete runtime or application. A Block egress retains leases; queue capacity and declared adapter in-flight leases must both be included in the C16 storage plan. Value/Block storage semantics remain core-owned.
+
+One adapter can bind several ingress writers and egress readers. The adapter owns any pairing or connection-wide protocol. Core has no universal endpoint registry, discovery layer, QoS model or robot message schema. Egress remains a C++ surface; a Python binding is not implied by Python graph construction support.
+
+## State and events have different delivery needs
+
+| Data | Implemented helper | Overflow and receiver behavior |
+| --- | --- | --- |
+| Durable state, such as requested velocity | `LatestState<T>` | Capacity one; intermediate updates coalesce |
+| Discrete requests, such as a mode change | `BoundedEvents<Event, N>` | A rolling sequenced batch; oldest entries drop when full, with accounting |
+| Repeated event batches crossing latest-value ingress | `BoundedEventReceiver<Event, N>` | De-duplicates overlap, detects sequence gaps and respects source-instance epochs |
+
+For example, keyboard bytes can update a desired velocity and append a stop request during one read burst. Publishing only the last raw byte would lose the earlier request. The state/event helpers preserve their different meanings within explicit capacity limits; they do not promise lossless or exactly-once delivery. See the [delivery helpers](../../modules/corta_adapters/include/corta/adapters/delivery.hpp).
+
+## Lifecycle and command authority
+
+`AdapterSession` exposes a `DeviceThread` so its stop/join participates in Runtime shutdown ordering. Adapters report placement and failures. Concrete input adapters borrow their descriptors; the owner creates the connection and remains responsible for its lifetime. Keyboard idle polling and join timeout must be configured consistently so an idle device cannot prevent bounded shutdown.
+
+In Digit, keyboard, joystick and browser input map onto the same app-owned axes and request messages. The inline operator supervisor owns command shaping, modes and link-loss behavior. A mapper or viewer is not a controller or safety authority. The [Digit operator contract](../../apps/digit/walking/APP.md#live-operator-input) describes the integrated behavior.
+
+## Recording and visualization
+
+The storage writer remains the sole consumer of each original telemetry ring. It appends HDF5 first, then copies selected rows into independent bounded Rerun queues. Viewer backpressure can drop visualization copies without changing stored rows or feeding commands into control. HDF5 retains exact declared types and metadata; a Rerun projection is an observation of them.
+
+The generic encoder produces numeric time series. An application may provide an exact-schema encoder for semantic objects such as the Plant scene. The implemented Digit observer selects servo state, planner command and Plant-scene streams. Its launcher selects native or browser viewing and the dashboard; the C++ path owns live telemetry delivery. No generic `VisualizationFrame` egress was needed for these views.
+
+Record/replay captures the graph-visible receiver ingress samples, not every transport arrival. Loopback evidence checks that receiver-visible sequence. It does not establish transport determinism, remote peer replay or network reliability.
+
+## How to extend the boundary
+
+Start with the closest existing example and the application message contract. Decide whether the peer defines ticks, supplies asynchronous semantics, or only observes. For an adapter, declare state/event behavior, capacity, source identity, time basis, malformed-input handling, descriptor ownership and shutdown behavior before choosing a transport SDK. Keep application fallback in the consuming app.
+
+The [adapter contract](../../modules/corta_adapters/MODULE.md#validation) lists focused validation commands and evidence for queue behavior, restart handling, keyboard shutdown, joystick record parsing, datagram rejection, observer drops and receiver replay. Current joystick checks use synthetic kernel-format records; they do not qualify a physical controller. Software boundary checks do not qualify robot behavior, hardware timing or a new network deployment.

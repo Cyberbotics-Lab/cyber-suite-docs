@@ -1,0 +1,72 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-18
+Code anchors: apps/digit/pixi.toml, apps/unitree-g1/pixi.toml, apps/digit/walking/tools/walk.py, apps/unitree-g1/walking/tools/walk.py
+---
+
+# Your first simulation
+
+The first goal is to connect a command, a visible response and an inspectable result. Start with one robot project and one known scenario. Keep that run as a baseline before changing configuration or asking an agent to improve behavior.
+
+## Choose the execution host
+
+These commands assume an available Cyber Suite checkout and Pixi. Ubuntu is the intended execution host. Run the commands in its local terminal or in a remote terminal connected from your own computer, and confirm the checkout before building:
+
+```bash
+hostname
+pwd
+git status --short --branch
+pixi run --locked orient
+```
+
+Use `command -v pixi` to confirm that Pixi is available on the execution host. The [development workflow](development-workflow.md) explains project environments, and [remote development](remote-development.md) explains local versus remote terminals and viewers. A connected SSH shell alone does not verify the GPU or display setup.
+
+## Digit: follow the integrated example
+
+From the repository root:
+
+```bash
+cd apps/digit
+pixi run --locked build --target digit_corta_walking
+pixi run --locked walk --config alip_walking --print-resolved-config
+pixi run --locked walk --config alip_walking --rerun-web \
+  --log artifacts/first-run/alip.h5
+```
+
+The build uses the project's installed-package boundary. The first environment installation may build dependencies; allow it to finish before launching. The second command prints the actual configuration. The final command runs the simulation and a browser viewer, normally on port 9090. Choose a fresh log path if you repeat it.
+
+On a client connected through VS Code Remote - SSH, forward port 9090 in **Ports** and open its forwarded address. The simulation stays on Ubuntu. The [Digit running guide](../../apps/digit/walking/RUNNING.md) covers alternate viewers, ports and scenario choices.
+
+## G1: start with standing
+
+In a new terminal at the repository root:
+
+```bash
+cd apps/unitree-g1
+pixi run --locked stand --viser
+```
+
+The task builds the project and starts the simulation. Open the printed URL, normally port 8080; forward that port for a remote client browser. Then use the [G1 running guide](../../apps/unitree-g1/walking/RUNNING.md) for walking and recording. Its walking acceptance can fail even when visible motion completes; read the reported outcome rather than judging only the animation.
+
+## Explain what you saw
+
+Locate the command and the measured response. Identify startup, steady motion and stopping. Record the code revision, resolved configuration and outcome beside the log. For Digit, generate the app's plots from the Digit project:
+
+```bash
+pixi run --locked plot-walking artifacts/first-run/alip.h5 \
+  -o artifacts/first-run/alip-plots
+```
+
+Your first useful result is an annotated plot and a short explanation of what the command produced. The [handbook](../handbook/chapters/index.md) supplies the conceptual loop; the [evaluation guide](evaluating-experiments.md) helps turn the observation into a controlled comparison.
+
+## If the run does not start
+
+| Symptom | First check |
+| --- | --- |
+| Build or package installation failed | Read the first error and verify the owning manifest and supported host; do not launch an older binary as though it were the new build |
+| The viewer URL opens on Ubuntu but not your client | Check the printed port and your client's forwarding address |
+| The viewer is visible but the outcome fails | Inspect the app's reported acceptance and its validation limits |
+| A command behaves differently after pulling | Rebuild and compare the resolved configuration and model identity |
+
+The documentation build does not run these robot scenarios. Current execution evidence lives in each app's validation record.

@@ -1,0 +1,31 @@
+---
+Status: working
+Owner: apps/unitree-g1
+Last reviewed: 2026-10-18
+Code anchors: apps/unitree-g1/pixi.toml, apps/unitree-g1/walking/APP.md, apps/unitree-g1/learning/APP.md
+---
+
+# Unitree G1
+
+G1 is the student-project starting point. It uses the repository's 23-DoF model and owns standing, walking, viewers and a learning pipeline in an independent Pixi project. The goal is to give a student a bounded experiment they can understand and extend, using Digit as the fuller integrated example.
+
+## Start with a visible baseline
+
+```bash
+cd apps/unitree-g1
+pixi run --locked stand --viser
+```
+
+The launcher builds and runs on the execution host. Open its printed browser URL, forwarding the port if your Mac is the client. The [G1 running guide](../walking/RUNNING.md) covers live walking, recordings and acceptance reporting.
+
+Use [the learning workflow](../../../docs/setup/learning-workflow.md) for a small task/export/parity exercise before starting a longer training experiment. The app's contract is explicitly 23 DoF; a different upstream G1 asset or policy layout is a different experiment.
+
+## Make it your project
+
+The [student-project guide](../../../docs/setup/student-projects.md) exports the committed G1 source and licensed robot assets into an independent repository, pins shared dependencies and records provenance. The new project owns its subsequent configuration, experiments and validation. It does not require copying the whole Cyber Suite monorepo.
+
+Good starting questions include understanding the observation/action mapping, evaluating a trained policy on a fixed command schedule, or explaining a walking tracking failure from recorded signals. Name the baseline and evidence before asking an agent to modify behavior.
+
+## Read the qualification boundary
+
+The [walking contract](../walking/APP.md) and [validation](../walking/VALIDATION.md) distinguish model/standing evidence from walking acceptance. The [learning contract](../learning/APP.md) and [validation](../learning/VALIDATION.md) distinguish a bounded training/export pipeline from a qualified learned gait. Completing a visible run or passing parity is not a substitute for those physical evaluations.

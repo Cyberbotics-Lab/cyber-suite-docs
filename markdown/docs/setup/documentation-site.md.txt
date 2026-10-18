@@ -1,0 +1,122 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-18
+Code anchors: mkdocs.yml, mkdocs.pages.yml, docs/pixi.toml, docs/site/publish.py, docs/site/check.py, .github/workflows/docs-pages.yml
+---
+
+# Maintain this website
+
+The website is a curated view of repository-owned Markdown. Its job is to explain architecture, design and use, with examples and evidence. The handbook remains the guided onboarding path; app and module contracts remain the authority for implemented behavior and validation.
+
+## Build and preview
+
+Run from the repository root:
+
+```bash
+pixi run --locked --manifest-path docs/pixi.toml build
+pixi run --locked --manifest-path docs/pixi.toml check
+pixi run --locked --manifest-path docs/pixi.toml serve
+```
+
+The isolated documentation environment is locked for Linux and Apple Silicon macOS. It does not install the robot or learning environments. The first build may fetch the pinned Mermaid and MathJax dependencies; the privacy plugin caches it under ignored `artifacts/docs/cache/` and bundles assets into the site. The generated output is `artifacts/docs/site/`. These commands do not publish to an external host.
+
+The preview binds to `127.0.0.1:8767`. On a client using VS Code Remote - SSH, forward **8767** from Ubuntu and open the forwarded browser address. Keep the server terminal running. Stop the old handbook preview before starting the full site on the same port, or choose another address explicitly:
+
+```bash
+pixi run --locked --manifest-path docs/pixi.toml serve \
+  --dev-addr 127.0.0.1:8768
+```
+
+The existing `docs/handbook/pixi.toml` build and serve tasks still produce the independent handbook. Both views read the same chapter source. Use HTTP serving for website search; opening `index.html` through a file URL is not the supported full-site preview.
+
+## Where to edit
+
+| Change | Owner |
+| --- | --- |
+| Navigation and publication selection | Root `mkdocs.yml` |
+| Public URL and publication mode | Root `mkdocs.pages.yml` |
+| GitHub Pages deployment | `.github/workflows/docs-pages.yml` |
+| Shared conceptual explanations | `docs/design/` |
+| Shared use and development guides | `docs/setup/` |
+| Robot introduction and local reference | `apps/<robot>/docs/` |
+| Onboarding lesson | `docs/handbook/chapters/` |
+| Theme customization and source bundling | `docs/site/` |
+| Module map categories and short labels | `docs/site/modules.yaml` |
+| Module explanations and package boundaries | `docs/design/system-architecture.md` |
+| Published illustrations and worked-example data | `docs/assets/` |
+| Research and historical figure capsules | Root or project `notes/evidence/` (outside the website) |
+
+Navigation entries are repository paths. The one alias is `index.md`, whose source is `docs/index.md`. The publication hook reads those files directly; do not maintain an HTML-specific copy of the prose. Each page offers its original Markdown and records its source path. Build output carries `publication.json` with source hashes, statuses and supporting-source inventory.
+
+## Deep references and worked examples
+
+Architecture contains a nested Deep references group for the CORTA execution design, adapter boundary, walking coordinator, and ALIP/DCM formulations. These are rendered from their original Markdown with the same theme and source download as the conceptual guides. Each distinguishes implemented behavior from design requirements, historical comparisons and proposed extensions. Learn includes the dated Digit M0 worked example; its original evidence is not relabeled as a new result.
+
+The mathematical references use `pymdownx.arithmatex` and MathJax SVG output. The build localizes the pinned renderer through the privacy plugin; readers do not need a CDN connection. Follow the [Material math configuration](https://squidfunk.github.io/mkdocs-material/reference/math/) when changing the renderer. Check inline equations, display equations, diagrams and narrow-screen overflow in a browser after changing that setup.
+
+## Visual identity and module map
+
+The theme follows the [Cyberbotics Lab website](https://cyberboticslab.com/): muted red `#a43b3b`, charcoal `#302b29`, warm ivory `#faf8f5` and a pale neutral `#f2eeea`. These tokens live in `docs/site/project.css`. Subdued category accents help distinguish module groups, with text labels carrying the same information. The vector CS monogram in `docs/site/assets/logo.svg` is a theme asset used for the header and favicon.
+
+The homepage introduces the reusable package before the robot projects. Its module map and the architecture page's map are generated at `<!-- cyber-suite:module-map -->` markers from `docs/site/modules.yaml`. These are accessible HTML blocks with ordinary links, so they work without JavaScript and reflow on narrow screens. The original Markdown download retains the marker; the full module explanations remain readable Markdown in the architecture source.
+
+The build rejects missing, duplicate or extra module entries by comparing the inventory against `modules/*/MODULE.md`, and takes lifecycle labels directly from those contracts. The output check verifies both rendered maps and the corresponding explanation anchors. When adding a module, update its category/short role and add an explanation with `#module-<directory-name>` as its anchor. Categories express responsibility, not dependency edges or execution order. `publication.json` records the inventory used for that build.
+
+## Select documents deliberately
+
+Before adding a page to navigation, compare it with its owning contract and current implementation. Selected guides must declare `Status: working` or `Status: canonical`; publication does not change that status. The site rejects missing selected files and unresolved local links. Follow the repository's approval rules before changing authority.
+
+Every module's `MODULE.md` renders as a reference page with normal headings, lists, tables, code blocks, a table of contents and working links. The page preserves the owning contract's lifecycle label and validation statements, offers the unchanged Markdown download and links back to its module explanation. These detailed contracts stay outside the introductory navigation and guide search. Earlier source-view URLs redirect to the rendered contract, preserving section fragments.
+
+Other linked documents outside the navigation list appear as supporting source views. Their original text and declared status remain visible, including dated validation and historical context. They are not added to the guide search index. A link to a design draft therefore does not silently turn that draft into current guidance. Code links support explanation without producing an API catalog.
+
+The older ALIP/DCM formulations, coordinator migration document and CORTA design chronology still need owner review before becoming primary implementation explanations. Keep proposals and retired behavior out of the default reading path; preserve their original records rather than rewriting history to fit the website.
+
+## Write explanations around a question
+
+A strong page states the question it answers, shows the relevant relationship, walks through a concrete example and names evidence the reader can inspect. Explain frames, timing, assumptions and ownership where they change the interpretation. Put symbol-level details behind source links. Keep ordinary prose paragraphs on one physical Markdown line.
+
+Use Markdown tables, code blocks, native disclosures and Mermaid for small relationship diagrams. The theme renders Mermaid diagrams and bundles its runtime locally. Use capsule-owned SVGs for durable technical illustrations and standard plots for measured results. Captions distinguish schematics from measurements and identify conditions, sample counts and limits. The [evidence policy](../policies/evidence-policy.md) defines the capsule contract.
+
+## Verify a change
+
+Run the full-site `check`, the root audit and orientation, and `git diff --check`. If the chapter changes, rebuild the standalone handbook too. The site check walks generated links and anchors, confirms exact Markdown downloads, checks rendered sections for every module contract and checks that search contains the introductory guides rather than contracts or supporting sources. Inspect desktop and narrow layouts, search, section navigation and figures after presentation changes.
+
+Commands in a guide must agree with current owning scripts and manifests. A successful documentation build validates publication; it does not establish that a robot simulation, training run, hardware deployment or remote browser connection was exercised.
+
+## GitHub Pages
+
+The public website is configured at [cyberbotics-lab.github.io/cyber-suite-docs](https://cyberbotics-lab.github.io/cyber-suite-docs/). Its generated files live in the public [cyber-suite-docs repository](https://github.com/Cyberbotics-Lab/cyber-suite-docs); maintained sources remain in the private [cyber-suite repository](https://github.com/Cyberbotics-Lab/cyber-suite). `mkdocs.pages.yml` sets the website URL and private source-repository URL separately, and builds into `artifacts/docs/pages/`. The local preview remains a separate build under `artifacts/docs/site/`.
+
+This separation allows GitHub Free organizations to host the website while keeping the source repository private. Publishing Pages directly from an organization-owned private repository requires GitHub Team or Enterprise; a personal GitHub Pro subscription does not apply after transfer to an organization. See [GitHub Pages availability](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages) and [repository transfer effects](https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository).
+
+The public repository has its own Git history containing only website publications. Never mirror the private repository, copy its `.git` directory, or push a private source branch to the public destination. The publishing job receives the checked website artifact and checks out only the public destination. Its deploy key grants write access only to that public repository.
+
+### Publication contents
+
+The public build includes the selected guides, rendered module contracts, their Markdown downloads, embedded evidence assets and theme files. Other repository references become links to the build's Git commit on GitHub. Implementation files, app contracts, notes and directory listings are not copied into public supporting-source pages; visitors need repository access to follow those private links. The local preview continues to bundle supporting sources for convenient review. Existing module source-view aliases contain only redirects to the rendered contracts.
+
+Build and check the exact public artifact before deployment:
+
+```bash
+pixi run --locked --manifest-path docs/pixi.toml pages-check
+```
+
+The check verifies local links under the `/cyber-suite-docs/` prefix, source downloads, search scope and the absence of bundled implementation/notes source pages. `artifacts/docs/pages/publication.json` records the selected pages and build revision. Public documentation can itself contain examples and excerpts; keep the publication list intentional.
+
+### One-time setup
+
+1. Create the public `Cyberbotics-Lab/cyber-suite-docs` repository with an independent `main` branch. Initialize it from the checked public artifact, including an empty `.nojekyll` file. Keep `Cyberbotics-Lab/cyber-suite` private.
+2. In the public repository's [Settings → Pages](https://github.com/Cyberbotics-Lab/cyber-suite-docs/settings/pages), select **Deploy from a branch**, **main**, and **/(root)**. The files are already built; `.nojekyll` bypasses Jekyll processing.
+3. Create a dedicated SSH deploy key for the public repository and enable write access under its **Settings → Deploy keys**. Store the private half as the `DOCS_PUBLISH_KEY` Actions secret in the private source repository. Do not use a personal SSH key or a token with access to other repositories. See [GitHub's deploy-key instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys).
+
+### Publish a revision
+
+1. Merge the reviewed documentation into the private source repository's `main` branch. Open [Actions → Documentation Pages](https://github.com/Cyberbotics-Lab/cyber-suite/actions/workflows/docs-pages.yml), choose **Run workflow**, select `main`, and run it.
+2. The build installs only the locked documentation environment, checks the public build and uploads `artifacts/docs/pages/` as the `public-documentation` artifact. The separate publish job verifies the artifact's public-build flag, source revision and site URL, then replaces the public repository's generated files with it. An unchanged artifact needs no new commit; updates use an ordinary push that preserves publication history.
+3. Check the public repository's [Pages workflow](https://github.com/Cyberbotics-Lab/cyber-suite-docs/actions) and open the website. A successful source workflow confirms the public files were pushed; the destination's successful Pages deployment confirms hosting completed.
+
+The workflow is manual: ordinary source pushes do not publish the site. The source repository's `GITHUB_TOKEN` has read-only access; the dedicated deploy key supplies the cross-repository push. GitHub's [publishing-source guide](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site) explains branch publication. If using a custom domain later, update the public repository's Pages setting, the complete `site_url` and the workflow's URL check together, then rebuild and check the artifact.
+
+If publication fails, distinguish the source build, cross-repository push and destination Pages deployment. A missing or revoked `DOCS_PUBLISH_KEY` blocks the push. A successful build followed by an HTTP 422 Pages rejection can reflect repository eligibility or configuration; inspect the destination's **Settings → Pages** and deployment log. Pages stays disabled in the private source repository under GitHub Free.

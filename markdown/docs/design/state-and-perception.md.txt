@@ -1,0 +1,44 @@
+---
+Status: working
+Owner: modules/estimation, modules/perception
+Last reviewed: 2026-10-18
+Code anchors: modules/estimation/MODULE.md, modules/perception/MODULE.md, modules/perception/TELEMETRY.md, apps/perception/mapping/APP.md
+---
+
+# State and perception
+
+Control needs a description of the robot; perceptive planning also needs a description of the world. Both descriptions depend on measurements, coordinate frames, timestamps and uncertainty. A simulator can provide exact state for analysis, but that does not make exact state an ordinary controller input.
+
+## Three views of the same run
+
+| View | What it means | What it is useful for |
+| --- | --- | --- |
+| Measurements | Encoders, IMU and selected sensor products | Inputs available to the chosen composition |
+| Estimated state | Reconstructed base/joint/support information | Planning and feedback control |
+| Simulation truth | The simulator's internal state | Diagnostics and explicitly selected truth-state experiments |
+
+An estimate-versus-truth plot is meaningful only after matching timestamps, frames and state definitions. A world-frame velocity supplied to a base-frame observation term is a contract error even when the values look numerically plausible.
+
+## State and support estimation
+
+The estimator reconstructs the floating base and other required state from the selected measurements. Contact/support estimation supplies evidence about which parts of the robot can support load. Those outputs feed the app's planning and controller composition; the estimator does not own the walking sequence.
+
+Do not change state source midway through a comparison without recording it. A truth-state policy experiment, an internally estimated-state walk and an LLAPI run using Agility's estimate have different observation boundaries. The [estimation contract](../../modules/estimation/MODULE.md) and owning app validation identify what each composition currently supports.
+
+## From sensor geometry to a terrain product
+
+The perception module separates acquisition from mapping. Simulation or hardware owns the sensor measurements; reusable perception code registers them against pose history, fuses elevation and exposes bounded geometric products. The mapping app owns prescribed sensor motion and comparison with known terrain.
+
+The useful chain is **acquisition → time and frame registration → fusion → geometric queries → app adoption**. Errors at earlier stages can look like planning errors later. A height query without a valid timestamp or coordinate convention is not enough for a controller to use it.
+
+## Geometry is not contact authority
+
+A flat-looking patch or a small height uncertainty does not establish friction, load capacity or safe support. Perception's geometric confidence and the controller's contact authority answer different questions. The app must explicitly decide how a map product changes planning or control, with validation at that boundary.
+
+Digit's oracle-perception option is a bounded integration path; it is not equivalent to autonomous sensing and localization on hardware. The [mapping project](../../apps/perception/mapping/docs/overview.md) is a useful place to study geometry and recording independently of walking.
+
+## A useful inspection workflow
+
+First inspect a saved map and the corresponding sensor/pose inputs. Compare valid regions, height error, missing observations and registration errors against the known scene. Then test the downstream query or planning decision separately. A prettier visualization does not establish better footholds or fewer falls.
+
+The [perception contract](../../modules/perception/MODULE.md) describes the implemented products, and the [recording contract](../../modules/perception/TELEMETRY.md) defines what playback preserves. The [mapping validation](../../apps/perception/mapping/VALIDATION.md) records the tested scenarios and remaining limits.

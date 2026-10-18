@@ -1,0 +1,75 @@
+---
+Status: experimental
+Owner: perception
+---
+
+# Perception
+
+## Purpose
+
+Own a bounded, robot-neutral terrain product and uncertainty-aware queries for locomotion consumers, plus sensor geometry, pose registration and bounded elevation fusion, advisory hole completion, and geometric support regions. Sensor acquisition belongs to sim or hardware; scheduling and control adoption belong to the composing app.
+
+## Public API
+
+The current supporting-products increment adds `local_costmap.hpp` and `occupancy_map.hpp`. A costmap retains the terrain chart/source identity and explicit unknown, traversable and blocked cells; footprint inflation must not turn unknown terrain into free space. A bounded sparse voxel mapper integrates valid origin-to-return rays, keeps probabilistic free/occupied/unknown states, rejects replayed scans and expires or resets old evidence. This is a local uniform-resolution occupancy backend, not the OctoMap library or a navigation planner. Both products remain experimental, single-owner and outside hard real-time. The standalone mapping app and Digit inspection pipeline are their consumers. Focused geometric/reset contracts and saved walking artifacts are the validation boundary; no new example framework is needed.
+
+- `terrain_map.hpp`: `TerrainMap`, a fixed-capacity elevation lattice with a translated, gravity-aligned chart, metres, timestamp, generation and frame epoch. Rows increase along +y, columns along +x. Heights are relative to the chart origin z. Every sample carries validity, height variance in m² and reserved surface-class/confidence fields. `TerrainProvenance` distinguishes observed from inferred samples. Unknown is the default; aggregate-created valid cells remain observed for compatibility with oracle producers.
+- `terrain_query.hpp`: `TerrainQuery::height_at` and `normal_at` return explicit validity and variance. Heights use linear triangles along each cell's lower-left to upper-right diagonal. Normals are upward unit vectors of that triangle. Queries never extrapolate or interpolate through unknown samples. Inferred cells are excluded unless the constructor explicitly receives `allow_inferred=true`. Existing control/locomotion consumers stay observed-only. `fresh` checks timestamp and frame epoch; consumers own their age budget and fallback. Querying and copying a map do not allocate.
+- `measurement.hpp`: `TerrainMeasurement` includes sensor identity, modality, acquisition time, frame epoch, sensor origin, point and positional covariance in the same chart. It does not prescribe a fusion rule or a sensor error model.
+- `sensor_model.hpp`: calibrated pinhole rays (+x right, +y down, +z forward), explicit lidar beam angles (+x forward, +y left, +z up), and depth/range covariance models. Intrinsics, beam patterns and noise are supplied by the caller; there is no assumed Digit sensor rig.
+- `pose_history.hpp`: bounded timestamped sensor poses, interpolation without extrapolation, per-point de-skew and covariance propagation. A height datum can register measurements against a caller-supplied stance-ground reference; it never infers foot offsets. `FrameRegistration` applies a caller-supplied yaw/translation correction between gravity-aligned charts with covariance, timestamp and source/target epochs. It does not estimate localization.
+- `elevation_mapper.hpp`: fixed-capacity rolling elevation fusion with per-observation variance, innovation rejection, expiry and explicit free-ray clearing, conservative unknown-correlation fusion and bounded horizontal uncertainty admission. `integrate_scan` rejects repeated scan identities. Cells are nearest-node buckets on the query lattice. Publication retains the newest accepted acquisition time, so republishing old data does not make it fresh. This producer is single-owner and outside hard real-time.
+- `terrain_inpainting.hpp`: `inpaint_terrain` returns a separate advisory map with small enclosed holes fitted from an observed planar boundary. Inferred cells carry added variance and cannot bootstrap further fills. Acquisition timestamps and epochs are retained; input maps are unchanged.
+- `terrain_geometry.hpp`: `extract_terrain_geometry` fits connected observed planar tiles, returns region planes/normals/residuals/uncertainty, decomposes their support into convex inner rectangles, and erodes those rectangles for a caller-selected rectangular foot envelope, yaw and margin. The product includes source identity, tile labels and a lattice-node step-cost field. Unknown, inferred, steep, nonplanar and overly uncertain support is excluded.
+
+Capacity is 81 × 81 samples. The composing application chooses resolution and origin; a map must have at least two samples per axis. Geometry is a translated gravity-aligned chart, never a silently rotated robot body frame. The separate telemetry target defines a versioned snapshot format; Python loads saved products but does not bind or re-execute the C++ mapping algorithms.
+
+- `local_costmap.hpp`: `build_local_costmap` uses observed terrain and optional world-chart obstacle points. Unknown/inferred/uncertain support stays unknown. Known slope, step and body-height obstacles block a circular footprint with half-cell diagonal padding; graded inflation extends beyond that footprint. Defaults: slope 0.5 rad, step 0.12 m, variance 0.0025 m², footprint radius 0.12 m, inflation radius 0.30 m, obstacle height band 0.15–1.5 m.
+- `occupancy_map.hpp`: `OccupancyMapper` maintains a bounded rolling voxel hash. Valid rays mark hits and traversed free cells once per scan; same-scan hits win. Log odds are clamped, missing/invalid rays clear nothing, omitted voxels remain unknown, and uncertain observed voxels retain their probability. Defaults: 10 cm resolution, half extents (2,2,1.5) m, 32768 voxels, 2 s expiry, hit 0.7, miss 0.4, probability clamp [0.12,0.97], free ≤0.35 and occupied ≥0.65. Scan identities reject redelivery; older voxel updates are ignored. Up to 16 sensor IDs and 65536 rays per scan are supported. Input covariance does not alter this inverse sensor model; calibrated covariance-aware occupancy is outside this contract. Capacity refusal is explicit in `OccupancyReport`.
+- `perception_telemetry.hpp`: coherent bounded `PerceptionFrame` snapshots and `PerceptionTelemetry` schema/record/decode API. See [TELEMETRY.md](TELEMETRY.md). Python `cyber_suite.perception.PerceptionRecording` lazily reads HDF5 snapshots; `cyber_suite.perception.playback` owns product visualization and export.
+
+## Dependencies
+
+C++20 and Eigen for producer-side geometry/covariance. The map, measurement and query headers retain their standard-library-only dependency. No MuJoCo, CORTA, robot or control dependency. The optional `cyber_suite_perception_telemetry` target additionally links `cyber_suite_logging`. HDF5 writing remains an app dependency. Python recording needs NumPy/h5py; playback adds Rerun and PNG export adds Matplotlib. `modules/sim` produces oracle maps; `apps/digit/walking` owns graph transport, staleness policy and swing interpretation.
+
+## Owned Examples
+
+None. The first consumer is the integrated Digit walking app. Do not put its gait or runtime policy in a perception example. Sim owns the thin `examples/cpp/sim/perception_mapping_demo.cpp` for independent acquisition → fusion → query usage. `apps/perception/mapping` owns moving-sensor scenario validation and artifact generation; it owns no reusable algorithms.
+
+## Validation
+
+`pixi run build --target test_cyber_suite_perception cyber_suite_perception_apicheck` and `pixi run test perception` validate query geometry, uncertainty, bounds, unknown data and freshness. The sim oracle has a separate `mj_ray` parity gate. Physical acceptance belongs in `apps/digit/walking/VALIDATION.md`.
+
+The producer contracts also exercise camera/lidar conventions and uncertainty, pose rotation and covariance propagation, history capacity/gaps/epochs, height registration, explicit independent fusion, conservative correlated fusion, scan replay, rolling retention, expiry, uncertainty growth and free-ray clearing. A newer clear leaves a timestamp watermark so delayed measurements cannot resurrect the cleared surface.
+
+Geometry contracts protect plane fits in translated charts, inferred-data exclusion, footprint erosion/yaw, unknown gaps, slope/variance rejection and explicitly ineligible step costs. See the standalone [mapping validation](../../apps/perception/mapping/VALIDATION.md) for catalog, moving-occluder and stepping-stone evidence. This supporting-API increment makes no new walking scenario claim.
+
+Last verified 2026-09-19: 20 perception cases, 90 sim cases, 55 locomotion cases and the control terrain-adapter case pass. Both perception/sim API smoke targets, the standalone demo, mapping app and normal Digit walking executable build. The mapping app passes all nine catalog scenes plus occlusion/recovery and generated stepping-stone containment. Exact metrics and limits are in its validation document.
+
+## Producer use and limits
+
+Keep one `PoseHistory` per sensor frame and bind sensor IDs at the caller. Push calibrated world-from-sensor poses in time order; use `deskew_point` for each sensor-local acquisition timestamp. Pose covariance orders world-axis translation then small rotation about the sensor origin. Interpolation blends covariances conservatively and does not model unobserved motion between poses. The caller supplies timestamps on one clock and explicitly resets its epoch.
+
+Call `ElevationMapper::advance(center_x, center_y, now_ns, epoch)` before `integrate_scan(points, sensor_id, sequence)` (or `integrate(points)` when the caller already owns replay prevention). Advance snaps the window to its world lattice, preserves overlapping cells, grows variance and expires cells. An epoch change clears the map; a backward clock without a reset is rejected. Query `map()` only while the producer is idle, or copy its fixed product to an owned snapshot.
+
+The experimental defaults are 5 cm resolution, 200 ms maximum measurement age, 1 s cell lifetime, 1e-6 m² variance floor, 1e-4 m²/s variance growth and a 3-sigma innovation gate. Unknown correlation is the default: equal-weight scalar covariance intersection uses `P = 2/(1/P_old + 1/P_measurement)` with the inverse-variance weighted height. Repeated points cannot make variance smaller than the best contributing observation. `FusionCorrelation::Independent` explicitly opts into the former independent inverse-variance update. These rules consume the supplied vertical variance, including pose/registration uncertainty; they do not estimate a scan's cross-covariance.
+
+The largest horizontal covariance standard deviation must be at most two cell widths by default. Larger ambiguity is counted in `FusionReport` and rejected; accepted points remain nearest-node buckets, without probabilistic XY spreading. No variance bound claims to model subcell discontinuities or unknown sensor bias. These are typed producer defaults, not calibrated sensor or walking settings.
+
+Scan sequence numbers are nonzero and strictly increasing per sensor/epoch. The mapper keeps 16 sensor watermarks until an epoch reset, including through rolling and expiry. Overflow throws; empty scans consume no sequence. A nonempty submitted scan consumes its sequence even if all points are rejected. Deliver the complete scan once, with one sensor identity and epoch; use a new epoch after a sensor sequence restart. Unknown data and rejected innovations stay explicit in `FusionReport`; an incompatible surface needs new free-space evidence or expiry before replacement.
+
+`clear_ray` is explicit because a sensor miss does not prove empty space. Only a valid observed segment can invalidate contradicted elevated cells within half a cell of its projected path, using a supplied margin plus three standard deviations. This is a 2.5D column model; overhangs, transparent surfaces, subcell features and probabilistic XY ray footprints are unsupported. It never synthesizes cells behind an occluder. Height registration requires a caller-supplied stance-ground datum and age budget. Frame registration consumes an external translation/yaw correction with 4×4 covariance (target-axis xyz, then yaw about the source origin). Its error must be independent of the input point error for the stated propagation. Correct incoming points into a stable target chart; reset the mapper epoch when that chart changes. Existing cells are not retroactively warped. No foot offset, odometry or contact authority is inferred.
+
+## Derived terrain products
+
+Inpainting defaults to enclosed holes of at most four nodes, boundary residual at most 1 cm, slope at most 0.5 rad, boundary variance at most 0.0025 m² and 0.0025 m² added inference variance. The output variance is the maximum boundary variance plus squared maximum fit residual plus added variance. Border-connected holes, incompatible planes and uncertain boundaries remain unknown. Prior inferred cells are removed before recomputing; the source generation is retained as provenance. This product describes a plausible completion, not observed support.
+
+Geometry works on quadrilateral tiles whose four vertices are observed. Seed-anchored region growth bounds normal deviation and plane residual without allowing a chain of small changes to drift across a curved surface. A final region-wide plane fit must also meet the residual bound. Convex decomposition uses inner axis-aligned rectangles; it never takes a convex hull across a gap. It can sacrifice usable area at concavities and rectangle seams.
+
+Defaults: maximum slope 0.5 rad, maximum vertical plane residual 1.5 cm, maximum normal deviation 0.15 rad, maximum input variance 0.0025 m², at least four tiles per region, horizontal foot half-extents 0.10 × 0.05 m, yaw zero and 1 cm boundary margin. The composing app must supply its actual foot envelope; these are not Digit calibration. Placement vertices describe **foot centers** after erosion. A different foot/yaw requires a new extraction. Region IDs are local to one source generation, not persistent tracked identities.
+
+Step cost is the sum of squared normalized slope, squared normalized RMS residual and variance divided by the variance limit. Eligible costs occur only at lattice nodes inside an eroded placement polygon; all other nodes carry `eligible=false` and infinity. Costs are geometric preferences, not reachability, friction, load capacity or a contact certificate. Plane variance is the maximum input variance, without an independent-sample reduction. Derived functions allocate outside real-time loops; consumers check source epoch/freshness.
+
+## Non-goals
+
+Device drivers, rendered RGB-D, rig calibration, inferred odometry, appearance classification, navigation, planner integration, contact authority and real-time qualification. Sim ray acquisition and mapping are tested without requiring walking adoption.

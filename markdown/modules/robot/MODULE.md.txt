@@ -1,0 +1,80 @@
+---
+Status: candidate
+Owner: repo
+---
+
+# Robot
+
+## Purpose
+
+Robot model loading, kinematics, dynamics, state representation, and asset contracts shared by control, simulation, hardware, and apps.
+
+## Public API
+
+`RobotModel::momentum_observer_terms(q, v, p, ct, g)` optionally computes `p=M*v`, `ct=C.transpose()*v` and gravity directly. Passive forces are excluded and remain a separate query. Unsupported backends return false without changing outputs, so consumers retain their preallocated full-matrix fallback. Pinocchio uses an independent current-state Jacobian/time-variation and body-force recursion; it never reads or changes the prepared control/contact products. This avoids forming full M/C for the momentum observer while preserving the backend's Coriolis convention, floating-base tangent coordinates and armature contribution. Callers serialize access as with other mutable model workspaces. Fixed/floating contracts and retained Digit-state parity are recorded under `artifacts/servo_computation_20261010/`; complete Servo qualification belongs to the app.
+
+`RobotModel::prepare_control_terms(q, v)` is an optional no-op preparation hook for consumers that need dynamics, centroidal quantities and frame/contact kinematics together. Explicit-state queries keep their existing semantics and must fall back to fresh computation on a configuration or velocity mismatch. The Pinocchio implementation uses a preallocated, independent `computeAllTerms` workspace and one dedicated centroidal derivative evaluation to preserve existing full-matrix outputs; configuration-only outputs require exact q, velocity-dependent outputs require exact q/v. Estimation contact geometry and velocity derivatives remain isolated. Bias options and passive elements are applied at query time. Preparation and queries remain serialized; this does not make a model instance thread-safe. The 2026-10-10 fixed/floating, state-mismatch, passive-option and interleaving contracts pass. A 576-state Digit probe matches separate queries within 1.1e-15 normalized error, reports zero heap calls in the prepared workload, and measures 74.6 -> 30.6 us median / 80.8 -> 33.4 us p99 on one pinned core. These model-workload results do not qualify a whole Servo; retained evidence lives under `artifacts/model_evaluation_20261010/`.
+
+`RobotModel::prepare_contact_kinematics(q)` optionally prepares contact placements/Jacobians and holonomic Jacobians, with a no-op backend default. Pinocchio uses isolated Data keyed by exact configuration; every explicit-q query checks it and falls back to fresh computation on a mismatch. Interleaved frame/dynamics queries cannot change the prepared geometry. Velocity-dependent results retain their own current q/v evaluation. Queries remain serialized by the owner, as with the existing mutable model workspaces. Focused contact, derivative and constraint parity tests pass; whole-Servo timing and walking behavior belong to the composing app.
+
+- `config.hpp`: `load_robot_config_from_yaml`; the robot YAML and the model file it names are found through `cyber_suite::data::resolve` (foundation), so `assets/robots/...` paths resolve in this repository and in an installed package. `make_robot_from_yaml` resolves the YAML first, so a model path relative to it resolves next to the file actually read
+- `contact.hpp`
+- `contact_queries.hpp`
+- `model.hpp`
+- `robot.hpp`
+- `types.hpp`
+- Python package: `cyber_suite.robot`
+- Experimental Python IK package: `cyber_suite.robot.ik`
+
+`RobotModel::integrate(q, v, q_out)` and `RobotModel::difference(q0, q1, v_out)` step and compare configurations on the model's configuration manifold, `q_out = q ⊕ v` and `v_out = q1 ⊖ q0` with `v` in tangent coordinates. A floating base's unit quaternion makes `q + v` an invalid configuration, so consumers that perturb or predict a state use these. The Pinocchio backend wraps `pinocchio::integrate` and `pinocchio::difference`; the default throws.
+
+`RobotModel::contact_velocity_derivatives` is an optional C++ capability for WORLD contact-point linear velocity `J(q) * qd`. Outputs are 3 x nv partials with respect to tangent configuration and velocity. The Pinocchio backend uses analytical derivatives, including the moving-origin term for point velocity, with separate cached Data so other kinematic/dynamic queries cannot invalidate it. Unsupported backends and missing frames throw explicitly. Buffers are allocated at model construction; the query reuses them.
+
+Each by-`q` query is self-contained. At the prepared control state (`prepare_control_terms`), placements and frame Jacobians read the prepared workspace. Elsewhere `frame_placement` and `contact_placement` run forward kinematics over the whole model on every call, so to read several frames at one configuration use `frame_placements` or `contact_placements`: they take at most one pass in the Pinocchio backend and loop the single queries by default. The other option is `forward_kinematics(q)` followed by `frame_placement_cached`. Away from the prepared state, `frame_jacobian` recomputes only the frame's support chain, so it leaves the other buffers where they were.
+
+## Dependencies
+
+- `foundation` (math, and `cyber_suite_foundation_data` for package data)
+- Eigen
+- Pinocchio
+- yaml-cpp
+- pybind11 for Python bindings
+
+## Owned Examples
+
+- `examples/cpp/robot/robot_model_demo.cpp`
+- `examples/cpp/robot/robot_model_benchmark.cpp`
+- `examples/python/robot/robot_model_demo.py`
+- `examples/python/robot/robot_model_benchmark.py`
+- `examples/python/robot/floating_base_ik_demo.py`
+
+## Validation
+
+- C++ contract tests: `pixi run test robot`
+- 2026-10-03: `ContactsCpp.VelocityDerivativesMatchFiniteDifferencesAndSurviveOtherQueries` passed for fixed and rotated floating bases, including interleaved other kinematics calls. The estimation covariance test additionally checks offset contact frames against finite differences.
+- Python binding tests: `pixi run py-test robot`
+- Floating-base IK contract tests: `pixi run py-test robot -k floating_base_ik`
+- TRON1 actuator authority parity: `pixi run python -m pytest -q modules/robot/tests/python/test_tron1_torque_authority.py`
+- The experimental Python IK surface supports hard frame contacts and generic linearized equality constraints supplied as `J(q) dq = residual(q)`.
+- Smoke examples:
+  - `build/default/modules/robot/robot_model_demo`
+  - `build/default/modules/robot/robot_model_benchmark`
+  - `pixi run python examples/python/robot/robot_model_demo.py`
+  - `pixi run python examples/python/robot/robot_model_benchmark.py`
+  - `pixi run python examples/python/robot/floating_base_ik_demo.py`
+  - `pixi run mjpython examples/python/robot/floating_base_ik_demo.py --viewer --viewer-seconds 1.0`
+
+Last verified: 2026-06-21 targeted C++ tests, targeted Python tests, and both robot demos and benchmark smoke examples listed above. Floating-base IK is an experimental Python-only surface added after that verification date and should be validated with the targeted IK Python tests and demo smoke before use.
+
+The checked-in TRON1 floating/fixed-base MJCFs, URDF/Xacro descriptions, and reusable/app robot YAMLs declare a common ±300 Nm actuator authority. This is a simulation/model default; hardware deployment must enforce separately verified safety limits.
+
+## Non-goals
+
+- Controller policies
+- Contact authority semantics
+- Locomotion planning
+- App orchestration
+
+## Notes
+
+Robot assets live under `assets/robots`, with robot description files beside them in `assets/robots/<robot>/config`.

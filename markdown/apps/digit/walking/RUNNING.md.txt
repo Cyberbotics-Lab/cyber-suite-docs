@@ -1,0 +1,442 @@
+---
+Status: canonical
+Owner: apps/digit/walking
+Last verified: 2026-10-14
+Code anchors: pixi.toml, apps/digit/walking/tools/walk.py,
+  apps/digit/walking/tools/viser_view.py,
+  apps/digit/walking/src/config.cpp,
+  apps/digit/walking/src/operator_session.cpp,
+  apps/digit/walking/config/operator.yaml,
+  apps/digit/walking/config/scenarios/dcm_walking.yaml
+---
+
+# Running the Digit Walking Simulation
+
+This page explains how to run the Digit walking simulation: choosing a scenario, overriding it from the command line, turning on live Rerun, the browser 3D viewer and virtual perception, and reading the results. The composition and its guarantees are described in [APP.md](APP.md), and what has been demonstrated is recorded in [VALIDATION.md](VALIDATION.md).
+
+Run every command from the Digit project (`apps/digit`), which builds against the installed cyber-suite package; paths below are relative to it. From elsewhere, `pixi run --manifest-path apps/digit/pixi.toml walk` runs the same task. A module edit you want here takes `pixi install` in `apps/digit` first, which rebuilds the package incrementally; for an edit that changes a module and Digit together, the repository's root build also compiles Digit (in-tree), and its binary is passed with `--binary ../../build/default/apps/digit/walking/digit_corta_walking`.
+
+## Build
+
+```bash
+pixi run build                                   # after every pull or C++ edit
+pixi run build --target digit_corta_walking      # the walking binary only
+```
+
+The launcher runs whatever binary is in `build/`. A stale build runs old code without warning, so rebuild after pulling.
+
+## Quick start
+
+| Goal | Command |
+| --- | --- |
+| Canonical DCM walk in the MuJoCo viewer | `pixi run walk` |
+| Same stack with the ALIP planner | `pixi run walk --config alip_walking` |
+| List the scenarios | `pixi run walk --list` |
+| Walk at one constant command | `pixi run walk --vx 0.5 --walk-duration 6` |
+| Walk on other terrain | `pixi run walk --terrain up-stairs` |
+| Run without a window | `pixi run walk --headless` |
+| Live Rerun dashboard | `pixi run walk --rerun` |
+| Rerun in a browser | `pixi run walk --rerun-web` |
+| Rerun plus virtual camera/lidar maps | `pixi run walk --rerun --perception` |
+| Rerun and the MuJoCo viewer together | `pixi run walk --rerun --viewer` |
+| Browser 3D view, also over SSH (experimental) | `pixi run walk --viser` |
+| Show the effective config without running | `pixi run walk --print-resolved-config` |
+| Every option, launcher and app | `pixi run walk --help` |
+
+The viewer plays back in real time; `-` and `=` halve and double the rate (1/16× to 16×), and Space pauses. Headless runs go as fast as the stack allows.
+
+The shared DCM/ALIP profiles enable the constant-acceleration joint observer. Controller joint position/velocity and base angular velocity use 20 Hz filters; InEKF base linear velocity has no additional controller filter. These settings are adopted defaults with remaining sustained combined-noise limits; see [filtering validation](VALIDATION.md#2026-10-04-independent-filtering-and-constant-acceleration-observer). To disable observation, set `state_estimation.joint_state_observer.enabled` to `false` in an estimation profile selected by the scenario. This is also required when selecting an estimator mode other than `group-velocity`.
+
+Options combine freely, for example:
+
+```bash
+pixi run walk --config alip_walking --terrain up-slope \
+  --vx 0.4 --walk-duration 8 --rerun --perception --log artifacts/alip_slope.h5
+```
+
+## How a run is put together
+
+`pixi run walk` runs `walking/tools/walk.py`. The launcher does three things itself:
+
+1. It turns `--config NAME` into `walking/config/scenarios/NAME.yaml`. The default is `dcm_walking`.
+2. With `--rerun`, it opens the native Rerun viewer; with `--rerun-web`, it serves the browser viewer. Both install the dashboard and add the flags that connect the app to it. `--rerun-connect URL` installs the same dashboard in an existing viewer. With `--viser`, it starts the browser 3D viewer and adds `--scene-udp`.
+3. It passes every other argument, unchanged, to the C++ executable `build/walking/digit_corta_walking`.
+
+The executable then builds its configuration in two layers:
+
+1. **The scenario YAML** states the planner (`dcm` or `alip`), the terrain, the motion sequence, the simulation settings and logging. All tuning comes from the shared profiles in `config/profiles/`. See [Configuration](APP.md#configuration).
+2. **Command-line flags** override a small set of run choices on top of the scenario. The resolved config records each override separately.
+
+The scenario selects the planner by default. `--planner dcm`, `--planner alip` or `--planner policy` overrides that choice. For a planner comparison, retain the same scenario and shared settings, and record the planner-specific profile and reference contract that deliberately change.
+
+## Scenarios
+
+`pixi run walk --list` reads these straight from the scenario files:
+
+| Scenario | Planner | What it runs | Display |
+| --- | --- | --- | --- |
+| `dcm_walking` (default) | DCM | Speed ramp 1.0 → 2.0 → 1.0 m/s over 10 s on flat ground | viewer |
+| `alip_walking` | ALIP | 0.3 m/s for 24.4 s on flat ground | viewer |
+| `disturbance_rejection` | DCM | 0.4 m/s with four scripted pushes (lateral, braking, high forward, a nudge train) | viewer |
+| `standing_push_recovery` | DCM | Standing; a 450 N forward push at 3 s forces recovery steps | viewer |
+| `gate_cruise` | DCM | Acceptance gate A: 1.0 m/s cruise for 20 s, then stop | headless |
+| `gate_ramp_high_speed` | DCM | Gate B: staged ramp to 2.3 m/s | headless |
+| `gate_lateral` | DCM | Gate C: lateral 0.15 → 0.30 m/s | headless |
+| `gate_yaw` | DCM | Gate D: turning at 0.25 → 0.5 rad/s | headless |
+| `policy_hold` | policy | M1 hold check: a zero-action policy bundle holds the stand for 5 s | headless |
+
+Any scenario runs a trained policy instead with `--planner policy --policy-bundle DIR`; see [APP.md](APP.md#learned-policy-planner-policy):
+
+```bash
+pixi run walk --config gate_cruise --planner policy \
+  --policy-bundle learning/checkpoints/policies/RUN-model_N --viewer
+```
+
+Each file's header comment explains why it exists. `--config` also takes a path, so for your own variant, copy a scenario into the ignored `artifacts/` folder, edit it, and run the copy:
+
+```bash
+cp walking/config/scenarios/alip_walking.yaml artifacts/my_run.yaml
+pixi run walk --config artifacts/my_run.yaml
+```
+
+The copy still reads the app's profiles. Scenario keys are strict: a misspelled or misplaced key fails at startup and names the file and key path.
+
+## Motion from the command line
+
+A scenario's `motion:` list is a sequence of timed velocity segments. Four flags replace the whole list with one segment:
+
+| Flags | Result |
+| --- | --- |
+| `--vx V --walk-duration T` | Walk forward at V m/s for T s. `vy` and yaw rate are **zero**, not taken from the scenario |
+| `--vy V --walk-duration T` | Walk sideways at V m/s |
+| `--omega W --walk-duration T` | Turn at W rad/s |
+| `--walk-duration T` alone | Keep the scenario's first segment and change only its duration |
+
+`--vx`, `--vy` and `--omega` each require `--walk-duration`. For a multi-segment profile such as a ramp or a stop, edit a scenario copy instead.
+
+A run lasts longer than its motion. The robot first prepares to launch from measured state, and after the command ends it walks to a settled stop. The run finishes once that stop completes.
+
+## Terrain
+
+`--terrain NAME` replaces the scenario's `active_terrain` with a scene from `modules/sim/terrains/`:
+
+`flat`, `up-slope`, `down-slope`, `up-stairs`, `down-stairs`, `square-steps`, `waves`, `multi-sine`, `perlin`
+
+Terrain geometry lives in those scene files, not in flags. Terrain changes what the robot walks on, not what the controller knows. Unless oracle perception is on (see below), the planner and controller still assume flat ground.
+
+## All options
+
+### Launcher options
+
+The launcher reads these itself:
+
+| Option | Effect |
+| --- | --- |
+| `--config NAME\|PATH` | Scenario name, or a YAML path relative to the Digit project. Default `dcm_walking` |
+| `--list` | Print the scenario table and exit |
+| `--rerun` | Open the live Rerun viewer and connect the app. The app runs headless unless `--viewer` is also given |
+| `--rerun-connect URL` | Install the same dashboard in an existing viewer and connect the app, without spawning another viewer. Mutually exclusive with `--rerun` |
+| `--perception` | Record virtual camera/lidar maps (passed to the app). With `--rerun`, also show them live. `--rerun-perception` is the same flag |
+| `--rerun-web` | Serve the Rerun viewer and dashboard to a browser on one port, `http://127.0.0.1:9090`. The app runs headless unless `--viewer` is also given |
+| `--viser` | Serve the [browser 3D view](#browser-view-viser) and copy the Plant scene to it. The app runs headless unless `--viewer` is also given |
+| `--attach-only` | With `--rerun`, `--rerun-connect` or `--viser`: install the dashboard or start the viewer, print the app command, and stop, so you can start the app yourself (for example under a debugger) |
+| `--port N` | Rerun gRPC port, default 9876. Use another port if 9876 is taken |
+| `--web-port N` | `--rerun-web` browser port, default 9090: the only port to open or forward |
+| `--web-bind IP` | `--rerun-web` bind address, default `127.0.0.1`. `0.0.0.0` or Ubuntu's Tailscale/LAN address serves a remote browser without forwarding |
+| `--viser-port N` | Browser viewer HTTP port, default 8080. The viewer takes the next free port if it is busy and prints the URL |
+| `--viser-host ADDR` | Browser viewer bind address, default `127.0.0.1`. `0.0.0.0` exposes the page to the network; with `--operator viser` that includes its controls, so anyone who reaches the page can drive the robot |
+| `--scene-udp-port N` | Loopback UDP port from the app to the browser viewer, default 9877 |
+| `--operator-udp-port N` | With `--operator viser`: loopback UDP port from the page to the app, default 9878 |
+| `--binary PATH` | Run a different `digit_corta_walking` build |
+| `-h`, `--help` | Print these options, then the app's own options |
+
+Everything else goes to the app.
+
+### App options (`digit_corta_walking`)
+
+| Group | Option | Effect |
+| --- | --- | --- |
+| Scenario | `--config <yaml>` | Scenario file. Required when you run the binary directly |
+|  | `--terrain <name>` | Replace `active_terrain` |
+|  | `--planner <dcm\|alip\|policy>` | Replace the scenario's `planner` |
+|  | `--policy-bundle <dir>` | The policy bundle for `planner: policy` |
+|  | `--policy-base-state <truth\|estimate>` | What the policy sees: simulation truth or the InEKF estimate |
+|  | `--seed <n>` | Replace `simulation.seed`, which draws `simulation.sensor_noise`. It changes nothing when noise is off; the Arena runner varies it ([APP.md](APP.md#arena)) |
+|  | `--actuation <llapi\|ideal>` | How MuJoCo turns commands into joint torque, replacing `simulation.actuation`. `llapi`, the default, acts as Agility's low-level API: each command 5 ms late, drive damping at `--llapi-min-damping` toward `--llapi-drive-target`, the robot's torque limits (`assets/robots/digit/config/drives.yaml`). `ideal` applies each command's torque at once; with the undamped shins the legs then ring harder than on the robot ([APP.md](APP.md#plant-and-terrain)) |
+| Motion | `--vx`, `--vy`, `--omega`, `--walk-duration` | One-segment command; see [Motion](#motion-from-the-command-line) |
+|  | `--operator <keyboard\|joystick\|viser>` | Drive the robot live instead of the motion schedule; see [Driving the robot live](#driving-the-robot-live). Refused together with the one-segment flags |
+|  | `--operator-udp <port>` | The loopback port the viser page's operator controls send to; required by `--operator viser`, which the launcher's `--viser` supplies |
+|  | `--operator-profile <yaml>` | Operator limits and mapping. Default `walking/config/operator.yaml` |
+|  | `--joystick-device <path>` | Joystick device, overriding the profile's `joystick.device` |
+| Robot | `--llapi <address>` | Run on Agility's low-level API instead of MuJoCo: `127.0.0.1` for `ar-control`, `10.10.1.1` for Digit; observes only. See [below](#agilitys-simulator-or-the-robot-llapi) |
+|  | `--llapi-apply` | With `--llapi`: request torque once the Servo can stand on its own |
+|  | `--llapi-min-damping <fraction>` | With `--llapi` or `--actuation llapi`: the least drive damping, as a fraction of each drive's limit, for every planner's commands. Default 0.75, as digit_fpp and Agility's example client use; 0 leaves the policy its trained damping and DCM/ALIP none |
+|  | `--llapi-drive-target <predicted\|zero>` | With `--llapi` or `--actuation llapi`: what the drives damp DCM's and ALIP's joints toward. `predicted` (default) keeps a 9–12 cm swing and ALIP's 1.0 m/s walk in Agility's simulator and is untried on the robot; `zero` is digit_fpp's hardware-proven setting, with a low swing (about 4 cm) |
+|  | `--llapi-base <agility\|estimator>` | With `--llapi`: the base state the controller uses. Default `agility`, Agility's own estimate; `estimator` is our InEKF, whose tilt drifts (see [below](#agilitys-simulator-or-the-robot-llapi)) |
+| Display | `--viewer` / `--headless` | Show or hide the MuJoCo viewer, overriding `simulation.headless` |
+|  | `--no-keep-viewer-open` | Close the viewer when the run ends. By default the last frame stays up until you close the window |
+| Logging | `--log [path]` | Turn on the session log, optionally at a new path |
+|  | `--no-log` | Write no session log. Rerun and viser still work, from the same streams kept in memory only; `--perception` needs logging on |
+|  | `--log-debug` | Also record TAC-QP solver internals as a separate stream |
+| Observation | `--rerun-connect <url>` | Stream to a running Rerun viewer. When using the launcher, it also installs the dashboard; the direct binary streams data only |
+|  | `--scene-udp <port>` | Copy the 50 Hz Plant scene to `127.0.0.1:<port>` for the browser 3D viewer. `--viser` supplies this for you |
+|  | `--perception` | Record virtual sensor clouds, elevation, costmap and occupancy |
+| Safety | `--cbf` / `--no-cbf` | Force the collision CBF on or off. The safety profile is unchanged, so an A/B pair differs only in this flag |
+|  | `--inspect-safety-geometry` | Open a paused viewer showing candidate CBF proxies. Cannot be combined with `--headless` |
+|  | `--show-safety-geometry` / `--no-safety-geometry` | Show or hide the guarded-shape overlay in the viewer |
+| Diagnostics | `--print-resolved-config` | Print the effective configuration, with every override and file digest, then exit |
+|  | `--write-resolved-config <path>` | Write that report to a file, then exit |
+|  | `--print-tac-qp-summary` | Print TAC-QP variables, tasks and constraints before running |
+|  | `--corta-introspect <path>` | Write the compiled CORTA graph as JSON. Render it with `pixi run python -m cyber_suite.corta <path>` |
+
+Precedence:
+
+- When a flag and its opposite are both given (`--viewer`/`--headless`, `--log`/`--no-log`, `--cbf`/`--no-cbf`), the later one wins. So does a repeated `--config`.
+- Retired flags such as `--qp-solver` or `--keep-viewer-open` fail with the YAML key that replaced them. Tuning has no command-line surface.
+
+## Live Rerun
+
+```bash
+pixi run walk --rerun
+```
+
+This command:
+
+1. starts the native Rerun viewer that ships with `rerun-sdk`, on port 9876;
+2. installs the dashboard layout: a large **Plant truth** 3D view (robot, terrain, foot-corner contact forces) above four live plots, **Base state**, **Estimated state**, **Motion command** and **Control**; and
+3. launches the app headless with `--rerun-connect rerun+http://127.0.0.1:9876/proxy`.
+
+The robot uses its visual meshes with smooth surface normals, and terrain uses the resolved MuJoCo material textures. The ground plane is displayed as a 2 km by 2 km textured surface that appears unbounded at normal walking views, against a sky-blue background (RGB 135, 206, 235). The spatial camera starts near Digit and follows its base position, keeping the view upright as the robot rolls, pitches or turns; you can still orbit and zoom. This requires the updated walking binary and launcher. The 3D view shows the current frame while the scalar plots retain their ten-second history. Rerun uses its own lighting, so the appearance is similar rather than identical to MuJoCo.
+
+To view in a browser instead, on this computer or a Mac, add `--rerun-web`:
+
+```bash
+pixi run walk --config alip_walking --vx 0.3 --walk-duration 6 --rerun-web
+```
+
+Then open `http://localhost:9090`. Like `--viser`, it needs one port and the link never changes. When the simulation runs on Ubuntu, forward port 9090 with VS Code's **Ports** view or `ssh -N -L 9090:127.0.0.1:9090 ubuntu-workstation`. To skip forwarding over Tailscale or a private LAN, add `--web-bind 0.0.0.0` (or Ubuntu's Tailscale address) and open `http://<ubuntu-tailscale-name>:9090`. Ubuntu serves the bundled Rerun web viewer, the current dashboard and the telemetry, so the Mac needs only a browser. The first visit downloads the 50 MB viewer, which the browser then caches.
+
+The Rerun server itself listens only on Ubuntu loopback: telemetry on `--port` (default 9876) for the app, and its page on a private port. A small launcher-owned relay is the only listener on `--web-bind`. It forwards the page and the viewer's gRPC-web telemetry from `--web-port` (default 9090), so both share one origin and need no cross-origin permission. Opening `/` redirects to the viewer with WebGL selected and telemetry pointed at the address the browser used, so the same link works through a forward, a Tailscale name or a LAN address.
+
+The browser server stays open after simulation completion so you can scrub the recording. Ctrl+C in the launch terminal closes that server; `--rerun-web --attach-only` likewise keeps serving until Ctrl+C while printing the separate app command. A port that is still held, usually by an earlier launch serving playback, is an error rather than a new link: press Ctrl+C in that launch, then run again with the same link. For two simultaneous runs, give the second its own `--web-port` and `--port`. `--rerun`, `--rerun-web` and `--rerun-connect` are mutually exclusive. See the [remote workflow](../../../docs/setup/remote-development.md#digit-rerun-in-a-browser) for the Mac recipe and native-viewer alternative.
+
+Under `planner: policy` (for example `--planner policy --policy-bundle DIR`), every Rerun mode shows the same robot scene with the policy's own plots: the base velocity the policy saw, the estimate, the velocity command, mechanical power, saturated actuators, phase and fall. `--perception` is not supported with the policy and is refused before any viewer starts.
+
+Browser mode adds the C++ operational flag `--rerun-dashboard-only`: its four plot panels receive their existing channels sampled at up to 50 Hz, and the robot scene remains at 50 Hz. The full 1 kHz Servo stream is stored in HDF5 before this presentation copy is made. Native `--rerun` and ordinary `--rerun-connect` retain their full scalar stream for drill-down. This limits browser ingestion overhead; use the HDF5 artifact or native viewer for signals faster than the browser display rate. No controller or simulator rate changes.
+
+To use an existing viewer, including one reached through an SSH tunnel, run:
+
+```bash
+pixi run walk --config alip_walking --headless \
+  --vx 0.3 --walk-duration 6 \
+  --rerun-connect rerun+http://127.0.0.1:9876/proxy
+```
+
+The launcher sends and activates the same dashboard, including its sky-blue background and close camera, before starting the app. Without that camera an automatic view can frame the whole 2 km ground surface, making the robot too small to see. The endpoint remains unchanged, and no additional viewer is spawned. The direct C++ binary sends scene data but does not install a dashboard; use the launcher or prepare the viewer with `--attach-only` first.
+
+The viewer stays open after the run ends, so you can scrub `sim_time`. Rerun receives a copy of the logged telemetry: each record is written to HDF5 first, then offered to Rerun. A slow or closed viewer drops only its own copy, never log data or control. The run's closing summary prints a `rerun_observer` line with offered, logged and dropped counts.
+
+Useful combinations:
+
+- `--rerun --viewer`: the MuJoCo window as well.
+- `--rerun --port 9877`: use this when another viewer holds 9876 (the error is `Rerun viewer did not bind to port 9876`).
+- `--rerun --attach-only`: open the viewer and print the app command without running it.
+- `--rerun-connect URL --attach-only`: refresh the dashboard in an existing viewer without running the simulation.
+
+## Browser view (viser)
+
+Experimental. The page draws the Plant scene (robot, terrain, foot-corner contacts and forces) in any browser, so a remote session needs one forwarded TCP port and no viewer install:
+
+```bash
+pixi run walk --viser --vx 0.5 --walk-duration 8
+```
+
+The launcher starts `tools/viser_view.py`, waits until it serves `http://127.0.0.1:8080`, then runs the app headless with `--scene-udp 9877`. The app copies each Plant scene record to that loopback port after it is written to HDF5; like Rerun's copy, a missing or slow viewer drops only its own copy. The closing summary prints a `scene_udp_tap` line with offered, enqueued, dropped and sent counts. The page stays up after the run until Ctrl-C.
+
+When the simulation runs on another computer, forward the port from your own machine and open `http://localhost:8080` there. VS Code Remote-SSH forwards it from its **Ports** view; from a plain terminal:
+
+```bash
+ssh -N -L 8080:127.0.0.1:8080 ubuntu-workstation
+```
+
+Logging is not needed: with `--no-log` the app keeps its streams in memory only and still feeds the page. In a live operator session the page also shows an **Operator** status panel, and with `--operator viser` its controls; see [Driving the robot live](#driving-the-robot-live).
+
+The page keeps every frame of the run:
+
+- **Follow live** shows the newest frame at simulation speed, which is not wall-clock speed. Headless runs go as fast as the stack and the host's load allow: terrain and perception runs are slower, and `planner: policy` can run faster than real time.
+- **Play** replays at the chosen **Speed** (1× is real time); the slider scrubs. Both turn off Follow live. Play at the end of a finished run restarts it.
+- **Follow base** keeps the base centred by sliding the world beneath it. Untick it to orbit or pan in world coordinates.
+
+The viewer also replays any session log, without the app:
+
+```bash
+pixi run python walking/tools/viser_view.py --log artifacts/walking.h5
+```
+
+Started on its own (`pixi run python walking/tools/viser_view.py`), it waits for a run with `--scene-udp 9877`, and switches to each new run that arrives. It loads the resolved MJCF the run names, so it must run on the computer that ran the simulation. Robot meshes are merged on a 3 mm grid by default to shorten the first download (`--mesh-cell 0` keeps full detail); flat heightfield cells are merged exactly. The first page load downloads about 3 MB on flat ground and 5 MB on the stairs; following a live run then takes about 70 kB/s.
+
+It works with every planner. It shows no plots, perception maps or estimated state, and offers no MuJoCo-style perturbation: use `--rerun` or `--viewer` for those.
+
+## Driving the robot live
+
+`--operator` lets you drive any scenario instead of its motion schedule, with every planner, including `--planner policy`. The run is paced to the wall clock and lasts until you quit. With the browser view, drive from the page itself; logging is optional:
+
+```bash
+pixi run walk --config alip_walking --operator viser --viser --no-log
+```
+
+Open the page (`http://localhost:8080`, forwarded when remote), click into the scene so it has keyboard focus, and use the **Operator controls** panel or its keys. The **Operator** panel above it shows what the robot's supervisor decided, not what you asked for.
+
+| Page key | Terminal key | Effect |
+| --- | --- | --- |
+| `G` | `g` | Walk. Accepted once the status says `ready` |
+| `I` / `K` | `w` / `s` (or `i` / `k`, Up / Down) | Forward / backward request, one step (10 % of the limit) per press |
+| `J` / `L` | `a` / `d` (or `j` / `l`) | Left / right request |
+| `U` / `O` | `q` / `e` (or `u` / `o`, Left / Right) | Turn left / right |
+| Space | Space | Stop: zero the request and return to Stand |
+| `P` | `p` | Damp: latched joint damping. In simulation the robot collapses |
+| `X` | `x` or Ctrl-C | Quit: stop, settle, and end the run |
+
+The page uses the right hand because viser's camera owns W/A/S/D/Q/E and the arrow keys; those still move the camera and never reach the robot. The sliders set the same request as the keys, and the buttons send the same requests. The request latches: it stays where your presses leave it until you change it or stop. The page repeats it 20 times a second while a browser is connected, so closing the tab or losing the connection stops the robot within about half a second and returns it to Stand, after which it needs a new Walk. Ctrl-C in the launch terminal ends the session too.
+
+`--operator keyboard` drives from the launch terminal instead, with the terminal keys above, and works over SSH because the app reads the terminal it was launched from. The terminal shows the same status in one line:
+
+```text
+t   12.3s 1.00x | WALK  ready    link    deadman | req +0.60 +0.00 +0.00 | cmd vx +0.30 vy +0.00 wz +0.00
+```
+
+That is simulated time and real-time factor; mode (`STAND`, `WALK` or `DAMP`); whether the robot accepts motion yet (`starting`, `ready`, `quitting`); device link; deadman; your request as a fraction of each limit (forward, left, counter-clockwise); and the command the servo actually receives, rate-limited, in m/s and rad/s. A terminal reports no key releases, so the keyboard cannot tell a lost terminal from a quiet one: its request stays latched until the session ends.
+
+`--operator joystick` reads a pad plugged into the computer that runs the simulation, which needs the `joydev` module and read access to `/dev/input/js0` (membership of the `input` group). With the default Xbox-style mapping, hold LB (deadman) and use the left stick to move and the right stick to turn; A walks, B stands, Back damps and Start quits. Releasing LB ramps the command to zero but stays in Walk. If the pad goes silent for 0.3 s, for example unplugged or out of range, the robot returns to Stand and needs a new Walk. Other pads number their axes and buttons differently: `jstest /dev/input/js0` (package `joystick`) shows yours, and `config/operator.yaml` maps them.
+
+```bash
+pixi run walk --config dcm_walking --operator joystick --viser --no-log
+```
+
+Limits, accelerations, the joystick mapping and the session limit are in `config/operator.yaml`; the defaults allow 0.5 m/s forward, 0.3 m/s backward and sideways, and 0.5 rad/s turning. A session ends when you quit, after `session_limit_s` (300 s), or on Ctrl-C (except with `--operator keyboard`, where Ctrl-C is the quit key), which still closes any log normally; a second Ctrl-C kills the process. Logging is your choice: with it on, the session log grows by about 1.4 GB per simulated minute.
+
+## Agility's simulator or the robot (LLAPI)
+
+`--llapi` runs the same app on Agility's low-level API, which Agility's own simulator, `ar-control`, serves exactly as the robot does; only the address changes. It needs a build with the live link: `modules/digit_hardware` builds it when Agility's sources are in `~/Projects/agility_resources/current` (or `$AGILITY_RESOURCES`). Agility's controller holds the robot until you switch it to the low-level API, and you hand it back the same way.
+
+1. Start Agility's simulator, which starts the robot standing under Agility's controller, and wait for `JSON message API server started`:
+
+```bash
+cd ~/Projects/agility_resources/current/sdk/lowlevelapi && ~/Projects/ar_control/ar-control-2023 lowlevelapi_example.toml
+```
+
+2. Run the app with `--llapi-apply`. Startup prints Agility's operation mode, which the app keeps reading from the JSON API, and then `takeover-ready`:
+
+```bash
+pixi run walk --config alip_walking --operator keyboard --llapi 127.0.0.1 --llapi-apply --no-log
+```
+
+3. Hand the robot to the app. The app prints `Agility's operation mode locomotion -> low-level-api` and `the robot obeys our commands`, and its controller stands the robot:
+
+```bash
+pixi run python modules/digit_hardware/tools/agility_mode.py low-level-api
+```
+
+4. Drive it from the app's terminal: `g` walks, each `w` or `s` adds a tenth of the forward limit (0.5 m/s in `config/operator.yaml`), `a`/`d` and `q`/`e` step sideways and turn, Space stops, `x` quits. A profile with a higher `limits.forward_mps` (`--operator-profile`) allows more speed.
+
+5. Hand the robot back to Agility's controller before quitting:
+
+```bash
+pixi run python modules/digit_hardware/tools/agility_mode.py locomotion
+```
+
+Without `--llapi-apply` the app only observes: the whole stack runs while Agility keeps the robot. `--config dcm_walking` runs DCM. At the switch the pelvis leans from Agility's upright stance to our controller's 0.05 rad (2.9°) forward pitch within a quarter second while the base moves about 4 cm back; that is our standing posture, not a fault. The closing `digit_llapi_control` line reports the time in control, the worst backlog, held and degraded sends, and the largest tilt. To diagnose a session, replace `--no-log` with `--log <file.h5>`: the `components/hardware/digit_llapi` stream holds the operation mode, the torque the robot applied beside the one requested, Agility's base estimate and the link's counters, tick by tick.
+
+Watch the robot at `http://localhost:8080/gamepad`, Agility's page; the viser and MuJoCo views need the MuJoCo Plant. Only one `ar-control` can run: stop it with Ctrl+C, not `kill`, or it keeps port 8080. On the robot the address is `10.10.1.1`, for both the LLAPI and `agility_mode.py --address`, and the computer sits on Digit's payload Ethernet; follow the safety procedures in Agility's manual first.
+
+**Defaults, and what they mean.** These are the settings the app picks for `--llapi`; APP.md has the reasons and VALIDATION.md the evidence.
+
+- Base state: `--llapi-base agility` controls on the estimate Agility publishes with every observation, with our estimator off. The app anchors its height once, so connect while the robot stands on flat ground. `--llapi-base estimator` uses our InEKF, whose roll and pitch drift with the gyro bias (a degree after half a minute in the simulator); use it only to observe.
+- Drive damping: every command asks the joint drives to damp at `--llapi-min-damping` (default 0.75) of each drive's limit, as digit_fpp does on the robot, because the leg springs otherwise ring through the command delay. For DCM and ALIP, `--llapi-drive-target predicted` (default) damps toward the joint velocity the command expects; `zero` damps toward zero velocity, digit_fpp's proven robot setting, which lowers the swing to about 4 cm in the simulator. digit_fpp found a measured-velocity target fed the spring mode on the robot: watch for leg jitter there.
+- In Agility's simulator ALIP walked straight at up to 1.0 m/s with a 9.4 cm swing and 0.48 s steps (0.33–0.37 s at 1.0 m/s), and DCM at 0.3 m/s. Turning, sideways steps and pushes are untested.
+
+**Real-time priority.** The control and link threads ask for `SCHED_FIFO`. On an account whose `ulimit -r` is 0, startup prints `real-time priority refused` and they run at normal priority; on a busy desktop a burst of late ticks can then cross the 15-slot backlog threshold and end the run with `Plant read failed or crossed its miss threshold`, releasing the robot to Damping. digit_fpp's procedure grants it: a `realtime` group with `rtprio 95` and `memlock unlimited` in `/etc/security/limits.d/99-realtime.conf`, then a fresh login (a tmux or byobu server started earlier keeps the old limits), after which `ulimit -r` prints 95. A deployment computer needs it; digit_fpp measured 13.6 ms control ticks on the robot without it.
+
+**The learned policy** runs the same way with its bundle:
+
+```bash
+pixi run walk --config policy_hold --operator keyboard --llapi 127.0.0.1 --llapi-apply --policy-bundle learning/checkpoints/policies/2026-10-12_20-32-06_arm-refine-r1-model_16800 --no-log
+```
+
+Until the switch the app holds the posture and torque Agility's controller applies, so the switch barely moves the robot, and it starts the policy within about 40 ms of seeing `low-level-api`. The policy stands until you press `g` and command motion; it stood still at 0.1 m/s (`ww`) and walked at 0.3 m/s (`wwwwww`), with less foot lift than ALIP. Its PD damping runs in the drives toward zero velocity, its trained law, raised to the 0.75 floor where lower. Handing back to `locomotion` ends the run, since the policy must not run blind.
+
+## Perception
+
+Two separate switches are both called "perception". They differ in whether the controller sees the result:
+
+|  | `--perception` (flag) | `simulation.terrain_perception: oracle` (scenario YAML) |
+| --- | --- | --- |
+| What runs | A virtual depth camera (61 × 45 rays) and lidar (426 beams) ray-cast from the robot's true pose, feeding an elevation map, costmap and 3D occupancy at up to 10 Hz | A 20 Hz elevation map read directly from the simulated terrain |
+| Planners | Both | **DCM only**; an ALIP scenario with `oracle` fails at startup |
+| Affects walking? | **No.** Observation only; control never reads it | **Yes.** The planner uses terrain height to set swing apex and landing height |
+| Where it goes | `components/perception/maps` in the session log, and Rerun with `--rerun` | `terrain/*` channels of the DCM planner stream (`terrain/status` 1 = map applied) |
+| How to view | Live: `--rerun --perception`. Afterwards: `pixi run python -m cyber_suite.perception.playback LOG.h5` | `pixi run python -m cyber_suite.corta.telemetry LOG.h5 --list` finds the channels; the walking plotter does not draw them yet |
+| Default | off | `blind` |
+
+To walk with oracle terrain, set it in a copy of a DCM scenario:
+
+```yaml
+simulation:
+  terrain_perception: oracle   # blind | oracle
+```
+
+```bash
+cp walking/config/scenarios/dcm_walking.yaml artifacts/dcm_oracle.yaml
+# edit simulation.terrain_perception to oracle, then:
+pixi run walk --config artifacts/dcm_oracle.yaml --terrain up-stairs --vx 0.3 --walk-duration 6
+```
+
+The flag and the YAML key are independent. To watch the maps while the planner uses oracle terrain, pass `--rerun --perception` with that scenario. Oracle terrain is experimental, and the perception maps are an inspection tool, not a sensor model of the real robot. Their limits are in [APP.md](APP.md#experimental-oracle-terrain-perception) and [the perception telemetry contract](../../../modules/perception/TELEMETRY.md).
+
+## Logs and after the run
+
+Each scenario sets its log path. The canonical DCM run writes `logs/digit_corta_walking.h5` and ALIP writes `logs/digit_alip_walking.h5`. `--log PATH` redirects the log; use `artifacts/` for anything you want to keep apart. Both folders are ignored by Git.
+
+The summary printed at the end reports `run_complete=`, `boundary_pass=` and an `outcome` line. The exit code is 0 when the run passes. A passing run proves only that the run executed cleanly, not that the gait was good. For gait quality, read the log:
+
+| Task | Command |
+| --- | --- |
+| Figures and a `summary.json` report, for either planner | `pixi run plot-walking LOG.h5 -o DIR` |
+| List the figures, or write only the report | `pixi run plot-walking LOG.h5 --list` / `--summary-only` |
+| Pick figures, a time window, or open windows | `--only NAME`, `--window START END`, `--show` |
+| Compare two DCM runs | `pixi run plot-walking A.h5 --compare B.h5 -o DIR` |
+| Numerical plots of the DCM kernel | `pixi run python -m cyber_suite.viz.cli locomotion LOG.h5 -o DIR --no-show` |
+| Plain-language TAC-QP findings | `pixi run python -m cyber_suite.control.audit.walking_log LOG.h5` |
+| Per-tick timing percentiles | `pixi run python -m cyber_suite.corta.timing LOG.h5` |
+| List streams, or export to npz/csv/parquet | `pixi run python -m cyber_suite.corta.telemetry LOG.h5 --list` |
+| Replay recorded perception maps | `pixi run python -m cyber_suite.perception.playback LOG.h5` (`--inspect` validates without a GUI; `--save X.rrd --plot X.png` exports) |
+
+## Running the binary directly
+
+Scripts and matrix runners call the executable without the launcher:
+
+```bash
+build/walking/digit_corta_walking \
+  --config walking/config/scenarios/gate_cruise.yaml --headless
+```
+
+Here `--config` needs the full path, because name lookup is a launcher feature. Run from the Digit project. For a live Rerun view, start a viewer yourself (for example with `pixi run walk --rerun --attach-only`) and pass `--rerun-connect <url>`.
+
+## Common errors
+
+| Message | Meaning and fix |
+| --- | --- |
+| `Digit walking binary not found` | Build it: `pixi run build --target digit_corta_walking` |
+| `unknown scenario 'x'; available: …` | Use one of the listed names, or give a path to a `.yaml` file |
+| `--config is required for Digit walking runs` | The binary was run without a scenario. Use `pixi run walk` or pass `--config` |
+| `--vx, --vy, and --omega require --walk-duration` | Add `--walk-duration SECONDS` |
+| `--perception requires logging` | Remove `--no-log`, or enable `logging` in the scenario |
+| `--operator viser drives the robot from the viser page; add --viser` | The page is the device, so the launcher must start it |
+| `cannot bind operator port 127.0.0.1:9878` | An earlier run still holds the port: end it, or pick another with the launcher's `--operator-udp-port` |
+| `--scenario was replaced by --terrain` | On the binary, `--scenario` is retired. Use `--config` for the scenario file and `--terrain` for the ground |
+| `--X was removed; set <key> in the Digit walking YAML configuration` | That tuning moved into YAML. Edit a scenario copy or profile |
+| `Unknown option: --X` | Check `pixi run walk --help` |
+| `Rerun viewer did not bind to port 9876` | Another viewer holds the port. Close it or pass `--port 9877` |
+| `OSError: [Errno 98] Address already in use` from `viser_view.py` | Another browser viewer holds UDP 9877. Close it or pass `--scene-udp-port 9878` |
+| `simulation.terrain_perception: oracle feeds only the DCM planner` | Oracle terrain needs a DCM scenario |
+| `--inspect-safety-geometry cannot be combined with --headless` | Drop `--headless`, and with `--rerun` add `--viewer` |

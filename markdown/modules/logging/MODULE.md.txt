@@ -1,0 +1,71 @@
+---
+Status: experimental
+Owner: modules/logging
+Last verified: 2026-08-24 telemetry observer fan-out and logging contracts
+  (35/35)
+---
+
+# Logging
+
+## Purpose
+
+Application telemetry logging for control, planning, estimation and perception: the channel vocabulary, the per-stream record layout, and the bounded ring a real-time producer writes into.
+
+This is **not** the system-graph trace logger in `modules/runtime`. That one records port messages so a graph run can be replayed; this one records numerical signals so behaviour can be analysed. Different schema, different consumers, different lifetime. Configuring one never configures the other.
+
+## Public API
+
+- `log_policy.hpp`: `LogCadence` -- how often a channel produces a value, which decides whether it belongs in the record or under `metadata/`.
+- `telemetry_ring.hpp`: `TelemetrySampleHeader`, `TelemetryRing` -- the producer-side stamp and the bounded single-producer/single-consumer ring.
+- `telemetry_schema.hpp`: `TelemetryScalar`, `TelemetryField`, `TelemetryConstant`, `TelemetrySchema` -- the fixed-size record layout for one stream.
+- `telemetry_observer.hpp`: `TelemetryBatchObserver` and `TelemetryObserverStream` -- an optional nonblocking copy seam after the storage writer consumes each batch.
+- `telemetry_writer.hpp`: `TelemetryWriter`, `TelemetryStreamStats` -- the drain thread that transposes rows into columns and appends them to growable storage. Built as `cyber_suite_logging_writer`, a separate target so its storage dependency never reaches the real-time producers. The optional third `add_stream` argument selects a nonzero chunk-row count for a wide, low-rate stream. The two-argument API retains `Config::chunk_rows`; controller batching is unaffected by perception's smaller storage buffers.
+
+## Dependencies
+
+`cyber_suite_logging` needs nothing beyond the standard library and `Threads`. This is deliberate: the real-time producers link that target, and no storage format or serialization library may reach them. `cyber_suite_logging_writer` adds HighFive and is linked only by whatever owns the log session.
+
+## Design Contracts
+
+- **The producer path is wait-free.** `TelemetryRing::try_write` is one bounds check, one memcpy into a preallocated slot, and one release store. It cannot block, allocate, lock, or make a syscall.
+- **A full ring refuses the newest record.** It cannot evict the oldest, because that index belongs to the consumer and advancing it would put a race and a lock on the real-time path. Refusals are counted, never silent.
+- **Timestamps are taken by the producer.** Logger scheduling jitter must not contaminate the time a sample claims to describe.
+- **Every record carries a monotonic `sample_index`.** A gap in that sequence is unambiguously a drop; a gap in timestamps alone could equally mean the producer was quiet.
+- **Storage retains declared scalar types exactly.** Integer timestamps and identities never pass through `double`, including values beyond 2^53.
+- **Records are array-of-structures.** A producer wants one coherent contiguous row per tick; analysis wants columns. The transposition belongs to whatever drains the ring, off the real-time path, so neither side has to adopt the other's layout.
+- **Streams are per-producer.** A 1 kHz controller, a 50 Hz planner and a 2 Hz perception stage are three streams with their own rates and their own timestamps, never one table padded to the fastest. Aligning them is an offline concern.
+- **Logging is on or off.** There is no verbosity ladder and no session ceiling: a producer declares exactly the channels it writes, and every declared field becomes a column. Nothing between the declaration and the file re-decides whether a channel exists, so an absent dataset means its producer did not declare it -- never that a run was configured to drop it. See `notes/audits/2026-08-14-log-and-plot-surface-inventory.md`, R1 and R2.
+- **The drain thread is optional, the drain contract is not.** By default the writer runs its own thread. An owner that already has a log thread sets `own_thread = false` and calls `drain_once()` on its own cadence, so one facility never costs two threads and two cadences to reason about. `stop()` drains to completion and closes identically in both modes, so choosing the mode cannot lose the tail of a run.
+- **The consumer batches by interval, not by availability.** `drain_loop` sleeps after every pass, including one that moved records. Draining whenever a record is waiting sounds like the responsive choice and is the expensive one: a 1 kHz producer nearly always has one waiting, so the loop never sleeps and each pass appends about one row while paying an append's per-dataset fixed cost across the whole schema. The interval bounds how long a record waits for storage, and so what a hard crash loses; it is not a durability mechanism, and `stop()` still drains to completion.
+- **Storage remains the single ring consumer and first destination.** An optional `TelemetryBatchObserver` is registered before start and offered the writer's staging rows only after their HDF5 append succeeds. The observer may accept a prefix into its own bounded storage; refusing the best-effort copy cannot stall or truncate HDF5 and never adds a second consumer to the producer SPSC ring. A registration exception disables observation for that stream and does not prevent its producer or HDF5 datasets from starting. `Config::storage = false` is the one exception to storage-first: an owner that wants live observation without an artifact gets the same single drain and observer copy with no file, so the ring discipline and producer contract are unchanged while nothing is stored.
+- **Appends use HDF5 directly, not `DataSet::select()`.** HighFive's selection path allocates a `HyperSlab` and two `DataSpace`s per call and copies the `DataSet` handle into the `Selection` it returns; each handle copy is an `H5Iinc_ref`, which the thread-safe HDF5 build wraps in `pthread_setcancelstate` -- a syscall. Paid per dataset per drain across several hundred datasets, that dominated the writer thread. The writer holds a borrowed `hid_t` per column and issues the extend, select, and write itself. HDF5 errors throw, as HighFive did, so a failed write is never mistaken for a written row.
+
+## Owned Examples
+
+None.
+
+## Validation
+
+Contract tests cover ring round-trip and ordering, power-of-two capacity rounding, refusal-and-count on overflow, the index gap a drop leaves behind, high-water tracking, wrap-point batch reads, and a concurrent producer/consumer run asserting every accepted record arrives exactly once in order. Schema tests cover header placement, natural alignment, fixed record size, duplicate and empty-field rejection, constants staying out of the record, and every declared field being recorded.
+
+Writer tests cover row-to-column transposition across a growing dataset, externally driven draining producing the same artifact as the owned thread, draining everything the producer accepted on stop, every declared field getting a column, constants landing under `metadata/` rather than per tick, drop accounting reaching the artifact, bounded observer backpressure leaving all accepted rows in HDF5, and 20,000 samples passing through a 256-slot ring with resident memory bounded by the ring rather than the run.
+
+An allocation probe in its own binary, `test_cyber_suite_logging_allocation`, holds the producer contract to a count rather than to a comment: it replaces global `operator new` and asserts zero allocations while filling a record and committing it, while the ring is full and refusing, and while a consumer drains it. It carries a negative control, because every other expectation in it is that a counter reads zero and an unwired counter reads zero for free. The probe was mutation-checked in both halves of the path -- an escaping allocation in `TelemetryRing::try_write` and one in `TelemetryRowWriter::claim` were each caught, with counts matching iterations and iterations times fields respectively. Note that an allocation the compiler is free to elide is not caught, and should not be: C++14 permits removing a `new`/`delete` pair, so only an allocation that escapes is one the path actually pays for.
+
+Passing them does not establish that any production producer has been migrated onto this path.
+
+```bash
+pixi run build --target test_cyber_suite_logging
+pixi run test -R '^cyber_suite_logging\.' --output-on-failure
+```
+
+## Non-goals
+
+- Storage formats, serialization, or compression.
+- Structured event logging and human-readable diagnostics. Those are separate concerns and must not share a path with high-frequency numerical telemetry.
+- Large payloads such as images or point clouds, which need handle-based buffers rather than value copies.
+- Scheduling. The logger is a runtime-owned service, never a scheduled graph system: a component whose worst case is a blocking file write cannot be given a deadline.
+
+## Notes
+
+`log_policy.hpp` briefly lived in `modules/foundation` before this module existed. It moved here so all logging vocabulary sits in one place.

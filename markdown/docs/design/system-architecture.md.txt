@@ -1,0 +1,146 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-18
+Code anchors: CMakeLists.txt, modules, docs/site/modules.yaml, apps/README.md
+---
+
+# System architecture
+
+Cyber Suite is a collection of reusable robotics mechanisms with explicit ownership boundaries. Its core package supplies models, numerical tools, sensing and state products, motion and control algorithms, world interfaces, execution and logging. Robot projects compose these capabilities into a particular behavior and evaluate that behavior under stated conditions.
+
+You can use a robot model or a numerical solver on its own. An integrated experiment adds the connections: which measurements become state, which algorithm produces commands, which world receives them, and how the result is recorded.
+
+## The module map
+
+<!-- cyber-suite:module-map -->
+
+This capability map includes every module with a `MODULE.md` contract. The build checks that inventory and reads lifecycle labels from the contracts. The categories are a reading aid, not a strict dependency graph: both an estimator and a controller can query a robot model, and observing telemetry does not make a viewer part of the control decision.
+
+## Models and numerics
+
+### Foundation { #module-foundation }
+
+Shared mathematical utilities, strict profile reading and package-data lookup. For example, the same data resolver can locate a packaged robot asset from C++ or Python without hard-coding a neighboring source checkout. Foundation stays small; it does not own robot behavior or runtime scheduling.
+
+[Owner contract](../../modules/foundation/MODULE.md) · [Models and simulation](models-and-simulation.md)
+
+### Robot { #module-robot }
+
+Robot descriptions become a computational model: joint state, coordinate conventions, kinematics and dynamics. A controller can query a frame Jacobian or a mass matrix without owning URDF loading. A simulator is a separate world interface; a model calculation alone does not advance a physical experiment.
+
+[Owner contract](../../modules/robot/MODULE.md) · [Models and simulation](models-and-simulation.md)
+
+### Solvers { #module-solvers }
+
+QP problem containers, solution status and backend wrappers provide the numerical boundary. Control code supplies the costs and constraints; the solver reports the numerical result. A feasible QP does not by itself establish tracking quality or physical success.
+
+[Owner contract](../../modules/solvers/MODULE.md) · [Model-based walking](model-based-walking.md)
+
+## Sensing and state
+
+### Estimation { #module-estimation }
+
+State and contact estimation turn measurements into evidence the control composition can use. For example, contact evidence can inform a walking composition, but the estimator does not own the decision that a foot may support the robot. Frames, timestamps and the distinction between measured and estimated quantities matter at this boundary.
+
+[Owner contract](../../modules/estimation/MODULE.md) · [State and perception](state-and-perception.md)
+
+### Perception { #module-perception }
+
+Terrain products, geometric uncertainty and bounded queries describe the nearby world. The mapping application can inspect elevation or candidate support geometry without running a walking controller. Acquisition, scheduling and a planner's decision to use a product remain outside the perception core; geometric confidence alone does not certify a safe foothold.
+
+[Owner contract](../../modules/perception/MODULE.md) · [State and perception](state-and-perception.md) · [Mapping example](../../apps/perception/mapping/docs/overview.md)
+
+## Motion and control
+
+### Locomotion { #module-locomotion }
+
+Reusable biped, contact and numerical primitives support walking compositions, including reduced-order locomotion computations. A robot project connects those primitives to its state and chooses its planning policy. Robot-specific tuning, reference authoring and scenario acceptance are not hidden in a generic locomotion default.
+
+[Owner contract](../../modules/locomotion/MODULE.md) · [Model-based walking](model-based-walking.md)
+
+### Control { #module-control }
+
+Feedback, joint servo and the TAC-QP whole-body core realize control requests. In a model-based composition, task references and constraints produce actuator commands using the robot's state and dynamics. The app selects the tasks and their meaning; control does not decide the experiment's walking strategy.
+
+[Owner contract](../../modules/control/MODULE.md) · [Model-based walking](model-based-walking.md)
+
+### Policy { #module-policy }
+
+The learned-policy deployment boundary covers observation construction, action decoding, joint-PD realization, ONNX inference and bundle/parity tooling. It preserves the meaning of a trained policy when moving between training and execution. Training recipes belong to the app's learning project; this module does not imply an estimator or safety filter around every policy.
+
+[Owner contract](../../modules/policy/MODULE.md) · [Policy deployment](learned-policy-deployment.md) · [Learning workflow](../setup/learning-workflow.md)
+
+## World interfaces
+
+### Simulation { #module-sim }
+
+MuJoCo simulation, the terrain catalog, simulated sensors and optional viewer helpers provide an inspectable world. An experiment can change the terrain while keeping its robot model and controller configuration fixed. Simulation owns neither the controller nor the CORTA graph that an app may use to run it.
+
+[Owner contract](../../modules/sim/MODULE.md) · [Models and simulation](models-and-simulation.md)
+
+### Digit hardware { #module-digit_hardware }
+
+Digit's Agility low-level interface supplies state/command mapping, limit handling, guarded command encoding and a live link for Agility simulation or the robot. The SDK-free pieces and optional live SDK path have different build requirements. The live vendor-SDK integration is root-build functionality, not a promise that every installed package includes hardware access. Hardware qualification remains an app-level validation question.
+
+[Owner contract](../../modules/digit_hardware/MODULE.md) · [Digit integration](../../apps/digit/docs/overview.md)
+
+## Execution and observability
+
+### CORTA { #module-corta }
+
+CORTA executes a Plant-paced composition with inline and deferred work, typed bounded messages, telemetry and replay mechanisms. A Plant exchanges observations and commands with the world. The runtime core stays independent of robot models, MuJoCo, Python and vendor SDKs; an app supplies the composition. Execution mechanisms do not establish hard real-time qualification on a particular machine.
+
+[Owner contract](../../modules/corta/MODULE.md) · [Runtime and execution](runtime-execution.md)
+
+### CORTA adapters { #module-corta_adapters }
+
+Adapters connect typed CORTA ingress and egress to external inputs and observers, such as keyboard, joystick, datagrams or visualization. Free-running external connections stay off the control tick. Adapters depend on CORTA; CORTA does not depend on an app's chosen adapter or operator-command semantics.
+
+[Owner contract](../../modules/corta_adapters/MODULE.md) · [Runtime and execution](runtime-execution.md)
+
+### Logging { #module-logging }
+
+Telemetry channels, records and bounded producer buffers make runtime behavior inspectable. File writing is separate from the producer path, so logging infrastructure need not place blocking disk I/O on a control tick. Logging records signals; scheduling and graph replay belong to the runtime.
+
+[Owner contract](../../modules/logging/MODULE.md) · [Runtime and execution](runtime-execution.md) · [Evaluating experiments](../setup/evaluating-experiments.md)
+
+## What the package exports
+
+| Surface | How a consumer uses it | What stays with the consumer |
+| --- | --- | --- |
+| C++ | `find_package(cyber_suite)` and exported `cyber_suite::<module>` targets | Composition, application policy and robot-specific configuration |
+| Python | Supported `cyber_suite` bindings and native tools; the separate `cyber_suite_mjlab` learning adapter | Training recipes, analysis and experiment orchestration |
+| Data | `cyber_suite::data::resolve` or `cyber_suite.data.resolve` | App calibration and local experiment assets |
+| Contracts | Each module's `MODULE.md` and each app's `APP.md` / `VALIDATION.md` | Acceptance criteria and evidence for the intended use |
+
+The [application consumption contract](../../apps/README.md) specifies the current build boundary. Available exports and optional dependencies vary by module; the capability map is not a promise that every module ships every interface.
+
+## Boundaries worth understanding
+
+| Boundary | What it establishes | Where to learn more |
+| --- | --- | --- |
+| Robot description → computations | Joint names, coordinates, inertial and actuation assumptions | [Models and simulation](models-and-simulation.md) |
+| Measurements → estimated state | What the controller knows, in which frame and at what time | [State and perception](state-and-perception.md) |
+| Planning → reference execution | Desired motion, reference coordinates and validity | [Model-based walking](model-based-walking.md) |
+| Graph → execution | Rates, deferred work, observation/command exchange | [Runtime and execution](runtime-execution.md) |
+| Training → deployed policy | Observation packing, action meaning and realization | [Policy deployment](learned-policy-deployment.md) |
+| Experiment → conclusion | Matched conditions, measurements and qualification limits | [Evaluate an experiment](../setup/evaluating-experiments.md) |
+
+## Follow a single experiment
+
+For Digit model-based walking, a scenario selects ALIP or DCM, terrain and a velocity schedule. The app loads calibration profiles, constructs the graph and creates the Plant. Servo builds the state used by planning and control, the planner authors task references, and the whole-body controller turns them into actuator commands. The [handbook](../handbook/chapters/index.md) follows that loop with diagrams and a measured example.
+
+Changing to a learned policy changes the control composition: inference produces actions and the policy Servo realizes them according to the bundle's contract. It is not simply another footstep planner feeding the same whole-body controller. The robot boundary and execution infrastructure can still be shared. See [policy deployment](learned-policy-deployment.md).
+
+## Where a change belongs
+
+A robot-neutral numerical improvement belongs in the module that owns it. A new experiment normally begins in app-owned configuration. A [student project](../setup/student-projects.md) consumes the package through its published C++ and Python boundaries, using its own Pixi project. It should not reach into a neighboring source checkout to borrow private implementation files.
+
+Robot descriptions live under `assets/robots/<robot>/`; app calibration lives with the app. The shared terrain catalog is owned by simulation. Keeping these homes distinct makes a question such as “did the new controller improve tracking?” answerable: the comparison can preserve the model and world while changing the intended behavior.
+
+## Implementation and evidence are different
+
+A module contract describes the implemented surface and lifecycle. An app contract describes the composition. Its validation document records what has been demonstrated, with conditions and limitations. A historical design can explain a decision without describing today's execution.
+
+This website organizes the maintained reading paths; it does not promote modules to stable status or replace the owner contracts. The [development workflow](../setup/development-workflow.md) explains how a change is validated and integrated.

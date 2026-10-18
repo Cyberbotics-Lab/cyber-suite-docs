@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Cyber Suite — connected CS monogram</title>
+  <rect width="128" height="128" rx="28" fill="#302b29"/>
+  <path d="M94 29H51L29 51V77L51 99H94" fill="none" stroke="#faf8f5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M88 48H63L53 58L63 68H78L88 78L78 88H58" fill="none" stroke="#e49b94" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="94" cy="29" r="7" fill="#e49b94"/>
+  <circle cx="94" cy="99" r="7" fill="#e49b94"/>
+</svg>

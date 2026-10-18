@@ -1,0 +1,2168 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/setup/development-workflow.html">
+      
+      
+        <link rel="prev" href="../../apps/perception/mapping/docs/overview.html">
+      
+      
+        <link rel="next" href="documentation-site.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Development workflow - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#development-workflow-and-project-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Development workflow
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="development-workflow.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#start-from-the-actual-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start From The Actual Checkout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choose-the-command-owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose The Command Owner
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choose The Command Owner">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#specialist-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specialist Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keep-task-state-with-its-owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keep Task State With Its Owner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validate-the-changed-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validate The Changed Boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#student-projects-and-remote-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Student Projects And Remote Execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integrate-and-retire-worktrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integrate And Retire Worktrees
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#start-from-the-actual-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start From The Actual Checkout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choose-the-command-owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose The Command Owner
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choose The Command Owner">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#specialist-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specialist Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keep-task-state-with-its-owner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keep Task State With Its Owner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validate-the-changed-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validate The Changed Boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#student-projects-and-remote-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Student Projects And Remote Execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integrate-and-retire-worktrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integrate And Retire Worktrees
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">canonical</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../markdown/docs/setup/development-workflow.md.txt" download="development-workflow.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="development-workflow-and-project-management">Development Workflow And Project Management<a class="headerlink" href="#development-workflow-and-project-management" title="Permanent link">&para;</a></h1>
+<p>Cyber Suite develops a reusable package and robot projects in one repository. Use the primary checkout for serial work and reuse the current branch across related steps. Create a separate branch or worktree when isolation or review needs it, in the location the user chooses; a new branch is not required for every step. A robot project is a package consumer with its own Pixi manifest, while a worktree is a checkout of a Git branch. Creating or finishing a robot project does not require keeping a separate worktree.</p>
+<p>This guide connects the shared <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/AGENTS.md">agent instructions</a>, <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/README.md">project index</a>, <a href="remote-development.html">remote-development setup</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/handoffs/README.md">handoff protocol</a>. The owner contracts remain the authority for behavior and qualification.</p>
+<h2 id="start-from-the-actual-checkout">Start From The Actual Checkout<a class="headerlink" href="#start-from-the-actual-checkout" title="Permanent link">&para;</a></h2>
+<p>Read <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/status/CURRENT.md">current status</a>, then run these commands from the repository root on the execution host:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>hostname
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">pwd</span><span class="w"> </span>-P
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>git<span class="w"> </span>status<span class="w"> </span>--short<span class="w"> </span>--branch
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>git<span class="w"> </span>worktree<span class="w"> </span>list
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pixi<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>orient
+</code></pre></div>
+<p>Read the owning <code>MODULE.md</code> or <code>APP.md</code> and its <code>VALIDATION.md</code>. For an unfinished task, read its one relevant handoff and compare the recorded branch, code checkpoint, dirty scope and evidence with the checkout. Orientation discovers project contracts, documentation and active handoffs in this checkout; it does not inventory unfinished work on other branches. Fetch and inspect branch relationships when preparing an integration, instead of treating an old plan or chat as current Git state.</p>
+<p>Keep one active writer per task branch. Reuse the current task branch when continuing its work. Before switching an existing checkout to another task, inspect and preserve its dirty changes and check for running builds, viewers or training jobs that depend on its files. Keep unrelated work out of the task's commits. Creating a new worktree is an isolation choice, not a routine prerequisite for every task.</p>
+<h2 id="choose-the-command-owner">Choose The Command Owner<a class="headerlink" href="#choose-the-command-owner" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Run commands from</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared package, modules and root-owned validation apps</td>
+<td>Repository root</td>
+<td>Build reusable code, exercise in-tree integration, orient and audit documents</td>
+</tr>
+<tr>
+<td>Digit</td>
+<td><code>apps/digit</code></td>
+<td>Digit simulation, walking, IK and learning</td>
+</tr>
+<tr>
+<td>TRON1</td>
+<td><code>apps/tron1</code></td>
+<td>TRON1 walking, IK and learning</td>
+</tr>
+<tr>
+<td>Unitree G1</td>
+<td><code>apps/unitree-g1</code></td>
+<td>23-DoF standing, walking and learning; source for student exports</td>
+</tr>
+<tr>
+<td>Mapping validation</td>
+<td>Repository root</td>
+<td><code>apps/perception/mapping</code> scenarios; this remains a root-owned app</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>pixi task list</code> in the chosen folder to see its default commands and <code>pixi task list -e learn</code> for learning. Keep Pixi tasks for everyday build, launch, validation, plotting, learning and repository management; invoke specialist tools directly as listed below. A manifest path makes the owner explicit when invoking a project from the repository root:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--manifest-path<span class="w"> </span>apps/digit/pixi.toml<span class="w"> </span>check
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--manifest-path<span class="w"> </span>apps/tron1/pixi.toml<span class="w"> </span>check
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>--manifest-path<span class="w"> </span>apps/unitree-g1/pixi.toml<span class="w"> </span>check
+</code></pre></div>
+<p>Run these checks when the change affects project code, dependencies or runtime configuration; use the documentation checks below for prose-only edits. Project <code>check</code> builds against the installed <code>cyber_suite</code> package, which is the boundary an independent student repository uses. Root <code>check</code> configures, builds, runs CTest and audits the in-tree checkout. An in-tree pass alone does not establish that the installed package exposes everything a project needs.</p>
+<p>Each project owns its manifest and lockfile. Its default environment contains the compiled package; <code>pixi run -e learn ...</code> uses its separate Python learning environment. Root robot launch aliases and a root learning environment are no longer the entry points. Preserve each manifest/lock pair, use <code>--locked</code> for reproducible checks, and deliberately regenerate the owning lockfile when dependencies change. Project environments are detached into Pixi's cache by their tracked <code>.pixi/config.toml</code>; do not transfer environments or reuse another checkout's CMake build directory.</p>
+<h3 id="specialist-tools">Specialist Tools<a class="headerlink" href="#specialist-tools" title="Permanent link">&para;</a></h3>
+<p>The task cleanup removes the aliases below, while retaining their implementations. Run the direct command from the indicated folder in its default environment unless <code>-e learn</code> is shown. Append the same tool arguments as before; Python script paths are relative to the owning project. Shared <code>python -m cyber_suite...</code> tools can also run in an installed robot-project environment, so analysis paths remain relative to that project. Use the tool's <code>--help</code> for its options.</p>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th>Former task</th>
+<th>Direct command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root or robot project</td>
+<td><code>corta-graph</code></td>
+<td><code>pixi run python -m cyber_suite.corta DUMP.json</code></td>
+</tr>
+<tr>
+<td>Root or robot project</td>
+<td><code>corta-timing</code></td>
+<td><code>pixi run python -m cyber_suite.corta.timing LOG.h5</code></td>
+</tr>
+<tr>
+<td>Root or robot project</td>
+<td><code>corta-telemetry</code></td>
+<td><code>pixi run python -m cyber_suite.corta.telemetry LOG.h5 --list</code></td>
+</tr>
+<tr>
+<td>Root or robot project</td>
+<td><code>walk-audit</code></td>
+<td><code>pixi run python -m cyber_suite.control.audit.walking_log LOG.h5</code></td>
+</tr>
+<tr>
+<td>Root or robot project</td>
+<td><code>perception-playback</code></td>
+<td><code>pixi run python -m cyber_suite.perception.playback LOG.h5</code></td>
+</tr>
+<tr>
+<td>Root</td>
+<td><code>perception-view</code></td>
+<td><code>pixi run python apps/perception/mapping/tools/view_results.py OUTPUT_DIR</code></td>
+</tr>
+<tr>
+<td>Root</td>
+<td><code>g1-prepare-model</code></td>
+<td><code>pixi run python assets/robots/unitree_g1/tools/prepare_model.py</code></td>
+</tr>
+<tr>
+<td><code>apps/digit</code></td>
+<td><code>viser</code></td>
+<td><code>pixi run python walking/tools/viser_view.py --log LOG.h5</code></td>
+</tr>
+<tr>
+<td><code>apps/digit</code></td>
+<td><code>sim-gap-compare</code></td>
+<td><code>pixi run python learning/tools/sim_gap_compare.py BUNDLE</code></td>
+</tr>
+<tr>
+<td><code>apps/digit</code> (<code>learn</code>)</td>
+<td><code>sim-gap-record</code></td>
+<td><code>pixi run -e learn python learning/tools/sim_gap_record.py BUNDLE</code></td>
+</tr>
+<tr>
+<td><code>apps/digit</code> (<code>learn</code>)</td>
+<td><code>export-hold-bundle</code></td>
+<td><code>pixi run -e learn python learning/tools/export_hold_bundle.py</code></td>
+</tr>
+<tr>
+<td><code>apps/tron1</code></td>
+<td><code>verify-sensor-boundary</code></td>
+<td><code>pixi run python walking/tools/verify_sensor_boundary.py LOG.h5</code></td>
+</tr>
+<tr>
+<td><code>apps/unitree-g1</code></td>
+<td><code>view</code></td>
+<td><code>pixi run python walking/tools/view.py --run RUN_DIR</code></td>
+</tr>
+</tbody>
+</table>
+<p>Prepare required inputs and binaries first: TRON1 sensor replay needs <code>pixi run build</code>, the simulation-gap tools need a policy bundle and recorded training rollouts, and model regeneration deliberately writes generated assets. Live viewers remain available through robot launch commands such as <code>walk --viser</code>; the direct viewer scripts serve inspection and replay. The model generator has no <code>--help</code> mode. Dated validation records and historical notes retain their original task names and revisions; use this table when replaying them with current tools.</p>
+<h2 id="keep-task-state-with-its-owner">Keep Task State With Its Owner<a class="headerlink" href="#keep-task-state-with-its-owner" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Information</th>
+<th>Home</th>
+<th>How it is used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository overview and shared rules</td>
+<td><code>docs/status/CURRENT.md</code>, <code>AGENTS.md</code>, <code>docs/policies/</code></td>
+<td>Current orientation and authority</td>
+</tr>
+<tr>
+<td>Module behavior</td>
+<td><code>modules/&lt;module&gt;/MODULE.md</code> and its validation</td>
+<td>Reusable API and demonstrated boundary</td>
+</tr>
+<tr>
+<td>Robot app behavior and acceptance</td>
+<td><code>apps/&lt;robot&gt;/&lt;app&gt;/APP.md</code> and <code>VALIDATION.md</code></td>
+<td>Project status; no duplicate per-project <code>CURRENT.md</code></td>
+</tr>
+<tr>
+<td>Robot-only plans, investigations, ideas and handoffs</td>
+<td><code>apps/&lt;robot&gt;/notes/&lt;category&gt;/</code></td>
+<td>Working or historical context</td>
+</tr>
+<tr>
+<td>Shared designs, cross-project work and repository tasks</td>
+<td>Root <code>notes/&lt;category&gt;/</code></td>
+<td>Working or historical context</td>
+</tr>
+<tr>
+<td>Consolidated research decisions</td>
+<td>Root <code>notes/journal/</code></td>
+<td>Historical rationale under the journal policy</td>
+</tr>
+<tr>
+<td>Bulk logs, plots, checkpoints and scratch work</td>
+<td>Ignored output owned by the producing workflow</td>
+<td>Evidence and replay inputs; preserve deliberately when transferring or retiring</td>
+</tr>
+</tbody>
+</table>
+<p>Use a plan when the task needs staged work or unresolved design choices. Record its owner, dependencies, acceptance criteria and next action, and update the existing plan as those choices settle. Routine changes can proceed from the owning contract. A plan's completed phase is not a substitute for current validation, and a note never becomes authority simply by being written.</p>
+<p>Before a requested pause, machine transfer or agent switch, update one task handoff in the owning note home using the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/templates/HANDOFF.md">handoff template</a>. Record the actual revision plus any uncommitted delta, user decisions, evidence locations and next action. Commit and push only within the user's authorization; ignored evidence needs separate transfer. When the task finishes, fold lasting results into the owner and retire the handoff under the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/handoffs/README.md#retire">handoff rules</a>.</p>
+<h2 id="validate-the-changed-boundary">Validate The Changed Boundary<a class="headerlink" href="#validate-the-changed-boundary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Evidence to collect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Documentation or documentation organization</td>
+<td>Root <code>pixi run --locked audit</code>, orientation, changed links and <code>git diff --check</code></td>
+</tr>
+<tr>
+<td>Shared C++ or package interface</td>
+<td>Owning module checks, affected in-tree integration and affected standalone project checks</td>
+</tr>
+<tr>
+<td>Robot project code or configuration</td>
+<td>That project's <code>pixi run --locked check</code> and the scenarios required by its <code>VALIDATION.md</code></td>
+</tr>
+<tr>
+<td>Learning or policy export</td>
+<td>Owning <code>learn</code> tasks, saved configuration and the applicable policy-parity check</td>
+</tr>
+<tr>
+<td>Physical behavior</td>
+<td>App scenarios and artifact review against explicit completion, tracking, constraint and failure criteria</td>
+</tr>
+</tbody>
+</table>
+<p>Use the smallest evidence that proves the change; do not add unit tests or run broad native/GPU sweeps for a documentation edit. Digit and TRON1 standalone checks run their existing CTest and Python contracts. G1 checks its installed-package build, model parity and bounded standing acceptance. Training, wider walking qualification and hardware validation remain separate.</p>
+<p>Existing <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/.github/workflows/ci.yml">root CI</a> runs the audit and root <code>check</code> on pull requests and pushes to <code>main</code>, with the build gate on Ubuntu and macOS. Project CI is optional. Run affected standalone checks manually before integration and report the command, platform, revision, result and remaining limits; a later project CI job can invoke the same check. Do not infer a green CI run from the workflow definition.</p>
+<h2 id="student-projects-and-remote-execution">Student Projects And Remote Execution<a class="headerlink" href="#student-projects-and-remote-execution" title="Permanent link">&para;</a></h2>
+<p>Unitree G1 is the student template. From the repository root, <code>pixi run create-g1-project DESTINATION --revision COMMIT</code> exports the committed project and its licensed asset snapshot, pins the C++ and Python dependencies to the same source revision and records provenance. Follow the <a href="student-projects.html">student-project guide</a> to generate a project lockfile, validate a fresh clone and upgrade dependencies. The exporter does not create or publish a remote repository, and no project CI workflow is required.</p>
+<p>Ubuntu is the primary execution host; the MacBook normally connects through VS Code Remote - SSH. Verify the actual host and viewer connection using the <a href="remote-development.html">remote-development guide</a>. Code commits and lockfiles travel through Git; environments, credentials and ignored run data do not.</p>
+<p>For Digit learning at OSC, follow the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/OSC_DEPLOYMENT.md">deployment guide</a> and <a href="../../apps/digit/learning/OSC_WORKFLOW.html">workflow explanation</a>. The container must match <code>apps/digit/pixi.lock</code>; the former root learning lock is not the project environment. Record source revision, image checksum, input provenance, job ID and output location. Environment and GPU smokes establish deployment readiness, while training outcomes need their own evidence.</p>
+<h2 id="integrate-and-retire-worktrees">Integrate And Retire Worktrees<a class="headerlink" href="#integrate-and-retire-worktrees" title="Permanent link">&para;</a></h2>
+<p>Integration brings a branch's commits into <code>main</code>; removing a worktree only removes its checkout. Branch deletion and remote publication are separate actions. Keep them explicit in the requested scope.</p>
+<ol>
+<li>Inspect the primary checkout, task branch, remote state and uncommitted changes. Review the diff and validation for the exact commits to integrate. Preserve unrelated work before changing branches; do not replace a checkout's branch with a hard reset.</li>
+<li>Integrate through the authorized review path. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/AGENTS.md#authorization">authorization rules</a> require maintainer-approved pull requests for changes to authority. After integration, verify that the intended commits are reachable from <code>main</code>, check the resulting diff and run the validation warranted by any conflict resolution. Report the resulting commit and push state separately.</li>
+<li>Before removing a secondary checkout, stop or move processes that use it and move the active agent session out of it. Inventory its tracked changes, untracked files and ignored output. A clean <code>git status</code> does not account for ignored artifacts or commits absent from <code>main</code>.</li>
+<li>Preserve needed evidence, checkpoints, logs and other local files outside the checkout being retired. Keep provenance with the producing commit, command and checksums or a verified inventory. Keep bulk evidence ignored; publish a bounded capsule only when a maintained document needs its figure. A named branch or verified Git bundle can retain unmerged commits, but neither saves uncommitted files or ignored output.</li>
+<li>Run the repository's retirement report from a retained checkout, resolve its findings and separately inspect output outside its scan. Then remove only the intended secondary checkout using its managing app's archive operation or <code>git worktree remove</code> where appropriate. Review <code>git worktree list</code> afterward; prune stale registrations only after establishing that their directories are gone. Retain branch refs unless their deletion is explicitly requested.</li>
+</ol>
+<p>Use the read-only report with an explicit target and comparison base:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>retire-worktree<span class="w"> </span>--worktree<span class="w"> </span>/absolute/path/to/secondary-checkout<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--base<span class="w"> </span>main<span class="w"> </span>--include-data<span class="w"> </span>--list-files
+</code></pre></div>
+<p>The report checks unmerged commits, dirty/untracked files, selected evidence types under root <code>artifacts/</code>, <code>logs/</code> and <code>build/</code>, and agent-history locations. It does not archive output, merge branches or delete the worktree. Its ignored-file scan does not cover every project output directory, checkpoint format or symlink target; supplement it with an inventory of the actual workflow's outputs. Its comparison base must exist. A zero-error result or a waived finding is not a backup.</p>
+<p>For Claude history, <code>--adopt-history</code> previews moving transcripts into the retained checkout's history directory, and <code>--adopt-history --apply</code> performs that history move. <code>--apply</code> alone does not remove a worktree. Preserve required ignored files separately before a managed archive too. See the report's <code>--help</code> before using history options, and keep repository handoffs as the portable record of unfinished work.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/setup/development-workflow.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../apps/perception/mapping/docs/overview.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Terrain mapping">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Terrain mapping
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="documentation-site.html" class="md-footer__link md-footer__link--next" aria-label="Next: Maintain this website">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Maintain this website
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

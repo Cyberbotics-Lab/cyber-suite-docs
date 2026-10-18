@@ -1,0 +1,260 @@
+---
+Status: working
+Owner: repo, apps/digit/walking
+Last reviewed: 2026-10-18
+Code revision: 9c56295ca7b3d46a61b4b4b3c07169099ab1cd32
+Code anchors: apps/digit/walking/src/main.cpp, apps/digit/walking/src/systems/servo.cpp, apps/digit/walking/src/systems/servo_control.cpp, apps/digit/walking/src/systems/alip_planner.cpp, apps/digit/walking/src/systems/policy_controller.cpp, apps/digit/walking/src/systems/plant.cpp, apps/digit/walking/src/systems/llapi_plant.cpp
+Reading time: 15 minutes
+Chapter: "01"
+---
+
+# How a Digit walking command becomes motion
+
+You ask Digit to walk forward at 0.3 m/s. That request must become foot placements, body motion, joint torques and, eventually, new sensor readings. Follow that journey to understand where the main parts of Cyber Suite fit and where your own experiment would belong.
+
+Digit is the worked example because it connects model-based walking, learned control, CORTA execution and the Agility deployment interface. G1 is a starting project students can extend using the same ownership principles. You can follow this chapter with basic programming and robotics knowledge; the planner and controller equations can come later.
+
+<div class="learning-goals" markdown="1">
+
+**After this chapter, you should be able to:**
+
+- Explain the difference between a motion command, a task reference and an actuator command.
+- Trace the model-based and learned control paths without confusing their controllers.
+- Find the owner of a proposed change and name evidence that would evaluate it.
+
+</div>
+
+## The loop at a glance
+
+Start at **Desired motion**, then follow the green arrows into planning, reference tracking and the Plant. Follow the blue arrows back: the robot's response changes what the controller does next. This is a simplified picture of the model-based graph, with the two feedback loops drawn explicitly.
+
+<figure class="teaching-figure" markdown="1">
+
+![Model-based walking: the desired motion enters Servo; Servo exchanges estimated state and references with the planner, and actuator commands and sensor readings with the Plant.](../../assets/handbook/control-loop.svg)
+
+<figcaption>Figure 1 · Structure from the reviewed code. Green arrows carry requests and commands; blue arrows return observations. The Plant may be MuJoCo or the LLAPI connection.</figcaption>
+
+[Open full-size diagram](../../assets/handbook/control-loop.svg)
+
+</figure>
+
+Read the same request at three levels: **“travel forward at 0.3 m/s”** is a motion command; **“move this foot along this trajectory”** is a task reference; **“apply these joint torques and drive settings”** is an actuator command. Each arrow has a different meaning. A correct message at one boundary does not guarantee the desired physical response at the next.
+
+<details class="checkpoint" markdown="1">
+<summary>Check your understanding: the robot misses a foot target. Where would you look first?</summary>
+
+Compare the **installed foot reference with measured foot motion** at the Servo boundary. If the reference itself is unsuitable, follow it upstream to the planner. If the reference looks reasonable but the foot cannot follow it, inspect state estimates, contact constraints, actuator saturation and Plant actuation. The animation alone cannot distinguish these causes.
+
+</details>
+
+The **app** assembles this particular robot behavior. Shared **modules** provide reusable algorithms and infrastructure. A **scenario** selects the planner, world and motion schedule; profiles supply calibration. An **artifact** records what happened in one run. These four ideas help you navigate before learning individual classes.
+
+## Follow one walking command
+
+### 1. Express the motion you want
+
+The [ALIP scenario](../../../apps/digit/walking/config/scenarios/alip_walking.yaml) requests forward velocity `[0.3, 0.0]` m/s with zero yaw rate on flat ground. It also selects the planner and simulation settings. The app combines that scenario with its profiles and command-line overrides to produce the resolved configuration.
+
+A velocity request describes desired travel. Startup, step planning, actuator limits and the robot's actual state determine the resulting motion. An operator's keyboard or joystick can provide the command instead of a fixed schedule; that changes the command source while preserving the downstream ownership boundaries.
+
+### 2. Estimate what the robot is doing
+
+The Plant supplies encoder readings and measurements from the IMU (inertial measurement unit). In the usual closed-loop simulation composition, the estimator reconstructs the floating base's orientation, velocity and position in its qualified local frame. The dynamics support gate estimates support and contact capacity. The Servo combines these with robot-model queries to prepare the state used by planning and control.
+
+The simulator also knows the exact simulated state. That truth is available for diagnostics and explicitly selected external-state modes; it is not the normal closed-loop estimator input. When comparing algorithms, preserve the state source. A controller that works on truth has demonstrated a different boundary from one that works on estimates.
+
+### 3. Plan steps and author references
+
+ALIP means **angular-momentum linear inverted pendulum**; DCM means **divergent component of motion**. They use reduced models of balance to choose stepping behavior. Their app adapters turn accepted plans into executable references for the feet, pelvis and body motion.
+
+The shared walking coordinator tracks startup, walking, touchdown admission and stopping. It consumes the full-rate contact history supplied by Servo, so a 50 Hz planner can reason about contact evidence collected at 1 kHz. A reference preview contains a short future trajectory and task activation targets. It carries more than a single desired position.
+
+ALIP and DCM have different reference-coordinate contracts. Their adapters and controller task geometry must agree. Replacing a planner therefore means respecting its reference contract, even though both fit the same overall application structure.
+
+### 4. Turn references into actuator commands
+
+Every millisecond, Servo samples the installed trajectories and asks the whole-body controller to realize them. TAC-QP is the repository's constrained whole-body quadratic-programming controller. It reconciles the body and foot objectives with the modeled dynamics and constraints such as contact, friction and actuator limits.
+
+The model-based planner owns the walking sequence and reference meaning. Servo owns their execution against the current estimated state. This separation matters when diagnosing a problem: an unreachable foot target, poor tracking of a feasible target and incorrect contact estimation are different causes.
+
+The outgoing command includes actuator torque and, when the drive model is active, drive-damping information. The Plant handles how that command reaches the simulated or external drives. The default MuJoCo actuation model includes drive behavior and command delay; requesting a torque does not mean it acts instantaneously.
+
+### 5. Observe the response and repeat
+
+The Plant advances simulation or exchanges data through the low-level interface, then returns a new observation. The next Servo tick reacts to it; the next planner update can revise future motion. Startup readiness, finite reference validity and measured stopping also belong to this loop.
+
+A viewer displays selected observations. Watching the robot stay upright is useful, but does not establish velocity tracking, actuator margins or settled stopping. Use the recorded configuration and diagnostics to explain the behavior you see.
+
+## Why the two rates matter
+
+The canonical model-based composition releases the planner at 50 Hz, about once every 20 ms, while Servo executes at 1 kHz. Between planner releases, Servo keeps sampling the installed reference trajectory and reacting to fresh state. It does not wait for a new plan before every torque calculation.
+
+<figure class="teaching-figure" markdown="1">
+
+![Planner releases at 0, 20 and 40 milliseconds sit above Servo ticks spaced one millisecond apart. Servo continues between planning releases.](../../assets/handbook/update-rates.svg)
+
+<figcaption>Figure 2 · Scheduled rates, drawn schematically. A diamond releases planning work; it does not mean a new plan has already arrived. Reference adoption follows deferred completion.</figcaption>
+
+[Open full-size diagram](../../assets/handbook/update-rates.svg)
+
+</figure>
+
+<details class="checkpoint" markdown="1">
+<summary>At 7 ms, there is no new planner release. What does Servo do?</summary>
+
+It samples the installed reference at the current time, uses the fresh state and computes another actuator command. A trajectory describes how the target changes between planning updates. Holding the last torque for 20 ms would be a different controller.
+
+</details>
+
+| Boundary | What crosses it | Why it matters |
+| --- | --- | --- |
+| Plant → Servo | Sensor observation | Defines what the controller can know |
+| Servo → planner | Command, estimated state and contact history | Gives planning a coherent view of execution |
+| Planner → Servo | Finite reference preview and task targets | Keeps planning decisions separate from fast execution |
+| Servo → Plant | Actuator command | Defines how control acts on the world |
+
+CORTA provides the runtime graph, timing declarations and bounded message exchange. The planner executes as deferred work; Servo runs inline with the Plant exchange. Copied values cross these boundaries rather than shared mutable planner/controller objects. The graph wiring is visible in the [application entry point](../../../apps/digit/walking/src/main.cpp).
+
+<div class="callout" markdown="1">
+
+**A configured rate is not a measured deadline guarantee.** Running a simulation with 1 ms ticks does not prove every tick finishes within 1 ms on a real robot. Timing evidence and physical behavior evidence answer separate questions.
+
+</div>
+
+## What changes with a learned policy
+
+Selecting `planner: policy` replaces both the model-based planner and its Servo with a policy inference worker and `PolicyServo`. The Plant, scenario machinery and CORTA execution framework remain shared. The normal learned path does not send its actions through the model-based whole-body controller.
+
+<div class="policy-flow" markdown="1">
+
+**Training → exported bundle → inference → joint targets → joint PD → Plant**
+
+Training is owned by [Digit learning](../../../apps/digit/learning/APP.md). The exported bundle specifies how observations are packed and actions are decoded. Deferred inference runs at the bundle's declared rate; the shipped walking policies use 50 Hz. `PolicyServo` adopts actions and realizes joint proportional-derivative (PD) control at 1 kHz, with damping placed according to the contract and Plant.
+
+</div>
+
+This gives you two useful research paths. You can investigate footstep planning and whole-body objectives in the model-based composition, or investigate observations, rewards and learned behavior in the learning composition. Compare them on matched scenarios while recording the model, state source, actuation assumptions and policy bundle.
+
+Policy parity checks whether exported inference and action realization reproduce the trainer's recorded contract. Physical evaluation then asks whether the resulting robot tracks commands, respects limits and handles the tested scenarios. Passing one does not substitute for the other. See the [policy deployment reference](../../design/learned-policy-deployment.md) for the complete chain.
+
+## Where simulation meets deployment
+
+The MuJoCo Plant owns the simulated world, sensors and actuation. The LLAPI Plant connects the app to Agility's low-level API. A common observation/command boundary lets the control composition reach both, but the state source, timing, command acceptance and drive behavior must still be handled explicitly.
+
+With the default LLAPI base-state selection, the app uses Agility's base estimate. The integration also handles operation-mode handover and drive damping. These details explain why a controller can behave differently after moving from the local simulator to Agility's simulator even when its planning algorithm is unchanged.
+
+Digit has recorded model-based and learned-policy operation through LLAPI against Agility's simulator, plus model and drive-alignment investigations. Those results establish specific simulation and interface evidence. They do not establish complete simulator equivalence or qualify this application for physical-hardware operation. Use the [current validation](../../../apps/digit/walking/VALIDATION.md) to identify the model revision, controller, conditions and remaining limitations behind any deployment claim.
+
+## Read a real result
+
+**Question: if a run completes, did the robot do what we asked?** Here is a small example from the recorded October 1 Arena campaign. Digit was asked to move sideways at 0.200 m/s on flat ground with nominal sensor noise. The cadence policy, ALIP and DCM each ran with seeds 0, 1 and 2. All nine selected runs completed.
+
+<figure class="teaching-figure evidence-figure" markdown="1">
+
+![Historical lateral-walking measurements: the cadence policy median is 0.136 m/s, ALIP is 0.198 and DCM is 0.205 for a 0.200 command. Each controller completed three out of three runs.](../../assets/handbook/lateral-tracking.svg)
+
+<figcaption>Figure 3 · Recorded simulation, 2026-10-01. Each hollow circle is one run's steady-plateau velocity; each filled square is the median of three seeds. The dashed line is the command. This campaign predates the current drive model.</figcaption>
+
+[Open full-size plot](../../assets/handbook/lateral-tracking.svg)
+
+</figure>
+
+Read the plot in three passes:
+
+1. **Find the request.** The dashed line marks the same 0.200 m/s lateral command for all three controllers.
+2. **Compare the response.** The policy's median is 0.136 m/s, about 0.064 m/s below the command, or 32% slower. The ALIP and DCM medians lie closer to the command in this example.
+3. **Limit the conclusion.** Completion and tracking are different measurements. This plot does not show transient motion, stopping, actuator margins or the cause of the policy's error. It also does not establish which controller is best on other tasks or on today's code.
+
+<details class="checkpoint" markdown="1">
+<summary>Before changing the policy, what evidence would you request?</summary>
+
+Request time-aligned command and measured velocity, confirm the observation/action contract and actuation model, then inspect joint targets, tracking and saturation. Check whether the shortfall persists across the chosen evaluation scenarios. The result suggests a question to investigate; it does not yet tell you whether to change rewards, inference, state estimation or the Plant.
+
+</details>
+
+<details class="evidence-source" markdown="1">
+<summary>Inspect the numbers and reproduce the figure</summary>
+
+| Controller | Seed 0 (m/s) | Seed 1 (m/s) | Seed 2 (m/s) | Median (m/s) | Completed |
+| --- | --- | --- | --- | --- | --- |
+| Cadence policy | 0.129616 | 0.136660 | 0.136238 | 0.136238 | 3/3 |
+| ALIP | 0.197065 | 0.200260 | 0.197787 | 0.197787 | 3/3 |
+| DCM | 0.197195 | 0.208508 | 0.205089 | 0.205089 | 3/3 |
+
+The [published CSV](../../assets/handbook/lateral-tracking.csv) contains exactly the nine runs shown above, selected from the complete Arena dataset using `campaign=grid`, `condition=nominal`, `terrain=flat`, `motion=left_0.2` and `config=policy|alip|dcm`. No failed runs are removed from this selection. The [original capsule](../../../apps/digit/notes/evidence/2026-10-01-arena-one-gait/README.md) and its [manifest](../../../apps/digit/notes/evidence/2026-10-01-arena-one-gait/manifest.yaml) record the historical experiment and its source patch. The [teaching-figure capsule](../../../notes/evidence/2026-10-18-handbook-walking/README.md), [input specification](../../../notes/evidence/2026-10-18-handbook-walking/data/inputs.json) and [renderer](../../../notes/evidence/2026-10-18-handbook-walking/scripts/render.py) record the selection and presentation. No simulation was rerun to make this plot.
+
+```bash
+# From the repository root; reads the retained compact data.
+pixi run python notes/evidence/2026-10-18-handbook-walking/scripts/render.py
+```
+
+</details>
+
+## Try it in simulation
+
+Use the Digit project on the simulation host. This exercise assumes the repository and Pixi environment are already available; the [running guide](../../../apps/digit/walking/RUNNING.md) covers launch options and the [remote guide](../../setup/remote-development.md) explains display and port forwarding.
+
+```bash
+cd apps/digit
+pixi run build --target digit_corta_walking
+pixi run walk --config alip_walking --print-resolved-config
+pixi run walk --config alip_walking --rerun-web \
+  --log artifacts/handbook/alip-first-run.h5
+```
+
+The simulation and viewer server run on that host. For a remote session, open the viewer through the forwarding described in the remote guide. Use a fresh log name for each run. Preserve the first run as your baseline before changing configuration.
+
+Before running, predict what the measured forward velocity will do during startup, steady walking and stopping. While it runs, connect the picture to the loop:
+
+1. Identify the forward command in the resolved configuration and compare it with measured forward velocity.
+2. Watch startup, stepping and the transition back toward standing. Identify which components own those decisions.
+3. Inspect tracking, contact/support and actuator diagnostics alongside the animation. Record a failure as an outcome to investigate.
+
+After the run, the app-owned plotter can summarize the model-based walking log:
+
+```bash
+pixi run plot-walking artifacts/handbook/alip-first-run.h5 \
+  -o artifacts/handbook/alip-first-run-plots
+```
+
+Changing `--config` to `dcm_walking` selects another canonical scenario, whose motion schedule also differs. To study the planner alone, retain the ALIP scenario and select `--planner dcm`, preserve the other settings and use another log path. The planner profile and reference contract still change deliberately. A useful comparison states exactly what was held fixed.
+
+Your first deliverable can be one annotated plot of commanded versus measured velocity, with startup, steady walking and stopping marked, plus three sentences: what you expected, what happened, and which boundary you would inspect next. Record the model, state source, configuration and code revision beside it. Keep the plot in your project's ignored `artifacts/` while exploring. This makes an agent task concrete without requiring you to understand every API first.
+
+## Find the owner of your change
+
+| Your question | Start here | Evidence to inspect |
+| --- | --- | --- |
+| What command or world should I test? | App scenarios and resolved configuration | Same scenario, seed, model and actuation assumptions |
+| Why did the planner choose this step? | App planner adapter, then `modules/locomotion` | Plan, installed reference and touchdown history |
+| Why did the robot miss the target? | Servo/reference binding, then `modules/control` | Reference versus actual motion, constraints and actuator saturation |
+| Is the estimated state wrong? | Estimation configuration, then `modules/estimation` | Timestamp-matched estimate and diagnostic truth |
+| How should I change learned behavior? | `apps/digit/learning` | Fixed observation/action contract, baseline and physical evaluation |
+| Why does deployment behave differently? | Plant configuration and `modules/digit_hardware` | State source, drive realization, timing and command acceptance |
+
+<details markdown="1">
+<summary>Open the implementation when you need the details</summary>
+
+- [Graph composition](../../../apps/digit/walking/src/main.cpp): the actual systems and their connections.
+- [Servo](../../../apps/digit/walking/src/systems/servo.cpp) and [control transaction](../../../apps/digit/walking/src/systems/servo_control.cpp): the fast model-based path.
+- [ALIP adapter](../../../apps/digit/walking/src/systems/alip_planner.cpp) and [DCM adapter](../../../apps/digit/walking/src/systems/cpp_dcm.cpp): planner-owned behavior.
+- [Reference binding](../../../apps/digit/walking/src/systems/reference_binding.cpp): installing previews into controller tasks.
+- [Policy controller](../../../apps/digit/walking/src/systems/policy_controller.cpp): inference and policy realization.
+- [MuJoCo Plant](../../../apps/digit/walking/src/systems/plant.cpp) and [LLAPI Plant](../../../apps/digit/walking/src/systems/llapi_plant.cpp): the two world boundaries.
+- [App contract](../../../apps/digit/walking/APP.md) and [validation](../../../apps/digit/walking/VALIDATION.md): implemented behavior and its demonstrated limits.
+
+</details>
+
+## Turn your question into an agent task
+
+Give the agent a question, an owner, a baseline, constraints and observable outcomes. You do not need to name every class before asking. You do need enough understanding to judge whether its proposed change answers your question.
+
+> Help me compare ALIP and DCM on the same flat Digit scenario. Explain the current planner/Servo boundary first. Preserve the model, actuation, estimator, command schedule and shared controller calibration; record the planner-specific profiles and reference contracts that change. Reproduce the baseline, then compare tracking, actuator saturation, stopping and failures using separate artifacts. Keep the experiment in app-owned configuration and report what the results establish.
+
+Before accepting a result, ask yourself: did the agent change the component that owns the behavior, preserve the comparison, and show physical evidence for its conclusion?
+
+<div class="next-step" markdown="1">
+
+**Start a project with G1.** Use the [student-project guide](../../setup/student-projects.md) to create a pinned, independent project. Digit supplies the integrated example; your G1 project owns its experiments, configuration and validation. Its [learning contract](../../../apps/unitree-g1/learning/APP.md) is a starting point for learning work. Carry over the ownership and evaluation habits, and check which capabilities the G1 app actually implements before reusing a Digit workflow.
+
+</div>

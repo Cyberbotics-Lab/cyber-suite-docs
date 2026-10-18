@@ -1,0 +1,379 @@
+---
+Status: candidate
+Owner: repo
+---
+
+# Control
+
+## Purpose
+
+Feedback and whole-body control contracts for robot workflows, including the full joint servo controller and TAC-QP core. Robot walking lifecycle policy, planner scheduling, contact schedules, and scenario logging are app-owned.
+
+## Public API
+
+TAC-QP uses combined dense solver preparation when available, retaining the separate sparse path. For timing comparisons, sum `solver_matrix_update_time_us` and `solver_vector_update_time_us`: combined preparation is charged to the matrix timer and the dense vector timer is zero. Three-row CoM/frame/relative-position costs share direct weighted rank accumulation with signed/zero weights preserved; CoM tasks consume the current kinematics-cache position when valid. Logged per-task objective deltas copy only a single declared Ddq or LambdaC block, while mixed-variable tasks retain full copies. This changes preparation/copying, not task objectives, constraints, conditioning, solver settings or torque semantics. Objective parity and integrated timing evidence are retained under `artifacts/servo_computation_20261010/` and the [walking validation](../../apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization).
+
+Sparse-selector actuation uses a guarded reduced holonomic solve for the same coupled left inverse of L=[S,J_h.transpose()]. Non-selector or poorly conditioned cases retain the full Gram solve. Projected dynamics uses leading coordinate rows only after current geometry and left-inverse consistency checks; the generic basis and invalid-map sentinel remain. Built-in joint position/velocity CBFs gather signed contact-projector rows and the same affine acceleration credit, while other barriers retain dense projection. Torque-smoothing cross blocks and three-row costs reuse symmetric contributions, contact-projector Gram assembly uses its lower self-adjoint triangle, and the force allocator uses one combined solver update. These are algebra/storage optimizations with the same task catalog, constraints, contact authority, torque policy and upstream solver algorithms. Bounded parity and timing evidence is recorded in [walking validation](../../apps/digit/walking/VALIDATION.md#2026-10-10-servo-assembly-optimization).
+
+- `robot_state.hpp`
+- `feedback_controller.hpp`
+- `joint_servo_controller.hpp`
+- `terrain_model.hpp`
+- `map_terrain_model.hpp`: bounded map-backed local plane distance/normal, with explicit timestamp/epoch admission and flat fallback (experimental). `MapTerrainModel` owns a fixed snapshot. Its caller sets the maximum age, current clock/epoch and map-to-consumer vertical offset; XY must already share a chart. Signed distance is the local triangle's normal clearance, not the closest distance to the whole mesh. Snapshot updates and queries must be serialized by the owner. The focused `cyber_suite_control.map_terrain` gate covers slope, registration, stale, unknown and out-of-window fallback. The Digit app does not install this adapter yet: its external contact-normal override and estimator vertical gauge require a separately validated contact-geometry integration.
+- `catalog_types.hpp`
+- `cbf_types.hpp`
+- `barrier_evaluator.hpp`
+- `tracking_envelope_barriers.hpp`
+- `joint_limit_barriers.hpp`
+- `capsule_distance_barrier.hpp`
+- `smooth_support_gap_barrier.hpp`
+- `capsule.hpp`
+- `capsule_distance.hpp`
+- `support_proxy.hpp`
+- `collision_safety_model.hpp`: `load_collision_safety_model` finds its profile through `cyber_suite::data::resolve` (foundation), so a robot's profile in package data (`assets/robots/...`) loads from any project
+- `collision_safety_debug.hpp`
+- `constraint_base.hpp`
+- `floating_base_bridge.hpp`
+- `force_allocation_layer.hpp`
+- `friction_pyramid.hpp`
+- `humanoid_walking_controller.hpp`
+- `humanoid_walking_reference_contract.hpp`
+- `passive_elasticity.hpp`
+- `ramps.hpp`
+- `front_end.hpp`
+- `reference_sample.hpp`
+- `reference_trajectory.hpp`
+- `shared_kinematics_cache.hpp`
+- `tac_qp_controller.hpp`
+- `tac_qp_logger.hpp`
+- `tac_qp_telemetry.hpp`
+- `task_base.hpp`
+- `task_scale_types.hpp`
+- `braking_authority_observer.hpp`
+- `acceleration_smoothing_task.hpp`
+- `captured_yaw_relative_position_task.hpp`
+- `centroidal_momentum_task.hpp`
+- `com_position_task.hpp`
+- `com_relative_foot_position_task.hpp` (experimental, retained former ALIP task)
+- `contact_force_regularization_task.hpp`
+- `contact_force_smoothing_task.hpp`
+- `contact_force_tracking_task.hpp`
+- `contact_kinematic_group.hpp`
+- `contact_group_kinematic_stabilization_task.hpp`
+- `frame_angular_velocity_task.hpp`
+- `frame_height_task.hpp`
+- `frame_orientation_task.hpp`
+- `frame_position_task.hpp`
+- `frame_tilt_task.hpp`
+- `posture_task.hpp`
+- `relative_orientation_task.hpp`
+- `relative_position_task.hpp`
+- `external_anchor_position_task.hpp`
+- `slack_regularization_task.hpp`
+- `torque_minimization_task.hpp`
+- `torque_smoothing_task.hpp`
+- `vector_alignment_task.hpp`
+- `box_constraint.hpp`
+- `contact_group_acceleration_constraint.hpp`
+- `joint_tracking_constraint.hpp`
+- `cbf_constraint.hpp`
+- `stance_foot_yaw_momentum_rate_constraint.hpp`
+- `dynamics_constraint.hpp`
+- `friction_cone_constraint.hpp`
+- `holonomic_constraint.hpp`
+- `torque_limit_constraint.hpp`
+- Python package: `cyber_suite.control`
+- Python humanoid-walking assembly: `configure_humanoid_walking_controller_from_yaml`, returning typed task IDs and the builder-selected joint partitions from the same C++ composition used by integrated apps.
+- Python TAC-QP, joint-servo, and walking-runtime plotting package: `cyber_suite.control.plotting`
+- Shared Python plotting support: `cyber_suite.viz`
+
+The control plotting CLI's `tasks` and `all` presets use catalog types to select task-specific figures. Recorded tasks missing type metadata fall back to generic tracking or cost/activation figures with a warning. These plots cannot recover omitted task semantics or joint labels; composing apps must append the TAC-QP metadata catalog after closing the native telemetry stream.
+
+`ComRelativeFootPositionTask` tracks `R_CW (p_foot - c)` with the exact `R_CW (J_foot - J_com)` Jacobian and matching drift. The consumer explicitly selects a three-row swing objective or a one-row stance height objective. Reference storage stays three-dimensional; `active_rows` and per-axis row flags distinguish storage from objective authority in telemetry. The stance role emits no horizontal cost rows. Captured yaw rejects nonfinite updates, and reset clears the chart. This primitive remains available with its existing contracts; the ALIP app no longer uses it. The DCM catalog is unchanged.
+
+`CapturedYawRelativePositionTask` tracks the differential position of two frames in a fixed yaw-only chart supplied by its consumer. Its Jacobian is the same fixed rotation applied to the two-frame translational-Jacobian difference, so common floating-base translation cancels. It does not own gait phase, frame selection, or the captured heading. Digit walking's ALIP planner uses a step-frozen estimated yaw chart with base/foot frames for heading-aligned foot-minus-base tracking, and composes independent `FrameHeightTask` support-height objectives. No live reference-frame attitude enters the chart.
+
+`TACQPController::set_upstream_state_conditioning(true)` selects a composing estimator's conditioned input before initialization. It bypasses only the controller's position and velocity EMA; torque, stiffness and velocity-feedback conditioning retain their configured behavior. The default remains controller-local state conditioning. The composing app owns the shared state filter and its reset policy.
+
+TAC-QP calls `RobotModel::prepare_control_terms` on its final conditioned q/qd before precomputing its own kinematics cache. A composing app may prepare the same state earlier for observations and transforms; an exact match avoids repeated backend evaluation. Other backends retain the no-op hook and existing individual queries. Estimation/physical inputs are not replaced by this control view.
+
+### Ordered constraint relaxation
+
+`TACQPControllerOptions::relaxation_stages` lists constraint families to relax, in order, after a rejected solve. The reusable default is empty. Each stage names inequality or box constraints by id; ids are resolved at `initialize()`, and an unknown id or an equality constraint throws. When the solve is rejected, the controller re-solves the same problem. It relaxes stage 1, then stages 1 and 2, and so on, and commands the first accepted solution. No tasks, estimators or Layer 1 are rerun.
+
+Relaxing moves a constraint's finite bounds to `+/-solvers::kQPRelaxedBound` (1e15). Infinite sides stay infinite, so the solver's bound pattern and every prepared workspace are unchanged, and the relaxed solve allocates nothing. A stage that relaxes no bound is skipped without a solve. A contact-group acceleration constraint in a stage is relaxed only while it is invalid, or while its group capacity Q is below the stage's `contact_capacity_below`.
+
+Relaxation runs only after an attempted primary solve, never on nonfinite problem data. Dynamics and closed-chain equalities are never relaxed. A relaxed command is never CBF-protected.
+
+`Diagnostics::solved` means an accepted command, relaxed or not. Two fields identify it:
+- `primary_qp_solved` identifies the unrelaxed solve.
+- `relaxation_stage` is k when stages 1..k were relaxed, otherwise 0.
+
+`relaxation_attempts` counts the re-solves. `relaxation_solve_time_ms` is included in `solve_time_ms`. `solver_status`, iterations, objective and residuals describe the primary solve. `constraint_violation_max` measures the command against the unrelaxed rows.
+
+Telemetry carries `qp/relaxation_stage`, `qp/relaxation_attempts` and `qp/relaxation_solve_time_ms`, and names the stages in `relaxation/stage_names`. `qp/solved` excludes relaxed commands. Constraint channels log the unrelaxed bounds, so the relaxed rows' violation is visible. `record_applied_torque` still reconciles the controller's history when the composing app substitutes its own command.
+
+The experimental task-space realizations remain environment overrides for learning research: `CYBER_SUITE_TACQP_REALIZATION=beta_newton | cascade_split` replaces the Layer-2 solve on every tick. See the [investigation](../../apps/digit/notes/investigations/2026-10-01-task-space-action-learning.md). They are no longer a fallback. `CYBER_SUITE_TACQP_HOLD_TICKS=N` (with optional `CYBER_SUITE_TACQP_HOLD_EVENTS=1` and `CYBER_SUITE_TACQP_HOLD_LAW=linear|zoh|pd`) is a rate-split experiment: it commands the QP solution every Nth tick and the anchor solution's first-order expansion in between, while the full QP still runs every tick as a shadow. Its 2026-10-12 campaign and limits are in the same investigation; it changes nothing when unset. `TACQPController::inequality_constraint_activity` (with `inequality_constraint_names`) is a read-only diagnostic: per inequality or box constraint, the rows at or beyond a bound of the unrelaxed problem under the last accepted solution, and the largest excess. Experiment 0 of the same investigation reads it.
+
+### Experimental contact centroid acceleration constraint
+
+`ContactGroupAccelerationConstraint` and `TACQPController::make_contact_group_acceleration_constraint` add three fixed world-frame rows on the authorized contact-point centroid. Geometry is the normalized structural point-weight average, including the same average of `J_contact_dot_v`. Group capacity is the maximum stored `contact_force_capacity_qp` over points selected by binary `A=1`, matching the existing contact-group task. It never reconstructs C or H, thresholds Q, or uses Q as a measured contact mask.
+
+For each axis, `abs(Q * (J * ddq + drift - acceleration_target)) <= Q * tolerance + (1-Q) * release_acceleration`, with `acceleration_target = -velocity_damping .* velocity_centroid` in world coordinates. The centroid velocity uses the same authorized structural weights as the Jacobian/drift. The standalone typed config defaults its per-axis `velocity_damping` to zero for acceleration-only diagnostics. Nonzero gains must be finite and nonnegative, and require finite active contact velocities. Q=1 enforces the tolerance around that target; Q=0 leaves zero rows and unbounded row limits without reading contact velocity. Intermediate capacity opens the finite physical band to `tolerance + (1-Q)/Q * release_acceleration`. There are no slacks or new state transitions. Fixed declared ddq sparsity includes the rows even when setup occurs at zero capacity. Invalid active kinematics creates an infeasible row rather than silently releasing contact.
+
+The shared humanoid builder accepts `controller.contacts.acceleration_constraint` with `enabled` (default false), `tolerance` (default 0.5 m/s2), and `release_acceleration` (default 100 m/s2). Tolerances must be finite, nonnegative/positive respectively, even in a disabled block. When enabled, `left_contact_acceleration` and `right_contact_acceleration` each own three rows. Python exposes the same typed config and factory; Digit's applied YAML records the effective settings. In the walking composition, velocity damping is derived from the existing enabled `kinematic_stabilization.centroid_kd` in world x/y, with z zero. If that stabilization block is disabled, the target is zero. This keeps the hard band compatible with the existing horizontal slip-damping objective without introducing another YAML gain. The standalone factory accepts explicit per-axis gains instead. Native constraint diagnostics declare validity, group Q, selected-point count, scaled bound, acceleration/drift by axis, and scaled violation. Six appended scalars report world contact velocity and the acceleration target; the original eleven indices retain their order. Violation is measured relative to the target. Kinematic values are unavailable at Q=0, where they are not evaluated; the violation is zero. With zero damping, missing velocity is allowed and logged as unavailable rather than as zero.
+
+The checked-in Digit walking profile explicitly enables this experimental block. That selection does not qualify startup or terrain behavior; see the walking app's validation record. Consumers omitting the block retain the shared builder's disabled default.
+
+This is a translation model of a configured centroid, not a six-dimensional rigid patch, terrain contact estimator, or occupancy guarantee. Positive Q on an airborne foot can still constrain its acceleration. Existing forces, holonomic dynamics, velocity/shape stabilization, and contact-projected CBFs retain their contracts. The CBF point projection is not identical to these three centroid rows. Dynamic adoption belongs to the walking app's validation.
+
+### Candidate diagnostics
+
+`diagnostics/braking_authority_observer.hpp` compares aligned predicted and observed planar acceleration over a bounded window without feeding a value back into the controller. `collision_safety_debug.hpp` resolves overlay shape data and selected capsule-pair measurements from a collision profile without a simulator or viewer dependency. Integrated apps own configuration, rendering, telemetry, and any interpretation of these diagnostic values.
+
+## Retired lateral DCM allocation
+
+The experimental `LateralDcmCommand`, `LateralDcmDiagnostics`, and `lateral_dcm` command/result fields were removed on 2026-09-19 after the [Digit scenario comparison](../../notes/journal/entries/2026-09-19-lateral-dcm-scenario-comparison.md). Its three integrations completed 24/46, 19/46 and 20/46 scenarios versus baseline's 34/46, with poorer forward tracking and prolonged stopping.
+
+The predictive objective, roll-momentum constraints, dedicated `set_projected_momentum_rate_target` handoff, and fifth `regulated_momentum_task_name` argument to `enable_force_allocation_cascade` are removed from the native and Python interfaces without compatibility shims. Rebuild native consumers after this source/ABI change. The ordinary centroidal command, force/moment tracking, optional planar feedforward and vertical-height feedback remain supported; the generic HDF5 allocation schema is unchanged.
+
+## Retired reference charts
+
+`TaskBase::replace_inactive_vector_reference_trajectory` installs a complete future without an old-chart C2 splice only when the task is disabled and its activation has reached zero. It rejects enabled or retiring tasks. Callers own chart metadata; RHRS continues to own all sampling. Ordinary active retargeting still uses `set_vector_reference_trajectory` with a C2 join. TRON1 uses the guarded operation when reusing a swing task in a new captured yaw chart. The reference sampling suite verifies the retirement guard.
+
+### Independent state conditioning
+
+`SignalConditionerConfig` and the humanoid controller profile accept optional `base_linear_velocity_cutoff_hz` and `base_angular_velocity_cutoff_hz`. They filter the respective three-row floating-base tangent velocity blocks. An omitted value inherits `qd_cutoff_hz`, preserving legacy whole-velocity conditioning; explicit zero passes that block through. Fixed-base models ignore the base overrides. `qd_cutoff_hz` still filters joint velocities and `q_cutoff_hz` filters joint positions (base pose only when explicitly requested). Base overrides must be finite and nonnegative. Each block primes from its first input; conditioning performs no per-tick allocation. The task-space JSON emits effective numeric cutoffs for the batched consumer; Python bindings expose optional overrides as `None` or numbers. These are control-state bandwidth settings, not changes to an upstream estimator's covariance or IMU propagation.
+
+## Dependencies
+
+- Eigen
+- yaml-cpp
+- optional HighFive/HDF5 for TAC-QP and app-local joint-servo/walking-runtime logging
+- Python plotting dependencies: h5py and matplotlib
+- `cyber_suite_foundation`
+- `cyber_suite_solvers`
+- `cyber_suite_robot`
+- `cyber_suite_estimation`
+- `cyber_suite_perception` -- fixed terrain product for the experimental map adapter
+- pybind11 for Python bindings
+
+## Consumers
+
+- Future integrated robot control apps under `apps/`
+- `apps/digit/walking/digit_corta_walking`
+- Future examples that demonstrate control APIs without owning robot behavior
+- Python tooling that inspects controller diagnostics and configuration
+- Python analysis workflows that inspect TAC-QP, joint-servo, or app walking-runtime HDF5 logs and generate plots
+
+## Task-Owned Receding-Horizon References
+
+The candidate control module owns runtime-independent continuous-reference infrastructure for TAC-QP tasks. `TaskBase` owns its installed reference and activation trajectories and samples them in `tick()` before cost assembly. The implemented slice accepts absolute-time nonuniform complete-jet vector, scalar-activation, and SO(3) samples.
+
+When replacing an active preview, each trajectory constructs one bounded C2 prefix from the actually executed jet to the candidate jet sampled at the caller-provided join time. Candidate knots inside the prefix remain continuous boundaries, so the task does not smooth across an authored apex or hold. The candidate is exact no later than the join. A task's first authoritative trajectory is installed directly because there is no prior future to reconcile.
+
+Every setter has task-local strong exception safety: it constructs and validates its own replacement before changing the task. There is deliberately no batch `prepare`/`commit`, cross-task rollback, provisional admission state, or partial-generation recovery. A composing app may call several independent setters with the same join time; if a later call throws, the app must fail before QP solve or command publication rather than continue from mixed state.
+
+A producer on the control tick can install without allocating. Once `TaskBase::prepare_reference_storage` and the trajectories' `prepare_storage` have run, a same-shape future installs by copying into the prepared storage. `set_knots` takes a span, so a producer with a variable knot count installs a prefix of one fixed, pre-sized knot pool. The splice-deviation diagnostic and `CentroidalMomentumTask`'s cost buffers are sized at the same point, so a task first activated after startup does not allocate either. `TACQPController::prepare_solver_workspaces` does the same for the solver's shapes and seals them. Both Digit walking Servos gate this with an allocation probe from estimator authority on.
+
+Scalar activation additionally proves every complete-jet candidate and splice segment remains in `[0,1]`. A bound-breaking curve throws during installation; sampling does not introduce a discontinuous saturation policy.
+
+The future contract may allow missing velocity or acceleration constraints and must infer absent derivatives rather than treat them as zero. That presence encoding and inference are not implemented and must not be claimed by current consumers.
+
+The module does not own producer scheduling, task catalogs, planner or contact semantics, join-time policy, retargeting, retiming, reshaping, physical-limit policy, or application lifecycle. The maintained first consumer is the fixed Python DCM/Digit TAC-QP stack. Module validation covers complete-jet C2 splice boundaries, direct first install, interior-knot and post-join candidate preservation, nonuniform time, activation bounds, and task-local structural failure. Walking behavior remains app-owned scenario evidence. There is no owned reference-planning example.
+
+## Configuration loading
+
+`HumanoidWalkingControllerConfig` owns controller values, while integrated apps own profile composition. `read_humanoid_walking_controller_section` reads a `controller` mapping through `config::ProfileReader`: every key is required, an unknown or duplicated key fails with its qualified path, and the two stance-foot yaw blocks are the only optional sections, because building either adds QP rows even disabled. `read_humanoid_walking_controller_profile` and the path overload read a document's `controller` mapping and leave its sibling sections to the composer. `humanoid_walking_controller_section_yaml` is the report emitter; reading its output gives an equal configuration. Contract-specific tasks live in two sections, `support_relative` (`base_height`, `swing_foot_position`, `vertical_com_regulation`, `pelvis_orientation`) and `base_relative` (`base_height`, `swing_foot_position`, `vertical_acceleration_limit`, `pelvis_orientation`); the former top-level keys and the `stiffness_cutoff_hz` alias fail with a migration message. Pelvis orientation is per contract because the swing each planner authors sets how much torso yaw damping it needs.
+
+## Logged Diagnostics
+
+TAC-QP telemetry logs only what cannot be recomputed from other logged channels with plain arithmetic. Per task, that is the reference and actual state, `desired_acceleration` (its gains are not logged and some are state- or role-dependent), `drift_term`, the task-defined `position_error` and `velocity_error`, cost and named diagnostic scalars. Per constraint, it is `Ax`, `lb`, `ub`, named scalars, CBF `h` (plus `surface_distance` for collision barriers) and holonomic `phi`/`phi_dot`; the debug stream adds CBF `psi1`, drift, residuals and source diagnostics. CBF row validity and emergency slack are summarized per tick by the `qp/cbf_*` channels.
+
+Not logged, because a reader derives them: constraint `max_violations` and `satisfied` (from `Ax`/`lb`/`ub`), holonomic `phi_norm`, `phi_dot_norm` and `constraint_error_norm`, `qp/dynamics_residual_*`, `qp/holonomic_residual_*`, `qp/constraint_violation_max` over the logged rows, and Layer-1 `normal_force_utilization` (`normal_force / normal_upper`). `TACQPLogData` derives each when a log lacks it, and keeps an older log's logged value. The CBF plotter recovers emergency slack as `relaxed_residual - physical_residual` and degree-two `h_dot` as `psi1 - alpha1 * h`, or a finite difference of `h` without the debug stream. `Diagnostics::constraint_violation_max` remains a controller field; the Digit servo stream records it every tick.
+
+Removed outright: the task gain terms `kp_term`/`kd_term`, the objective attribution fields (`residual_cost_value`, `normalized_dissatisfaction`, `objective_influence_*`, which cost about 50 µs per tick of Hessian copies), and the per-tick feasibility report. The legacy affine `costs` dataset is not objective attribution.
+
+## Projected Dynamics Contract
+
+The default TAC-QP formulation eliminates actuator and holonomic reaction forces with `L = [S J_h^T]`. Its dynamics equality uses a complete orthonormal basis `N` of `null(L^T)`:
+
+`N^T (M ddq + h - J_c^T lambda_c) = 0`.
+
+For full-column-rank `L`, the fixed row count is `max(0, nv - na - nc)`. The runtime basis is formed from coordinate directions projected through `I - L L^+`, then re-orthogonalized without hot-path allocation. This retains every uncontrolled direction; selecting the first rows of the projector is invalid because those rows may be zero when the corresponding coordinates are actuated. Missing, nonfinite, rank-deficient, or dimensionally inconsistent coupled maps fail closed rather than silently omitting dynamics equations.
+
+## Experimental CBF Safety Contract
+
+The supported experimental CBF authoring path separates safe-set evaluation from QP assembly. A `BarrierEvaluator` owns fixed-size `h`, `h_dot`, derivative, drift, validity, and source-diagnostic data. It binds required model/cache resources before controller initialization and invalidates its preallocated output before every evaluation. `CbfConstraint` is the shared row assembler for first- and second-order barriers. All rows and any configured bounded slack are registered before `TACQPController::initialize()`; the controller never changes QP structure at runtime.
+
+Every `CbfConstraint` row is restricted to the accelerations the active contacts permit, for all barrier families. Barriers write `A_ddq` in free-space kinematics, but a planted foot holds its own frame, so the reachable set is the affine set `ddq = ddq_p + N_c z`. `CbfConstraint` post-multiplies each row by `SharedKinodynamicsCache::N_contact` and credits its drift with `A_ddq · contact_ddq_particular`; both halves are required, because projecting coefficients alone asks for the same `h_ddot` from a shrunken row. `h` and `h_dot` are measured and never modified. The projector is built once per tick by `TACQPController::update_contact_nullspace_projector`, after the front end publishes `contact_force_capacity` and before constraints read it, weighted so a row's projection strength equals that contact's `Q` — the same `Q = A C H` the friction cones and contact stabilization task are gated by, and continuous, so no threshold appears in the constraint matrix during load transfer. Do not confuse `N_contact` with the projected-dynamics `N` above: that one is a basis of `null(L^T)` for the dynamics equality, this one is a projector on `ddq` for barrier rows. With no contact carrying capacity, `N_contact_valid` is false, the projection is skipped, and row arithmetic is unchanged. A row that keeps less than a thousandth of its norm under the projection is reported `Uncommandable` and written vacuous rather than infeasible, because it is an ordinary condition — a foot-foot pair is uncommandable in every double-support tick — and must leave the solve without taking the solve down. The algorithm, its rejected alternatives, and the measured behaviour are recorded in [`notes/investigations/2026-08-07-contact-projected-cbf-rows.md`](../../notes/investigations/2026-08-07-contact-projected-cbf-rows.md).
+
+`JointPositionBarrier` and `JointVelocityBarrier` use explicit, independently validated configuration and velocity indices, so floating-base `nq != nv` mappings do not rely on an index-offset assumption. `CapsuleDistanceBarrier` loads only explicitly named capsule pairs from a strict, versioned `CollisionSafetyModel` profile. It recomputes the exact capsule distance and automatic closest-point witnesses once per pair per tick, then freezes those witness parameters for the local Jacobian. Freezing is exact for `h_dot` by Danskin's theorem, but not for the drift: the witness slides, so the frozen drift overstates `h_ddot` by the curvature energy of the witness velocity. That deficit is computed from the witness Hessian and removed, which makes the drift match the true second derivative on interior branches and leaves strict endpoint branches unchanged. A borderline endpoint is treated as sliding, which overstates the deficit and tightens the row. The deficit is dominated by the smallest witness-Hessian eigenvalue, because a low-curvature mode is one the witness slides along quickly and that eigenvalue sits in the denominator. Truncating it discards nearly the whole correction rather than a negligible part, so truncation, a sliding rate that leaves the branch within one control period, and the configured deficit ceiling are all reported as approximate. `drop_uncertified_rows` removes those rows from the safety solve, but that is fail-open rather than fail-closed: it grants the nominal controller more authority exactly where the model is least trustworthy, and it measurably deepened penetration on the Digit foot-approach diagnostic, so it defaults off. A kept approximate row is reported `Uncertified`: it remains a hard QP row, but the controller reports the command `Unprotected` and never sets the CBF-protected flag. Coincident witnesses remain degenerate because their separating normal is undefined.
+
+`SmoothSupportGapBarrier` avoids that whole correction by not using a distance. For any direction `n`, `n' (c_B - c_A) - rho_A(n) - rho_B(n)` is at most the true clearance, so a nonnegative value certifies the pair apart. The directions come from explicit formulas of the configuration rather than an optimisation, and the proxies' support radii are smooth by construction, so both derivatives are exact with no envelope argument, no witness, and no branch to leave. A support radius is only twice differentiable where the body has strictly positive curvature, which is why exact boxes and capsules are disqualified and why the flat cylinder side is the same defect as the capsule barrier's feature switch; `SupportProxy` restores smoothness by padding each absolute value outward by a declared number of millimetres. Candidate directions are combined with a _normalised_ smooth maximum, `(1/beta) log((1/K) sum_k exp(beta g_k))`, whose `1/K` is what keeps it a lower bound on the true maximum — an unnormalised log-sum-exp would exceed it and break the safety implication, which is the opposite of the convention a smooth minimum over sphere pairs needs. With `CenterAxesAndCrossProducts` and two `Box` proxies the direction set is the separating-axis theorem's complete one, so the zero level set is the true contact boundary and only the values away from it are understated. Each row publishes its whole conservatism budget — shape padding plus `log(K)/beta` — so the approximation can be compared against the clearance it is charged against; on Digit the seven configured pairs spend 5.4 to 6.0 mm against clearances of 10 to 30 mm and evaluate in about 10 us together. The aggregation contributes `beta * Var_w(g_dot)` to the drift, which is nonnegative and therefore relaxes the row; a sharp `beta` costs less than its curvature alone suggests. Every row is Valid or Invalid, never Degenerate: coincident centres and parallel axes fall out as small, smooth, heavily negative candidates rather than as undefined normals. Each row publishes named surface/centerline distances, witness parameters and features, centerline sine, closest points, separating direction, the witness drift deficit, its minimum relative eigenvalue, its slide horizon, and its status through the generic source-diagnostic channel. Consumers must resolve those columns through `cbf_source_diagnostic_names` rather than assuming a fixed stride. Invalid or degenerate rows fail the safety solve instead of reusing stale or zero-filled coefficients.
+
+TAC-QP owns exactly one automatically generated joint-position family and one joint-velocity family. Their stable IDs are `joint_position_limit_cbf` and `joint_velocity_limit_cbf`. Each is 2n hard rows -- upper then lower -- at the raw robot-model limits, and there is no inward operational band nested inside them. `TACQPControllerOptions` exposes two knobs per family: `enforce_model_limits` and `model_limit_response_time_s`.
+
+The response time maps to `alpha = 1 / response_time_s`. Alpha is a rate, so a _larger_ alpha is more permissive: it lets a joint approach its stop faster. This inverts the plain-language reading of the field and is the trap to watch. The second-order position row is `q_ddot <= alpha^2 * h + 2 * alpha * h_dot`, so alpha is not a gentleness dial -- it sets a per-joint acceleration cap proportional to `alpha^2` times the distance to the bound. The default 0.01 s (alpha = 100) keeps both families inert in nominal motion.
+
+A previous automatic inward joint-limit margin was removed. At equal gains, its rows dominated the physical model-limit rows by a constant offset and acted as an acceleration cap throughout the joint range. This history concerns a blanket inset of model limits; an app's task-relative operating envelope has its own reference, gains and feasibility tradeoff. The controller does not automatically add or relax such app requirements.
+
+The controller performs one solve per tick. For a family with `EmergencyRelaxation::bounded(...)`, bounded slack is available in that same QP; it is not opened by a second solve. Families configured with `EmergencyRelaxation::disabled()` stay hard. An accepted solution is reported `Strict` only when independent residual checks pass, measured `h` and (for relative degree two) `psi1` are admissible, and all rows are certified and commandable. A solution that requires configured slack is reported `EmergencyRelaxed`; invalid data, inadmissible measured states, uncommandable rows or failed acceptance checks withhold the protection claim. Initial admissibility gates priming; after priming an inadmissible measured state revokes protection without withholding an otherwise accepted recovery command. `SolvedInaccurate` requires finite primal and dual residuals within the configured limits.
+
+`Strict` and the current `command_is_cbf_protected` flag describe the accepted QP result and measured barrier admissibility. The implementation does not revoke that flag when velocity feedback, effort clipping or torque filtering changes the inverse-dynamics torque. Consumers must therefore not interpret it as certification of the applied command; physical enforcement must be validated separately.
+
+This is a conditional sampled-data QP contract, not a proof of continuous-time, intersample, model, geometry, solver, actuator, environment-collision, or hardware safety. A consumer must separately validate its initial safe set, geometry, rates, feasibility, timing, stop behavior, and command application. In particular, the capsule drift is corrected for witness sliding only within the active branch. Capsule distance is piecewise twice differentiable, so its second derivative still jumps where the closest-feature branch changes, and the correction does not address that jump. Rows whose deficit is truncated, rate limited, or capped are reported approximate. With the default `drop_uncertified_rows=false`, they remain hard rows but are marked `Uncertified`, which withholds the protected-command claim. Opting into row dropping marks them `Degenerate` and removes them from the safety solve; that policy is fail-open. `SmoothSupportGapBarrier` removes that failure mode but replaces it with a conservatism the caller must budget for: it under-states clearance by its published padding and aggregation margin, plus however loosely each proxy wraps its link and, outside the box-box complete direction set, however far the chosen directions fall from the true separating one. Neither of those last two is knowable from the evaluator, so a profile has to justify its proxies against the robot's real collision geometry rather than against the capsules it replaces. The deprecated inheritance API was removed on 2026-09-12: `FirstOrderCBFConstraint`, `SecondOrderCBFConstraint`, `JointPositionLimitCBF`, `JointVelocityLimitCBF`, `SelfCollisionAvoidanceCBF`, `CentroidalMomentumCBF`, the legacy-only `CollisionManager`/narrowphase cache, and the C++/Python `make_centroidal_momentum_cbf` factory. Author barriers with `BarrierEvaluator` and register them through `add_cbf()`; `BarrierDescriptor::required_frames` automatically registers cache frames. Joint-limit convenience factories remain and already construct the shared implementation. Historical semantic enum/log IDs and plot readers remain so recorded runs can still be inspected.
+
+Digit walking uses this same path for its torso tilt envelope: degree-two position and degree-one velocity instances of `FrameTiltEnvelopeBarrier`, with hard rows and app-owned reference selection and bounds. See the [app contract](../../apps/digit/walking/APP.md#torso-tilt-envelope).
+
+### Experimental tracking-envelope evaluators
+
+`JointTrackingConstraint` (kind `joint_tracking`) imposes a task's sampled joint reference as a hard acceleration equality, one row per joint: `ddq_j = a_ref + kp (q_ref - q) + kd (v_ref - v)`. Unlike the weighted `PostureTask`, no other task can trade against these joints, and the dynamics constraint supplies their torque. The rows are never softened. A reference whose size does not match, or that is not finite, holds the joints by damping alone (`ddq_j = -kd v_j`), so the rows never vanish. The reference task must outlive the constraint and be ticked before assembly, as `TACQPController` does. A focused contract test covers the rows, the damping fallback and the argument checks. Digit walking's `controller.arm_posture.mode: constraint` is the first consumer. In flight, when no contact can supply momentum, these rows can leave the joint-limit barriers no solution; see the walking validation.
+
+The reusable tracking-envelope API is `FrameTiltEnvelopeBarrier` in `tracking_envelope_barriers.hpp`. It supplies reference-relative safe sets to `CbfConstraint` and does not register operational limits automatically. Dependencies are RobotModel, TaskBase's sampled references and SharedKinodynamicsCache. Digit walking is the first consumer; its app owns selection, bounds, gains and enablement. No additional example framework is needed.
+
+The evaluator borrows a reference TaskBase that must outlive it and must be sampled before evaluation. `JointTrackingEnvelopeBarrier` and `FrameHeadingEnvelopeBarrier` were removed with their sole runtime consumer, Digit's retired arm/pelvis-yaw envelope, on 2026-10-11. Historical log readers retain the old evaluator identifiers.
+
+Frame tilt bounds roll and pitch against the same kind of world-orientation reference. Its two coordinates are the x and y components of `R_ref^T z`, the frame's +Z axis in the reference frame. They are zero when level with the reference and equal the sine of a single-axis tilt error. The degree-two bound is an angle below pi/2, applied to the coordinate as its sine. The degree-one bound applies to the coordinate rate, which is the tilt rate when level. The derivatives include the moving reference frame: `e_dot = R_ref^T ((w - w_ref) x z)`, and the acceleration adds the reference's angular acceleration and both rotation terms. A frame within acos(0.1) of opposing the reference +Z invalidates the evaluation. The control unit suite checks h, h_dot and the acceleration row against finite differences of a moving reference, with allocation-free evaluation. Like every `CbfConstraint` family, its rows pass through the shared contact projection. On a floating base held by Q-banded contacts this bounds the contact-consistent part of the commanded tilt acceleration, which can differ from the QP's own commanded tilt acceleration by tens of rad/s^2 in double support (see the Digit walking validation of 2026-10-11).
+
+Gains and relaxation remain inputs to `add_cbf()`. Invalid references or geometry invalidate the whole evaluator; runtime evaluation uses preallocated storage. Metadata records the reference task, evaluator, upper/lower coordinate row names and units. Normal h/h_dot channels suffice to reconstruct the conditioned tracking value and its symmetric bound. Debug source diagnostics name actual/reference position, actual/reference velocity, reference acceleration, error, relative velocity, unprojected drift and the bound. Logging this error does not turn it into a physical truth measurement.
+
+The historical tracking-envelope CBF plot suite adds `cbf_envelope_<constraint_id>` figures for its recorded joint/heading evaluator identifiers, pairing `/upper` and `/lower` row names rather than assuming row order. It plots `(h_lower - h_upper)/2` against the symmetric bound `(h_upper + h_lower)/2`, with reference-task provenance. The standard loader merges optional session `tac_qp_debug` constraint channels only when both tick indices and simulation timestamps match the main stream; otherwise it warns and keeps the ordinary channels. Legacy logs remain readable. Debug diagnostics refer to the evaluator's unprojected geometry, while debug constraint drift and residuals include the shared contact projection. Degree-one rate/phase diagnostics use the QP-commanded rate reconstructed from residual and gain; degree-two ones recover `h_dot` from `psi1` and `alpha1`, or from a finite difference of `h`. Phase portraits select the busiest rows within the configured grid capacity.
+
+Validation requires reference-derivative and model-mapping checks, a bounded allocation check, metadata/plot reader coverage, and Digit's matched integrated scenario. A universal arbitrary-task envelope, full SO(3) orientation envelope, payload policy and physical invariance certification are outside this API.
+
+## TAC-QP Contact Force Contract
+
+TAC-QP uses 3D point-force decision variables and point friction cones only. All load-bearing contact-force consumers share one stored QP-facing `force_capacity_qp` scalar `Q` per contact. The composition is:
+
+```text
+Q[g,p] = A[g,p] * C[g] * H[g]
+```
+
+`contact_release_hold(group)` exposes the current front-end `H` without changing it; unresolved groups return zero. Together with the existing `R`, `C`, `A` and `Q` accessors, this supports raw planner-side evidence even when `A` is zero and `H` cannot be recovered by dividing `Q`.
+
+`C` is the DSG-owned normalized group capacity. `A` is a complete binary point-topology map; it selects heel/toe/edge points but is not a continuous planner confidence. `R` is group reference retention, and `H` is the front-end-owned release hold. The front end forms raw retention from explicitly contact-scoped motion objectives, then applies one symmetric exact first-order filter. `R` is release-only: capacity consumes its falling edge through `H`, never its level or its rise. `H` takes the whole of each fall and then recovers toward one on its own constant, with recovery suppressed while `R` is still falling. Consuming the level instead pins `H` at zero for an entire swing and hands `R` veto power over admission, and letting recovery compete with the fall reverses `H` mid-release. A 3-vector linear reference is judged as motion over the ground, in world coordinates: `v` is `TaskBase::linear_velocity_reference_over_ground`. A task measured from a moving frame inverts its own velocity map and adds that frame's measured velocity (`R_WC v_ref + v_a` for the captured-yaw relative task, `R_Wa v_ref + v_a` for `RelativePositionTask`, `v_ref + v_a` for a relative `FramePositionTask`, and the supplied anchor velocity for `ExternalAnchorPositionTask`). A world-anchored task uses its reference as authored. Read in its own coordinates instead, a base-relative swing authors a planted foot at minus the base velocity and releases it for as long as the task is active. A task that cannot express its reference over ground (no captured chart, reference frame not cached) is invalid reference data. For a unit group contact normal `n`, linear reference energy is `(||v_t||^2 + max(dot(n,v),0)^2) / linear_scale^2`; closing normal velocity is not release intent. Angular reference energy remains the normalized squared angular speed of the reference as authored; no contact-scoped angular task is measured from a moving frame today. The group normal is formed from finite cached point normals; a missing valid normal conservatively restores the full linear-speed norm. Absolute reference displacement does not enter retention.
+
+Contact groups are fixed before initialization. Missing/non-finite `C`, missing/non-binary `A`, invalid reference data, or incomplete bindings fail closed at zero. The release hold is the only contact state TAC-QP keeps; there is no contact admission state, explicit release-authority input, planner-vs-estimator mode, or capacity ODE. Admission is `C` alone: `H` is at one whenever nothing is being released, so `Q` reduces to `A*C` there and the capacity magnitude stays DSG's to set.
+
+Friction cones, force allocation, and contact-force tracking use the same stored `Q` for normal-force capacity or load-bearing inclusion. Layer-1 force allocation and Layer-2 whole-body TAC-QP must not introduce separate contact-support gates; any binary active-contact diagnostics are derived from nonzero `force_capacity_qp`. The default cascade tracks the full Layer-1 point-force handoff. An experimental composition may instead track one planar force resultant per configured support group while preserving Layer 1's per-point vertical loads; this relaxes only virtual-corner tangential-force distribution and does not infer physical corner contact, a measured center of pressure, or a group force-capacity budget. `ContactKinematicGroupSpec` remains a separate arbitrary-size kinematic stabilization contract and does not alter contact-force allocation.
+
+Layer-1 force allocation keeps net-force tracking weight separate from centroidal moment tracking weight. Defaults preserve the historical objective, but integrated walking configs may reduce moment weight without disabling the net-force target. This prevents double-support holds from relying on a dominant zero-moment objective that can choose a one-foot force-allocation corner. Layer 1 also supports an independently validated positive per-axis limit on the desired centroidal angular-momentum rate. Positive infinity is the sole unbounded encoding and remains the default on every axis. Allocator diagnostics distinguish measured angular momentum, the raw feedback/feedforward command, the limited command used by the QP, and exact per-axis limit activity. The combined feedforward-plus-feedback CoM acceleration has the same kind of positive per-axis limit; positive infinity preserves the historical behavior.
+
+The optional `vertical_height_task_names` argument to `enable_force_allocation_cascade` binds WorldZ `FrameHeightTask` instances at initialization. Each tick, after reference sampling and state conditioning, the first task with an enabled activation target supplies both height and height-rate errors from the current shared kinematics cache. No enabled target supplies zero errors; an empty binding list preserves caller-owned CoM references. Humanoid walking binds left then right support-height tasks when vertical regulation is active. This is support-relative base-height feedback used to request world CoM acceleration, not a world CoM position measurement.
+
+`FrameHeightTask` and `CapturedYawRelativePositionTask` publish additive named `acceleration_achieved` and `acceleration_achieved_{x,y,z}` diagnostics, respectively. These are the accepted QP prediction `J*ddq + Jdot*v` in the task coordinate. Historical `desired_acceleration` still targets `J*ddq`; add `drift_term` before comparing full accelerations. Differentiated logged task velocity includes state conditioning and is a distinct measured quantity. Consumers resolve diagnostic columns by name; old logs remain readable without the achieved fields.
+
+Humanoid walking composition exposes four planar velocity-realization modes. `duplicated_velocity_feedback` preserves the validated default: Layer 1 and Layer 2 independently apply feedback to the same planner-owned velocity. `layer1_force_only` removes the Layer-2 row, and `layer2_acceleration_only` removes planar velocity feedback and planar force-cascade tracking from Layer 1. `shared_feasible_acceleration` applies one bounded velocity loop in Layer 1, keeps Layer 2's direct velocity gain at zero, and publishes Layer 1's solved planar resultant to the centroidal-momentum task as physical momentum-rate feedforward. The last three modes are explicit research ablations, not canonical capability claims.
+
+`CentroidalMomentumTask` separately owns a reusable six-row generalized- acceleration cost. Its vector jet means `(h_ref, hdot_ref, hddot_ref)`; momentum is first order in generalized acceleration. The physical request satisfies `(I + Kd) hdot_request = hdot_ff + Kp (h_ref - h) + Kd hdot_ref` with nonnegative dimensionless `Kd`. This solves rate feedback implicitly instead of mistaking `A_g_dot_v` alone for the current momentum rate. With `Kd=0`, it is the ordinary first-order momentum loop. The default `hdot_ff` is the first reference derivative. `set_momentum_rate_feedforward` supplies an independent physical wrench for one solve attempt, including failed/skipped attempts; reference sampling does not overwrite it. The second derivative is never used as force feedforward. The `actual_velocity` log reports achieved `A_g * ddq + A_g_dot_v`; drift remains separately named in diagnostics.
+
+The four-argument constructor/factory signature is retained and delegates to positive-infinite per-row limits. Its former second-derivative/drift-feedback semantics were corrected on 2026-09-10; numerical compatibility with that bug is not retained. The additive overload accepts one positive finite or positive-infinite physical momentum-rate limit per row. It clamps the feedback/feedforward request before subtracting `A_g_dot_v`; therefore linear rows are bounded in `N`, angular rows in `N*m`, and the limit never clips the drift-subtracted `A_g * ddq` target.
+
+Every evaluation clears its prior outputs before validating bindings, adapters, cache data, dimensions, and finite values. Failures retain the specific `NOT_BOUND`, `MISSING_ADAPTERS`, `CACHE_MISS`, `INVALID_DATA`, or `EXCEPTION` status and write no cost. A successfully refreshed zero-activation task reports `SKIPPED`; a written cost reports `OK`. The task publishes 30 named diagnostics for raw, limited, achieved, limit-active, and drift values in six-component linear-then-angular order. `actual_position` remains centroidal momentum and the historical `actual_velocity` field remains `A_g_dot_v`; the plotter uses the named achieved-rate diagnostic when present and labels the old field as drift. Logs without the additive diagnostics remain loadable and plottable.
+
+`ForceDistributionConfig` independently supports a positive finite or positive-infinite three-axis angular-momentum-rate command limit. Positive infinity remains the default, including for the legacy constructor, so existing force-distribution tasks retain their prior unbounded command. A finite limit clips only the synthesized angular wrench command after feedforward plus feedback; it does not bound the wrench ultimately realized by the full TAC-QP. Nine additive named diagnostics record the raw command, limited command, and limit-active bit for `Mx`, `My`, and `Mz`.
+
+Humanoid walking compositions may register a separate `bounded_yaw_force_distribution` task with only its `Mz` weight and gain nonzero. This preserves a fixed task catalog across disabled/enabled ablations without restoring the broad force-distribution `Fx/Fy` rows. Contact inclusion continues to use the shared `force_capacity_qp` threshold. This remains a soft contact-force objective; neither its command limit nor its task name implies a hard bound on achieved centroidal moment.
+
+Initialization conflict checks are active-row aware. A centroidal yaw `M_z` row may coexist with force-distribution `F_x/F_y`; an actual shared nonzero row still emits the conflict warning. Zero-duration activation requests apply immediately, while delayed or nonzero-duration ramps retain their existing interpolation contract.
+
+HDF5 contact-capacity semantic version 2 publishes group `estimated_group_capacity` (`C`), group `group_reference_retention` (`R`), point `contact_authority` (`A`), and point `force_capacity_qp` (`Q`). The internal release hold `H` is not a separate dataset. Offline consumers use stored `Q` directly; an exact composition check must replay `H` from `R` and must not substitute `R` for `H`. The force-allocation cascade separately publishes `contact_capacity`, which is the exact same stored `Q` consumed by Layer 1. The contact-diagnostic `normal_force` is the QP decision `n^T lambda`, not measured plant or simulator load. Legacy support/release fields are not loaded as aliases.
+
+The always-on controller diagnostics also publish the final QP-predicted total-body linear centroidal acceleration in world coordinates, with an explicit validity bit. It is computed from the accepted `ddq`, the shared centroidal matrix and its drift term, and never depends on HDF logging being enabled. Runtime realization observers may consume this diagnostic without turning logging into behavioral authority.
+
+QP gradients, `ddq`, tracking error, gains, task weights, and absolute reference displacement do not enter retention. Tasks without explicit `intent_contacts` do not participate. The removed ddq-gradient estimator's pressure configuration and diagnostics are not retained in the C++, Python, or HDF5 contracts. TAC-QP does not own or cache a contact estimator, estimator snapshot, or observer residual.
+
+## TAC-QP Signal Conditioning Contract
+
+Default TAC-QP signal conditioning activates model stiffness feedforward filtering and passive-elasticity diagnostics when the robot model exposes nonzero stiffness and bias terms include stiffness. Callers may still override or disable this explicitly with `set_signal_conditioner()` before `initialize()`, but integrated apps should not need an app-local setter call just to avoid chasing passive spring oscillations.
+
+## Humanoid Walking Controller Contract
+
+`configure_humanoid_walking_controller` builds one catalog for one `HumanoidWalkingReferenceContract`, which the planner selects in code, never a profile. `SupportRelative` (Digit DCM, the default) swings foot-to-foot between support anchors, measures base height above the support anchor, runs Layer-1 vertical regulation from those heights and leaves the momentum task for the runtime to activate. `BaseRelative` (Digit ALIP) swings the foot link from the base, measures base height above the foot link, applies no Layer-1 vertical feedback but bounds the commanded vertical acceleration, and builds the momentum task active. Both contracts share one creation order, which is the QP's row order, and every task constructor and config read; only the swing tasks are named by the contract. `make_humanoid_walking_force_allocation_config` takes the same contract. Under both contracts, when the centroidal-momentum task has active linear rows, Layer 1's horizontal CoM-velocity gain and its horizontal CoM-acceleration bound are that task's linear `kp` and `rate_limit`: one value serving both layers, not two knobs kept equal by hand. The builder keeps foot-position objectives for swing tracking. When contact-group kinematic stabilization is enabled, no separate stance-foot horizontal pose objective is published; the group task owns stance horizontal kinematics and the fixed stance-yaw reference remains a separate anchor identity.
+
+`FrameHeightAxis` is available in C++ and Python. The `make_frame_height_task` binding preserves the historical six-argument call by defaulting to `ReferenceFrameZ`; callers may explicitly select `WorldZ`.
+
+`FrameOrientationGainFrame` is available in C++ and Python. `make_frame_orientation_task` defaults to `World`, which applies the per-axis `kp`, `kd` and `weight` to world x, y and z; this is bitwise the historical behavior. `Heading` applies them in the tracked frame's heading frame, world rotated about z by the yaw of the frame's forward axis, so x is roll and y is pitch at any heading. The target remains a world angular acceleration, and equal x and y entries give the same objective in both frames. Logged errors and PD terms stay in world; the logged cost and residual are evaluated in the frame the weights act in. The humanoid walking pelvis blocks accept an optional `gain_frame: world | heading`, and an absent key means world.
+
+## Experimental Contact-Group Kinematic Stabilization
+
+`ContactGroupKinematicStabilizationTask` is an experimental, opt-in ddq-only task. A `ContactKinematicGroupSpec` names one rigid contact-bearing frame and an arbitrary-size fixed set of point frames with positive normalized weights; it does not assume four corners, a sole polygon, or a perceived terrain surface. The task controls the weighted world-horizontal centroid and the radius-normalized centered point constellation. Common world-vertical motion is absent from the centroid coordinates and cancels exactly from the centered coordinates, so it remains a true null direction rather than a weakly weighted axis. One point therefore supplies only horizontal translation, two distinct points additionally constrain the observable orientation of their line, and three or more non-collinear points expose full rigid-link orientation.
+
+The task has no capture/release state machine. The selected binary point topology defines the instantaneous weighted centroid and observable centered shape. The task reseeds its latent anchor only when the selected topology changes while group capacity is zero; otherwise its effective group scale is the maximum selected point capacity `Q`. Capacity therefore ramps the same fixed kinematic objective continuously on admission and release. Controller reset clears the latent anchor. Point-force variables, point friction cones, force allocation, and force distribution remain separate contracts.
+
+## Experimental Stance-Foot Yaw-Momentum-Rate Constraint
+
+`StanceFootYawMomentumRateConstraint` is an experimental, opt-in, softened two-row `ddq | sigma` inequality about a fixed world-horizontal reference point. For `d = c - p`, it evaluates
+
+`H_P,z = h_G,z + d_x h_G,y - d_y h_G,x`
+
+and constrains
+
+`[A_g,z + d_x A_g,y - d_y A_g,x] ddq +` `[A_g_dot_v,z + d_x A_g_dot_v,y - d_y A_g_dot_v,x]`
+
+to a tolerance band around `clamp(-kp H_P,z, +/-rate_limit)`. This equation is exact for the fixed reference supplied by the caller. A moving reference would require the additional point-velocity term and is outside this contract.
+
+References are supplied through the replacement-style `set_stance_foot_yaw_references()` controller API. Each keyed reference carries an explicit validity bit and fixed `anchor_world_xy`. Invalid or missing references fail closed. Among the statically bound points selected by binary `A`, the maximum stored `Q` tightens the tolerance continuously; zero capacity opens the rows by `open_margin`. The fixed catalog and two slack slots remain present. Thirteen named diagnostics expose reference validity, selected capacity/count, anchor coordinates, about-point momentum, raw/limited target, effective tolerance, predicted moment, and both slacks.
+
+The primitive consumes total-body centroidal quantities. Multiple active instances do not isolate per-foot contact moments and can conflict in double support. Composition owners must therefore select one support reference at a time (or design an explicit net-support/per-contact-force formulation). The constraint does not infer partial-contact geometry, contact feasibility, or a measured center of pressure, and it does not replace force allocation or the centroidal-momentum task.
+
+## Experimental Stance-Foot Yaw Force-Distribution Task
+
+`StanceFootYawForceDistributionTask` is an experimental scalar `LambdaC` cost for contact-force yaw moment about one fixed world-horizontal planner stance anchor. It is point-force-only. For the selected anchor `P`, every configured three-dimensional contact-force slot contributes to
+
+`M_P,z = sum_i [((p_i - P) x f_i)_z]`.
+
+The target is `clamp(-kp H_P,z, +/-rate_limit)`, using the same about-anchor momentum equation and replacement-style `StanceFootYawReference` map as the stance-foot yaw-momentum-rate constraint. Exactly one valid reference owner is required. Zero owners, multiple owners, malformed references, missing cache data, or no selected point with positive `Q` fail closed and leave the QP cost unchanged. Every configured LambdaC column is scaled by its own stored `Q`; binary `A` therefore selects heel/toe topology without another planner gate.
+
+The task logs its target and modeled `M_P,z`, plus named diagnostics for the selected owner and anchor, `H_P,z`, raw/limited targets, about-CoM contact moment, orbital term, about-anchor moment, and modeled contact count. The identity `M_P,z = M_G,z + [((c - P) x F)]_z` is therefore directly auditable. It does not measure ground torque, infer partial contact, or replace Layer-1 force allocation. Digit owns the walking lifecycle and exclusive stance selection; the reusable task remains opt-in.
+
+## TAC-QP Reference Contract
+
+TAC-QP tracking tasks own the finite continuous-reference future they sample. The vector and SO(3) trajectory setters install a planner-authored preview with caller-owned adoption and join times. `TaskBase::tick()` samples those trajectories into the position/orientation, velocity, and acceleration values consumed by the task objective.
+
+Vector and SO(3) current-value setters remain for fixed holds and direct consumers. A current-value setter clears the corresponding future trajectory, so current and future reference authority cannot silently coexist.
+
+`VectorReferenceTrajectory` and `OrientationReferenceTrajectory` are the task-owned sampling mechanics. Vector intervals use complete-jet quintic Hermite interpolation and endpoint hold; SO(3) intervals use Lie-group Hermite interpolation with shortest-path quaternion continuity. Each trajectory owns its candidate and bounded prefix splice; no separate realizer object exists. A trajectory keeps its knot storage through `clear`, `set_knots(const&)`, copy-assignment and `install`, and `knots()` is a span over the live knots. The first `install` reserves room for every candidate knot plus both splice ends, so later same-shape futures install and sample without allocating. Tail-retarget, endpoint-retime, reshape, and mutable-trajectory APIs are not part of TAC-QP.
+
+Task activation is deliberately not another RHRS channel. A producer selects only a binary enabled state through `ramp_activation(task, enabled, duration)`. Each task realizes a change with a linear ramp, using a 20 ms default unless the producer supplies a positive duration. Repeating the same target is idempotent; a reversal starts from the activation commanded at that instant. Controller assembly uses `set_initial_task_enabled()` before `initialize()` to establish an initial endpoint without inventing a runtime transition; the call is rejected after initialization. This is structural initial state, not a zero-duration planner command. There is no activation trajectory, derivative jet, sample-time clamp, or contact-derived activation multiplier. Continuous physical contact authority remains the separate `Q = A * C * H` path.
+
+## Walking Runtime Boundary
+
+Robot walking lifecycle, task catalogs, contact admission, and task-reference policy are app-owned. The maintained Digit app binds its fixed DCM catalog to already-created TAC-QP tasks and calls their independent trajectory setters. TAC-QP owns the installed finite task previews but does not define a locomotion planner, catalog, editing policy, or semantic motion-plan contract.
+
+## Owned Examples
+
+- `examples/cpp/control/joint_servo_demo.cpp`
+- `examples/cpp/control/tac_qp_posture_demo.cpp`
+- `examples/python/control/joint_servo_demo.py`
+- `examples/python/control/tac_qp_posture_demo.py`
+
+These are module-level API illustrations and smokeable verification aids. They must stay two-link fixture demos, not integrated robot control workflows.
+
+## Validation
+
+`pixi run python -m cyber_suite.control.audit.walking_log` reports drops in the allocator's `force_allocation_cascade.net_wrench`, computed from solved point forces. These are controller-output diagnostics, independent of simulator contact truth. The report does not establish measured support loss or airborne motion; that interpretation requires a separate world-force/CoM-momentum check.
+
+- C++ contract tests: `pixi run test control`
+- Python binding tests: `pixi run py-test control`
+- C++ examples: `build/default/modules/control/control_joint_servo_demo`; `build/default/modules/control/control_tac_qp_posture_demo`
+- Python examples: `pixi run python examples/python/control/joint_servo_demo.py`; `pixi run python examples/python/control/tac_qp_posture_demo.py`
+- TAC-QP, joint-servo, and `cyber_suite.control.plotting.walking_runtime` package/HDF5 schema parity: `pixi run py-test control`
+- Plotting CLI smoke: `pixi run plot control <control_or_runtime_log.h5> --summary-only`
+- Digit walking application: `pixi run build --target digit_corta_walking`; `pixi run test -R '^cyber_suite_digit_walking\.(corta_boundary|corta_liveness|safety_config)$' --output-on-failure`
+
+Focused contracts cover exact `Q=A*C_control*H`, Layer-1/Layer-2 parity, fail-closed bindings, contact-group stabilization, fixed-anchor yaw equations, task catalogs, logging, Python schema loading, and allocation-free runtime paths. The fixed ALIP catalog has zero measured Servo allocations from estimator authority through first adoption, first swings, walking and stop. `TACQPController::prepare_solver_workspaces()` is an opt-in C++ startup API for initialized Eiquadprog controllers. It prepares every equality rank and contact-acceleration enable/disable bound count for the installed catalog, then seals the solver cache. Other bound-count changes are refused; callers must not recover by rebuilding the solver on the real-time path. This does not qualify arbitrary task catalogs or mutable contact topology.
+
+`TaskBase::prepare_reference_storage(maximum_knots)` and trajectory `prepare_storage` size fixed-dimension knot and splice storage before adoption without replacing the live reference. ALIP calls these during `Servo::start`. Other controller and estimation scratch is initialized during startup before estimator authority. The contact null-space projector retains a workspace per stacked row count. Startup, exceptional error handling and reconfiguration are outside the measured normal path. The integrated evidence and exact boundary, a malloc probe gating the Digit walking Servo under both reference contracts, and scenario-level walking behavior are app-owned and recorded in `apps/digit/walking/VALIDATION.md`.
+
+Archived TRON1 walking is not a compatibility consumer for this contract and is intentionally outside this validation gate. It requires its own current design before reactivation.
+
+## Non-goals
+
+- Scenario-level walking app policy
+- DCM-MPC optimization, policy inference, estimation, app CLI/viewer/logging, or generic behavior-tree ownership
+- Robot-specific task/contact names in TAC-QP trajectory APIs
+- Point-contact, heel/toe, or edge-contact inference; terrain perception; force/tactile sensing; or planned partial-contact gait transitions
+- TSC controller migration; migrated plotters only inspect existing TSC logs
+- TSC controller bridge migration

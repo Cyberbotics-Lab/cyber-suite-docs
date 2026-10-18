@@ -1,0 +1,152 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-18
+Code anchors: AGENTS.md, CLAUDE.md, scripts/orient.py, pixi.toml, apps/digit/walking/tools/walk.py,
+  apps/digit/walking/tools/viser_view.py, apps/digit/learning/tools/play.py
+---
+
+# Remote development and viewers
+
+Use the Ubuntu execution host for builds, simulation, GPU training and artifacts. You can work directly on that machine or connect from a Linux, Windows or macOS client through SSH. A browser viewer needs no local robot build. The examples below use `ubuntu-workstation` as an SSH alias; substitute the host configured for your account.
+
+| Where you work | Where to run Pixi | Where to open the viewer |
+| --- | --- | --- |
+| At the Ubuntu machine | Its local terminal | Its local browser or desktop |
+| Through VS Code Remote - SSH | The remote integrated terminal | Your client browser, with the reported port forwarded |
+| Through a plain SSH session | The remote shell; use tmux for persistent work | Your client browser, with an SSH local port forward |
+
+Evidence is stated for each viewer path below. Browser/tunnel recipes are independent of owning a MacBook; a successful SSH connection alone does not establish GPU setup or working display access. This guide covers project execution and viewing, not personal laptop or operating-system provisioning.
+
+## Code And Agent Sessions
+
+Open the Ubuntu checkout through VS Code's **Remote-SSH: Connect to Host**. Use the remote integrated terminal for agents and Pixi commands; verify `hostname`, `pwd` and `git status --short` there. Install/authenticate agent CLIs on Ubuntu. For extensions, check their documented remote support and actual execution location rather than assuming every extension runs remotely. [VS Code documents remote terminals and extension placement](https://code.visualstudio.com/docs/remote/ssh).
+
+Use the same Ubuntu user and checkout when working at the desktop. For a CLI session that must survive a client disconnect, run it inside `tmux` and reattach from the next terminal. Native agent resume can continue a saved session on that host; cross-agent continuity uses the [task handoff](../../notes/handoffs/README.md). Reconnecting to Ubuntu does not require synchronizing source to a client-side clone.
+
+Follow the [development workflow](development-workflow.md) to choose the command owner. Keep each root or project `pixi.toml` with its own `pixi.lock` in Git. On a new checkout, install the root environment with `pixi install --locked` and run root `pixi run --locked orient`; then use the owning robot project's manifest for its build, viewer and standalone `check`. Learning uses that project's `learn` environment. The root and robot default environments target macOS ARM64 and Linux x86-64; learning platform requirements remain in each project's manifest and validation.
+
+Each host owns its environments, builds, credentials and local agent state. Project `.pixi/config.toml` files are tracked configuration that place environments in Pixi's cache; transfer that configuration, not the generated environments or CMake build trees. Retain essential instructions, skills and decisions in repository-owned files. Do not make correct continuation depend on plugins installed only on the other computer.
+
+For occasional development on another supported host, transfer the task branch and handoff together using the handoff protocol. Store source references relative to the repository; record host plus path for artifacts outside Git. Keep long-run artifacts on Ubuntu or explicit artifact storage, with producing commit, command and checksums where needed for replay.
+
+## Interactive Viewers
+
+SSH supplies the terminal connection. A desktop graphics session or a streamed viewer is a separate connection. Prefer these paths:
+
+| Need | Simulation/render host | Client display path |
+| --- | --- | --- |
+| Full MuJoCo UI, picking and perturbations | Ubuntu desktop graphics session | Remote desktop with verified GPU acceleration |
+| Existing Digit walking scene and telemetry | Ubuntu simulation, client browser rendering | Rerun web page over one forwarded TCP port, Tailscale or a private LAN |
+| Digit walking scene only, any planner, nothing installed on the client | Ubuntu simulation and viser server, client browser rendering | viser web page over a forwarded TCP port |
+| Trained mjlab policy, with command sliders and checkpoint switching | Ubuntu simulation and policy, client browser rendering | viser web page over a forwarded TCP port |
+| Isaac Sim / Isaac Lab viewport | Ubuntu NVIDIA GPU | Isaac Sim WebRTC client compatible with installed version |
+
+MuJoCo rendering needs an OpenGL context. EGL/OSMesa support offscreen rendering; they do not transport an interactive window to a remote client. Qualify a GPU-capable remote desktop for the full UI instead of making X11 forwarding the default. Launch the app from a terminal inside that desktop session so it receives the correct display context. See [MuJoCo visualization](https://mujoco.readthedocs.io/en/stable/programming/visualization.html).
+
+### Digit Rerun In A Browser
+
+From the Ubuntu checkout's Digit project (`apps/digit`), add `--rerun-web` to any run:
+
+```bash
+cd apps/digit
+pixi run walk --config alip_walking --vx 0.3 --walk-duration 6 --rerun-web
+```
+
+Then open `http://localhost:9090` on the client, the same link every time. As with the viser page, one TCP port carries everything: forward 9090 with VS Code's Ports view or `ssh -N -L 9090:127.0.0.1:9090 ubuntu-workstation`. To use Tailscale or a private LAN directly instead, add `--web-bind 0.0.0.0` (or Ubuntu's Tailscale address) and open `http://<ubuntu-tailscale-name>:9090`. The Ubuntu process serves its bundled Rerun web viewer and installs the current walking dashboard, including robot meshes, textured terrain, sky-blue background, base-following camera and telemetry plots. The client needs no repository checkout or local Rerun/Pixi installation; the first visit downloads the 50 MB viewer, which the browser caches.
+
+The Rerun server listens only on Ubuntu loopback. A launcher-owned relay on port 9090 (`--web-port`) serves the page and forwards the viewer's gRPC-web telemetry from the server's loopback port 9876 (`--port`), so both share one origin. Its `/` redirects to the viewer pointed back at whatever address the browser used. Its default bind is loopback. After simulation completion, keep the launch terminal open to inspect or scrub the recording; Ctrl+C closes the server it started. If a launch reports its port in use, an earlier launch is usually still serving playback: stop it with Ctrl+C rather than choosing new ports, and the link stays the same. The app still logs HDF5 on Ubuntu. The native workflow below remains available when preferred.
+
+The browser's plot channels are sampled at up to 50 Hz to keep ingestion manageable; its robot scene is also 50 Hz. HDF5 retains the full 1 kHz Servo telemetry. The native modes below retain full scalar drill-down; use those or the stored artifact to investigate faster signals.
+
+Verified 2026-10-12 on Ubuntu Chrome over the workstation's private Tailscale address: the ALIP run completes and the web viewer renders the robot, terrain, background and dashboard plots. Rendering on other client platforms and network latency remain to be checked from the Mac; see the [walking validation](../../apps/digit/walking/VALIDATION.md#2026-10-12-rerun-browser-launch).
+
+The one-port relay was verified the same day on Ubuntu only, with headless Chrome on loopback. `http://127.0.0.1:<web-port>` redirected to the viewer, which rendered the robot, terrain and live dashboard through the relay. In the same browser it ingested about as fast as the server's own page, and the 50 MB viewer download took 0.12 s against 0.10 s direct. The relay path from another client, by forward or Tailscale, is untested.
+
+### Native Digit Rerun On A Client
+
+This uses the existing launcher and observer; it is observation-only and does not provide MuJoCo mouse perturbations or interactive control. Use matching Rerun versions from compatible lockfile revisions on both hosts. Replace `ubuntu-workstation` with your configured SSH alias. Run the following from the client's local checkout/terminal, not a VS Code remote terminal. It uses the repository's root environment, which has Rerun, so the client does not build the Digit project:
+
+```bash
+pixi run python apps/digit/walking/tools/walk.py --rerun --attach-only
+```
+
+That opens the local viewer and blueprint without starting the simulation or requiring a local walking binary. In another local client terminal, keep this reverse tunnel open:
+
+```bash
+ssh -N -o ExitOnForwardFailure=yes \
+  -R 127.0.0.1:9876:127.0.0.1:9876 ubuntu-workstation
+```
+
+From the Ubuntu checkout's Digit project (`apps/digit`) in the remote terminal, after building the walking target described in [RUNNING.md](../../apps/digit/walking/RUNNING.md):
+
+```bash
+cd apps/digit
+pixi run walk --headless \
+  --rerun-connect rerun+http://127.0.0.1:9876/proxy
+```
+
+The launcher activates the walking dashboard in the existing client viewer, including its close robot camera and sky-blue background, through the same endpoint used by the C++ observer. The Ubuntu observer connects to Ubuntu loopback port 9876, which SSH forwards to the client viewer. The Ubuntu SSH server must permit remote forwarding and the port must be free there. Do not add `--rerun` on Ubuntu for this recipe: that would spawn a viewer on Ubuntu. For simultaneous runs choose a distinct viewer/tunnel port and update all three commands consistently. Keep the client viewer and tunnel open while observing; simulation and HDF5 logging stay on Ubuntu. Re-establish the tunnel and check live delivery after reconnecting.
+
+### Digit Walking In The Browser
+
+Experimental. This shows the Plant scene only: robot, terrain and foot-corner contact forces, with no plots and no interaction with the simulation. It needs no Rerun version match and no local checkout. From the Ubuntu checkout's Digit project (`apps/digit`) in the remote terminal:
+
+```bash
+cd apps/digit
+pixi run walk --viser --vx 0.5 --walk-duration 8
+```
+
+Then open `http://localhost:8080` on the client, after forwarding the port with VS Code's Ports view or from a plain client terminal:
+
+```bash
+ssh -N -L 8080:127.0.0.1:8080 ubuntu-workstation
+```
+
+The simulation, the viewer process and the session log all stay on Ubuntu. The app copies its scene to the viewer over Ubuntu loopback UDP, and the browser receives poses over one websocket. The page binds `127.0.0.1` unless `--viser-host 0.0.0.0` is given. The first load downloads about 3–5 MB of geometry; a live run then needs about 70 kB/s. The page keeps the whole run for scrubbing after it ends, and `pixi run python walking/tools/viser_view.py --log RUN.h5` in `apps/digit` replays a saved log the same way. See the walking [RUNNING.md](../../apps/digit/walking/RUNNING.md#browser-view-viser).
+
+Verified 2026-10-12 on Ubuntu only, with headless Chrome on the same host: DCM on flat ground and up-stairs, and the cadence policy on flat ground, drew correctly live and in replay, with zero dropped scene records. The SSH-forwarded client-browser path was not covered by that check.
+
+### mjlab Policies In The Browser
+
+The Digit project's `play` task can serve mjlab's viser viewer, a web page that draws the scene in the browser with WebGL. Ubuntu steps the simulation and the policy and sends body poses over a websocket, so an ordinary TCP forward carries it; no video is streamed. It shows a trained policy, not training: mjlab's training script has no live viewer.
+
+From the Ubuntu checkout's Digit project (`apps/digit`) in the remote terminal:
+
+```bash
+cd apps/digit
+pixi run -e learn play Digit-Velocity-Flat-1ms --viewer viser \
+  --checkpoint-file learning/checkpoints/runs/digit_velocity/RUN/model_N.pt
+```
+
+Then open `http://localhost:8080` on the client. VS Code Remote - SSH forwards the port from its Ports view. From a plain client terminal, forward it yourself:
+
+```bash
+ssh -N -L 8080:127.0.0.1:8080 ubuntu-workstation
+```
+
+- Pass `--viewer viser` explicitly. mjlab's default picks its native MuJoCo window whenever `DISPLAY` is set, and on the workstation that window opens on the Ubuntu desktop's screen.
+- The page has velocity-command sliders, reward-term plots, environment switching, and the run's checkpoints to load while it plays.
+- viser listens on all interfaces (`0.0.0.0:8080`), so other machines on the workstation's network can reach it. Use it on a trusted network or firewall the port.
+- When the client reaches the workstation over Tailscale, use the workstation's Tailscale name or `100.x` address, for the tunnel or directly as `http://<tailscale-name>:8080`. Its LAN address is not routable from another network: `ssh -N` to it hangs silently, which looks the same as a working tunnel.
+- For periodic clips during training instead, the `train` task accepts mjlab's `--video True`; it records one environment under the run's `videos/train/`.
+
+Verified 2026-09-28 on Ubuntu: the server started with the M0 policy and served its page on port 8080. Verified 2026-10-06: a macOS browser over Tailscale played the cadence policy from Ubuntu. The `--video` option is untested.
+
+### Isaac Streaming
+
+Here, Isaac means Isaac Sim and the viewport used by Isaac Lab, not a new repository dependency. Use the streaming entry point documented for the installed Isaac version; check the matching Isaac Lab AppLauncher options if launching a Lab application. NVIDIA provides a macOS WebRTC client and a web viewer. The host needs a supported NVIDIA GPU/driver and NVENC for streaming.
+
+Use the port and protocol requirements for the installed NVIDIA version. Ordinary SSH TCP forwarding does not carry a UDP media stream. Use an appropriate private LAN/VPN route and the installed version's networking instructions; keep endpoints on a trusted network. Host support, encoding and client compatibility must be checked before choosing exact launch flags. See [NVIDIA livestream clients](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/manual_livestream_clients.html).
+
+## First Workstation Verification
+
+Record host, OS, GPU/driver, agent versions, Git revision and relevant simulator and viewer versions in the active setup handoff. Verify:
+
+1. The remote VS Code terminal and agent operate on the intended Ubuntu clone.
+2. The scoped Pixi install/build succeeds and orientation finds the handoff.
+3. The same agent session can be resumed after reconnecting; the other agent can recover the goal and next step from the repository handoff.
+4. The chosen viewer displays live motion. For the full UI, test camera/picking or interaction; for Rerun, test scene and telemetry receipt separately.
+5. Disconnect/reconnect behavior and artifact locations are understood. Keep viewer observations distinct from control behavior or timing qualification.
+
+Headless internal validation and training remain appropriate. When offering commands for human inspection, include the applicable interactive display path.

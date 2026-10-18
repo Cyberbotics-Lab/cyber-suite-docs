@@ -1,0 +1,2622 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/roadmaps/learning-m0-digit-velocity.html">
+      
+      
+        <link rel="prev" href="../setup/student-projects.html">
+      
+      
+        <link rel="next" href="../design/models-and-simulation.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Worked example — Digit M0 - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#digit-m0-a-worked-learning-example" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Worked example — Digit M0
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="learning-m0-digit-velocity.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        At a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-pieces-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Pieces Fit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How the Pieces Fit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rewards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rewards
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#episodes-resets-and-randomization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Episodes, Resets and Randomization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-learner-ppo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Learner: PPO
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-training-produced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Training Produced
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-m0-does-not-cover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What M0 Does Not Cover
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproduce
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/dcm-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        At a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-pieces-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Pieces Fit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How the Pieces Fit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rewards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rewards
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#episodes-resets-and-randomization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Episodes, Resets and Randomization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-learner-ppo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Learner: PPO
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-training-produced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Training Produced
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-m0-does-not-cover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What M0 Does Not Cover
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproduce
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">working</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../markdown/docs/roadmaps/learning-m0-digit-velocity.md.txt" download="learning-m0-digit-velocity.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="digit-m0-a-worked-learning-example">Digit M0: a worked learning example<a class="headerlink" href="#digit-m0-a-worked-learning-example" title="Permanent link">&para;</a></h1>
+<p>This page explains the September 2026 M0 baseline and its retained evidence. It is a worked example, not a summary of every current Digit policy. Later cadence, drive and task-space variants have different configurations; use the <a href="../setup/learning-workflow.html">learning workflow</a> for current entry points and the app contracts for their limits.</p>
+<p>M0 trains a neural-network policy that makes Digit walk at a commanded forward speed, sideways speed and yaw rate on flat ground. This document explains how:</p>
+<ul>
+<li>the learner;</li>
+<li>what the policy sees and commands;</li>
+<li>the rewards that shape the gait;</li>
+<li>what training produced.</li>
+</ul>
+<p>It explains; it does not define. The contract is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/APP.md">the app's APP.md</a> and the code it names, and the latest demonstrated result is in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md">VALIDATION.md</a>. Where they disagree with this page, they win.</p>
+<p>The task is <code>Digit-Velocity-Flat-1ms</code>. It starts from mjlab's <code>make_velocity_env_cfg()</code> recipe, the one mjlab's Unitree G1 uses, and changes only what Digit needs:</p>
+<ul>
+<li>joint reads through compiled-model addresses, because of Digit's ball-jointed rods;</li>
+<li>Digit's posture tolerances;</li>
+<li>a narrower lateral command range;</li>
+<li>a self-collision penalty;</li>
+<li>flat terrain;</li>
+<li>the C++ plant's physics options.</li>
+</ul>
+<h2 id="at-a-glance">At a Glance<a class="headerlink" href="#at-a-glance" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>M0 choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learner</td>
+<td>PPO (RSL-RL), asymmetric actor–critic, 4096 parallel envs on one GPU</td>
+</tr>
+<tr>
+<td>Simulator</td>
+<td>mjlab on MuJoCo Warp; 1 ms physics step with the C++ plant's solver options</td>
+</tr>
+<tr>
+<td>Policy rate</td>
+<td>50 Hz; each action is held for 20 physics steps</td>
+</tr>
+<tr>
+<td>Actor input</td>
+<td>92 values: base velocities, gravity direction, 30 joint positions and velocities, last action, command</td>
+</tr>
+<tr>
+<td>Critic input</td>
+<td>The actor's 92 without noise, plus 12 privileged foot values</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>20 joint-position offsets from the standing pose, tracked by torque-limited PD</td>
+</tr>
+<tr>
+<td>Reward</td>
+<td>4 Gaussian tracking and shaping terms, 9 active penalties (10 listed, one weighted 0)</td>
+</tr>
+<tr>
+<td>Episode</td>
+<td>20 s; ends early when the torso tilts past 70°</td>
+</tr>
+<tr>
+<td>Budget</td>
+<td>3000 iterations, 2.95e8 policy steps, 1 h 41 min on an RTX 4090</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-the-pieces-fit">How the Pieces Fit<a class="headerlink" href="#how-the-pieces-fit" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+  subgraph ENV["mjlab environment, 4096 copies on the GPU"]
+    CMD["Command sampler&lt;br/&gt;vx, vy, ωz"]
+    SIM["MuJoCo Warp&lt;br/&gt;1 ms step"]
+    PD["20 position actuators&lt;br/&gt;PD, torque-limited"]
+    OBS["Observation terms&lt;br/&gt;+ uniform noise"]
+    REW["14 reward terms&lt;br/&gt;weighted, × 0.02 s"]
+    TERM["Termination&lt;br/&gt;tilt &gt; 70° or 20 s"]
+  end
+  subgraph LEARN["RSL-RL PPO"]
+    ACT["Actor MLP&lt;br/&gt;512-256-128, Gaussian"]
+    CRIT["Critic MLP&lt;br/&gt;512-256-128"]
+    BUF["Rollout buffer&lt;br/&gt;24 steps × 4096 envs"]
+    UPD["GAE + clipped PPO update"]
+  end
+  CMD --&gt; OBS
+  SIM --&gt; OBS
+  OBS -- "92 noisy values" --&gt; ACT
+  OBS -- "104 clean values" --&gt; CRIT
+  ACT -- "action a, 20 values" --&gt; PD
+  PD -- "joint torque" --&gt; SIM
+  SIM --&gt; REW --&gt; BUF
+  SIM --&gt; TERM --&gt; BUF
+  CRIT -- "V(s)" --&gt; BUF
+  BUF --&gt; UPD
+  UPD -- "new weights" --&gt; ACT
+  UPD -- "new weights" --&gt; CRIT</code></pre>
+<p>Only the actor is deployed. The critic exists to estimate returns during training, so it may see simulator quantities that the robot cannot measure.</p>
+<h3 id="timing">Timing<a class="headerlink" href="#timing" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+  participant P as Policy (50 Hz)
+  participant A as Position actuators
+  participant M as MuJoCo (1 kHz)
+  P-&gt;&gt;A: target = q_stand + s · a, held for 20 ms
+  loop 20 physics steps
+    A-&gt;&gt;M: τ = clamp(kp (target − q) − kd q̇, ±τmax)
+    M--&gt;&gt;A: q, q̇
+  end
+  M--&gt;&gt;P: next observation and reward</code></pre>
+<p>The PD law runs inside MuJoCo at every 1 ms physics step, as position actuators. The policy only moves the setpoint. The training timestep of 1 ms is a separate decision from the plant's 0.5 ms step; the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/roadmaps/learning-roadmap.md">learning roadmap</a> records why.</p>
+<h2 id="observations">Observations<a class="headerlink" href="#observations" title="Permanent link">&para;</a></h2>
+<p>The actor sees 92 values, concatenated in this order. The noise is uniform, added during training only.</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th style="text-align: right;">Size</th>
+<th>Definition</th>
+<th style="text-align: right;">Noise (±)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base linear velocity</td>
+<td style="text-align: right;">3</td>
+<td>Root velocity in the torso frame, from the simulator's true state</td>
+<td style="text-align: right;">0.5 m/s</td>
+</tr>
+<tr>
+<td>Base angular velocity</td>
+<td style="text-align: right;">3</td>
+<td>Root angular velocity in the torso frame</td>
+<td style="text-align: right;">0.2 rad/s</td>
+</tr>
+<tr>
+<td>Projected gravity</td>
+<td style="text-align: right;">3</td>
+<td>Unit gravity direction in the torso frame; its x and y parts encode tilt</td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr>
+<td>Joint positions</td>
+<td style="text-align: right;">30</td>
+<td><span class="arithmatex">\(q - q^{\text{stand}}\)</span> for the 20 motors and 10 passive joints</td>
+<td style="text-align: right;">0.01 rad</td>
+</tr>
+<tr>
+<td>Joint velocities</td>
+<td style="text-align: right;">30</td>
+<td><span class="arithmatex">\(\dot q\)</span> for the same 30 joints</td>
+<td style="text-align: right;">1.5 rad/s</td>
+</tr>
+<tr>
+<td>Last action</td>
+<td style="text-align: right;">20</td>
+<td>The previous raw policy output <span class="arithmatex">\(a_{t-1}\)</span></td>
+<td style="text-align: right;">none</td>
+</tr>
+<tr>
+<td>Command</td>
+<td style="text-align: right;">3</td>
+<td><span class="arithmatex">\((v_x^{\text{cmd}}, v_y^{\text{cmd}}, \omega_z^{\text{cmd}})\)</span> in the torso frame</td>
+<td style="text-align: right;">none</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Passive joints.</strong> They are the ten the LLAPI measures: shin, tarsus, heel spring, toe pitch and toe roll on each side. The ball-jointed rods are not observed.</li>
+<li><strong>Joint reads.</strong> All joint terms read each hinge at its compiled qpos and dof address (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/digit_learning/mdp.py">mdp.py</a>). mjlab 1.6's name-based joint terms misread 17 of Digit's 20 motors.</li>
+<li><strong>No memory.</strong> There is no observation history, no gait clock and no phase variable. Rhythm comes from the dynamics and the rewards; the last action is the only memory.</li>
+<li><strong>No estimator in training.</strong> The base velocity is simulator truth, and the ±0.5 m/s noise is the only stand-in for estimation error. M1b has since run the policy on InEKF estimates in the C++ plant; see <a href="#what-m0-does-not-cover">What M0 Does Not Cover</a>.</li>
+<li><strong>Critic extras (12).</strong> Foot height above the ground, current air time, contact flags, and contact force (signed <span class="arithmatex">\(\log(1+|F|)\)</span>, 3 per foot), for both feet.</li>
+</ul>
+<h2 id="actions">Actions<a class="headerlink" href="#actions" title="Permanent link">&para;</a></h2>
+<p>The policy outputs 20 unbounded numbers, one per motor. Each becomes a joint-position target around the standing keyframe:</p>
+<div class="arithmatex">\[
+q_i^{\text{target}} = q_i^{\text{stand}} + s_i\,a_i,
+\qquad
+s_i = \frac{0.25\,\tau_i^{\max}}{k_{p,i}}
+\]</div>
+<p>A unit action therefore asks for 25% of the joint's torque limit at zero velocity. MuJoCo applies the PD law at every physics step:</p>
+<div class="arithmatex">\[
+\tau_i = \operatorname{clamp}\!\left(k_{p,i}\,(q_i^{\text{target}} - q_i) - k_{d,i}\,\dot q_i,\; \pm\tau_i^{\max}\right),
+\qquad
+k_p = I_a\,\omega_n^2,\quad k_d = 2\zeta\,I_a\,\omega_n
+\]</div>
+<ul>
+<li><strong>Gains.</strong> <span class="arithmatex">\(I_a\)</span> is the joint's reflected motor inertia (MJCF armature), with <span class="arithmatex">\(\omega_n = 2\pi \cdot 10\)</span> Hz and <span class="arithmatex">\(\zeta = 2\)</span> (<code>RL_GAINS</code>).</li>
+<li><strong>Torque units.</strong> <span class="arithmatex">\(\tau^{\max}\)</span> is the joint-side limit, the MJCF motor's <code>ctrlrange</code> times its gear. The C++ plant expects motor-side torque, so a deployed policy must send <span class="arithmatex">\(\tau / \text{gear}\)</span>.</li>
+</ul>
+<p>Left side, read back from the exported policy contract; the right side mirrors it.</p>
+<table>
+<thead>
+<tr>
+<th>Joint</th>
+<th style="text-align: right;">Standing angle (rad)</th>
+<th style="text-align: right;"><span class="arithmatex">\(k_p\)</span> (Nm/rad)</th>
+<th style="text-align: right;"><span class="arithmatex">\(k_d\)</span> (Nm·s/rad)</th>
+<th style="text-align: right;"><span class="arithmatex">\(\tau^{\max}\)</span> (Nm)</th>
+<th style="text-align: right;"><span class="arithmatex">\(s\)</span> (rad per unit action)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hip roll</td>
+<td style="text-align: right;">0.317</td>
+<td style="text-align: right;">686</td>
+<td style="text-align: right;">43.7</td>
+<td style="text-align: right;">126.7</td>
+<td style="text-align: right;">0.046</td>
+</tr>
+<tr>
+<td>hip yaw</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">268</td>
+<td style="text-align: right;">17.1</td>
+<td style="text-align: right;">79.2</td>
+<td style="text-align: right;">0.074</td>
+</tr>
+<tr>
+<td>hip pitch</td>
+<td style="text-align: right;">0.028</td>
+<td style="text-align: right;">476</td>
+<td style="text-align: right;">30.3</td>
+<td style="text-align: right;">216.9</td>
+<td style="text-align: right;">0.114</td>
+</tr>
+<tr>
+<td>knee</td>
+<td style="text-align: right;">−0.053</td>
+<td style="text-align: right;">476</td>
+<td style="text-align: right;">30.3</td>
+<td style="text-align: right;">231.3</td>
+<td style="text-align: right;">0.122</td>
+</tr>
+<tr>
+<td>toe A</td>
+<td style="text-align: right;">0.061</td>
+<td style="text-align: right;">143</td>
+<td style="text-align: right;">9.1</td>
+<td style="text-align: right;">42.0</td>
+<td style="text-align: right;">0.074</td>
+</tr>
+<tr>
+<td>toe B</td>
+<td style="text-align: right;">−0.101</td>
+<td style="text-align: right;">143</td>
+<td style="text-align: right;">9.1</td>
+<td style="text-align: right;">42.0</td>
+<td style="text-align: right;">0.074</td>
+</tr>
+<tr>
+<td>shoulder roll</td>
+<td style="text-align: right;">−0.300</td>
+<td style="text-align: right;">686</td>
+<td style="text-align: right;">43.7</td>
+<td style="text-align: right;">126.7</td>
+<td style="text-align: right;">0.046</td>
+</tr>
+<tr>
+<td>shoulder pitch</td>
+<td style="text-align: right;">0.944</td>
+<td style="text-align: right;">686</td>
+<td style="text-align: right;">43.7</td>
+<td style="text-align: right;">126.7</td>
+<td style="text-align: right;">0.046</td>
+</tr>
+<tr>
+<td>shoulder yaw</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">268</td>
+<td style="text-align: right;">17.1</td>
+<td style="text-align: right;">79.2</td>
+<td style="text-align: right;">0.074</td>
+</tr>
+<tr>
+<td>elbow</td>
+<td style="text-align: right;">0.363</td>
+<td style="text-align: right;">686</td>
+<td style="text-align: right;">43.7</td>
+<td style="text-align: right;">126.7</td>
+<td style="text-align: right;">0.046</td>
+</tr>
+</tbody>
+</table>
+<p>These gains are soft. At zero action Digit collapses, so the policy must learn to hold itself up as well as to walk. They are simulation starting values, not hardware gains.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+  R["Every 3–8 s, per env: resample"] --&gt; U["vx ~ U(−1, 1) m/s&lt;br/&gt;vy ~ U(−0.5, 0.5) m/s&lt;br/&gt;ωz ~ U(−0.5, 0.5) rad/s&lt;br/&gt;heading target ~ U(−π, π)"]
+  U --&gt; F{"forward env?&lt;br/&gt;p = 0.2"}
+  F -- yes --&gt; F1["vx = max(abs(vx), 0.3)&lt;br/&gt;vy = 0, ωz = 0"]
+  F -- no --&gt; H
+  F1 --&gt; H{"heading env?&lt;br/&gt;p = 0.3"}
+  H -- yes --&gt; H1["every step:&lt;br/&gt;ωz = clip(0.5 · heading error, ±0.5)"]
+  H -- no --&gt; S
+  H1 --&gt; S{"standing env?&lt;br/&gt;p = 0.1"}
+  S -- yes --&gt; S1["command = 0"]
+  S -- no --&gt; OUT["command in the torso frame"]
+  S1 --&gt; OUT</code></pre>
+<ul>
+<li><strong>Independent flags.</strong> The three flags are separate coin flips. Standing overrides everything, and a heading env's yaw rate overrides the forward flag's zero.</li>
+<li><strong>Curriculum.</strong> mjlab's command curriculum would widen vx to (−1.5, 2.0) m/s and ωz to ±0.7 rad/s at iteration 5000, and vx to (−2, 3) m/s at 10,000. The 3000-iteration run never reached either stage, so the policy has only seen the ranges above.</li>
+</ul>
+<h2 id="rewards">Rewards<a class="headerlink" href="#rewards" title="Permanent link">&para;</a></h2>
+<p>At each policy step the reward is a weighted sum scaled by the step length <span class="arithmatex">\(\Delta t = 0.02\)</span> s:</p>
+<div class="arithmatex">\[
+r_t = \Delta t \sum_k w_k\, f_k(s_t, a_t)
+\]</div>
+<p>The four positive terms are Gaussian kernels of an error, so each lies in <span class="arithmatex">\([0, 1]\)</span> and is 1 only when the error is zero. A perfect 20 s episode would score <span class="arithmatex">\((2 + 2 + 1 + 1) \times 20 = 120\)</span>.</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th style="text-align: right;"><span class="arithmatex">\(w\)</span></th>
+<th><span class="arithmatex">\(f\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linear velocity tracking</td>
+<td style="text-align: right;">2.0</td>
+<td><span class="arithmatex">\(\exp\!\left(-\left(\lVert \mathbf v^{\text{cmd}}_{xy} - \mathbf v_{xy}\rVert^2 + v_z^2\right) / 0.25\right)\)</span></td>
+</tr>
+<tr>
+<td>Yaw-rate tracking</td>
+<td style="text-align: right;">2.0</td>
+<td><span class="arithmatex">\(\exp\!\left(-\left((\omega^{\text{cmd}}_z - \omega_z)^2 + \omega_x^2 + \omega_y^2\right) / 0.5\right)\)</span></td>
+</tr>
+<tr>
+<td>Upright torso</td>
+<td style="text-align: right;">1.0</td>
+<td><span class="arithmatex">\(\exp\!\left(-(g_x^2 + g_y^2) / 0.2\right)\)</span>, with <span class="arithmatex">\(g\)</span> the unit gravity vector in the torso frame</td>
+</tr>
+<tr>
+<td>Posture</td>
+<td style="text-align: right;">1.0</td>
+<td><span class="arithmatex">\(\exp\!\left(-\frac{1}{20}\sum_{j=1}^{20} (q_j - q_j^{\text{stand}})^2 / \sigma_j^2\right)\)</span> over the motors</td>
+</tr>
+</tbody>
+</table>
+<p>Velocities are the root body's, in the torso frame. The tracking terms also penalize vertical bounce and roll and pitch rates.</p>
+<p><img alt="The four positive reward terms plotted against their errors" src="../assets/digit-m0/reward_kernels.png" /></p>
+<ul>
+<li><strong>Tracking is forgiving near zero.</strong> At the gate's 0.2 m/s limit, linear tracking still pays 0.85 of its maximum, so the reward pushes hardest on large errors.</li>
+<li><strong>Upright.</strong> It falls to 0.5 at about 22° of tilt.</li>
+<li><strong>Posture tolerance depends on speed.</strong> With commanded speed <span class="arithmatex">\(c = \lVert \mathbf v^{\text{cmd}}_{xy}\rVert + |\omega^{\text{cmd}}_z|\)</span>:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Regime</th>
+<th>Condition</th>
+<th><span class="arithmatex">\(\sigma_j\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standing</td>
+<td><span class="arithmatex">\(c &lt; 0.05\)</span></td>
+<td>0.05 rad on every joint, which holds the stance tightly</td>
+</tr>
+<tr>
+<td>Walking</td>
+<td><span class="arithmatex">\(0.05 \le c &lt; 1.5\)</span></td>
+<td>hip pitch 0.3, knee 0.35, toes 0.25, hip roll and yaw 0.15, shoulder pitch and roll 0.15, shoulder yaw 0.1, elbow 0.15</td>
+</tr>
+<tr>
+<td>Running</td>
+<td><span class="arithmatex">\(c \ge 1.5\)</span></td>
+<td>Looser; rare in the initial command range</td>
+</tr>
+</tbody>
+</table>
+<p>The penalties shape the gait and discourage harmful motion. Foot terms apply only while the command is nonzero (<span class="arithmatex">\(c &gt; 0.05\)</span>), so standing still costs nothing.</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th style="text-align: right;"><span class="arithmatex">\(w\)</span></th>
+<th>Cost <span class="arithmatex">\(f\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foot clearance</td>
+<td style="text-align: right;">−2.0</td>
+<td><span class="arithmatex">\(\sum_{\text{feet}} \lvert h - 0.10\rvert \cdot \lVert \mathbf v_{xy}\rVert\)</span>: a moving foot should be 10 cm up</td>
+</tr>
+<tr>
+<td>Joint limits</td>
+<td style="text-align: right;">−1.0</td>
+<td>Sum of motor excursions beyond 90% of each joint's range</td>
+</tr>
+<tr>
+<td>Self-collision</td>
+<td style="text-align: right;">−1.0</td>
+<td>Number of the last 4 recorded substeps with a self-contact force above 10 N</td>
+</tr>
+<tr>
+<td>Foot swing height</td>
+<td style="text-align: right;">−0.25</td>
+<td>At each touchdown, <span class="arithmatex">\((h^{\text{peak}}/0.10 - 1)^2\)</span></td>
+</tr>
+<tr>
+<td>Action rate</td>
+<td style="text-align: right;">−0.1</td>
+<td><span class="arithmatex">\(\lVert a_t - a_{t-1}\rVert^2\)</span></td>
+</tr>
+<tr>
+<td>Foot slip</td>
+<td style="text-align: right;">−0.1</td>
+<td><span class="arithmatex">\(\sum \lVert \mathbf v_{xy}\rVert^2\)</span> over feet in contact</td>
+</tr>
+<tr>
+<td>Torso angular velocity</td>
+<td style="text-align: right;">−0.05</td>
+<td><span class="arithmatex">\(\omega_x^2 + \omega_y^2\)</span> of the torso</td>
+</tr>
+<tr>
+<td>Angular momentum</td>
+<td style="text-align: right;">−0.02</td>
+<td><span class="arithmatex">\(\lVert \mathbf L\rVert^2\)</span>, whole-body angular momentum about the centre of mass</td>
+</tr>
+<tr>
+<td>Soft landing</td>
+<td style="text-align: right;">−1e‑5</td>
+<td>Sum of contact force magnitudes at touchdown</td>
+</tr>
+<tr>
+<td>Air time</td>
+<td style="text-align: right;">0</td>
+<td>Disabled</td>
+</tr>
+</tbody>
+</table>
+<p>Foot height <span class="arithmatex">\(h\)</span> is measured by a ring of six rays around each sole centre; foot velocity is the sole site's.</p>
+<p><img alt="Each reward term's contribution to the return at the end of training" src="../assets/digit-m0/reward_breakdown.png" /></p>
+<p>At the end of training the positive terms earn 5.24 per second and the penalties cost 0.87, for a net 4.37 per second, or 87 per episode. Action rate accounts for 0.74 of the penalties. The others each cost under 0.08 per second: they are nearly satisfied, not ignored.</p>
+<p>These are training rewards, measured on the stochastic policy. The action-rate term therefore includes exploration noise, which is still 0.46 action units at the end, as well as the mean policy's own changes.</p>
+<h2 id="episodes-resets-and-randomization">Episodes, Resets and Randomization<a class="headerlink" href="#episodes-resets-and-randomization" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Length</td>
+<td>20 s (1000 policy steps). A timeout is treated as truncation: PPO bootstraps the return with <span class="arithmatex">\(\gamma V\)</span>, so running out of time is not scored as failure.</td>
+</tr>
+<tr>
+<td>Failure</td>
+<td>Torso tilt above 70° ends the episode, with no extra penalty. It only forfeits future reward.</td>
+</tr>
+<tr>
+<td>Joint reset</td>
+<td>The IK standing keyframe, ball-joint quaternions included, with zero velocity. Joint angles are not randomized, because the closed chains would need a constraint solve.</td>
+</tr>
+<tr>
+<td>Base reset</td>
+<td>±0.5 m in x and y, 1–5 cm above the keyframe height, any yaw</td>
+</tr>
+<tr>
+<td>Pushes</td>
+<td>Every 1–3 s, the base velocity jumps by up to ±0.5 m/s in x and y, ±0.4 m/s in z, ±0.52 rad/s in roll and pitch rate, and ±0.78 rad/s in yaw rate</td>
+</tr>
+<tr>
+<td>Foot friction</td>
+<td>0.3–1.2 per env, drawn once at startup</td>
+</tr>
+<tr>
+<td>Torso centre of mass</td>
+<td>Offset by ±2.5 cm in x and y and ±3 cm in z, per env at startup</td>
+</tr>
+<tr>
+<td>Not randomized</td>
+<td>Masses, gains, motor strength, latency, joint friction. Encoder bias is off, because mjlab applies it per joint and would misread Digit.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-learner-ppo">The Learner: PPO<a class="headerlink" href="#the-learner-ppo" title="Permanent link">&para;</a></h2>
+<p>Proximal Policy Optimization alternates between collecting experience with the current policy and taking a few conservative gradient steps on it. One iteration:</p>
+<ol>
+<li><strong>Rollout.</strong> Each of the 4096 envs runs 24 policy steps, 98,304 transitions in all.</li>
+<li>Actions are sampled from <span class="arithmatex">\(a \sim \mathcal N(\mu_\theta(o), \operatorname{diag}\sigma^2)\)</span>.</li>
+<li><span class="arithmatex">\(\sigma\)</span> is a learned per-action vector, independent of the state, and starts at 1.</li>
+<li>The buffer stores the observations, action, log-probability, reward, done flag and critic value.</li>
+<li><strong>Advantages</strong> by generalized advantage estimation, with <span class="arithmatex">\(\gamma = 0.99\)</span> and <span class="arithmatex">\(\lambda = 0.95\)</span>:</li>
+</ol>
+<p>$$
+   \delta_t = r_t + \gamma V(s_{t+1})(1 - d_t) - V(s_t),
+   \qquad
+   \hat A_t = \delta_t + \gamma\lambda(1 - d_t)\hat A_{t+1}
+   $$
+   - The value target is <span class="arithmatex">\(\hat A_t + V(s_t)\)</span>.
+   - Advantages are then normalized over the batch.
+   - At 50 Hz, <span class="arithmatex">\(\gamma = 0.99\)</span> is an effective horizon of about 100 steps, or 2 s.</p>
+<ol>
+<li><strong>Update.</strong> 5 epochs over 4 minibatches of 24,576 transitions, with Adam. With <span class="arithmatex">\(\rho = \pi_\theta(a|o) / \pi_{\text{old}}(a|o)\)</span> the loss is:</li>
+</ol>
+<p>$$
+   L = -\min!\left(\rho \hat A,\; \operatorname{clip}(\rho, 0.8, 1.2)\,\hat A\right)
+   + 1.0\,L_V^{\text{clipped}} - 0.01\,\mathcal H[\pi_\theta]
+   $$</p>
+<p>Gradient norms are clipped at 1.0, separately for the actor and critic.</p>
+<ol>
+<li><strong>Adaptive learning rate.</strong> The rate starts at 1e‑3. After each minibatch:</li>
+<li>if the KL divergence from the old policy exceeds 0.02, the rate is divided by 1.5;</li>
+<li>below 0.005 it is multiplied by 1.5;</li>
+<li>it stays within 1e‑5 to 1e‑2.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Network</th>
+<th>Layers</th>
+<th>Activation</th>
+<th>Input normalization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Actor</td>
+<td>92 → 512 → 256 → 128 → 20</td>
+<td>ELU</td>
+<td>Running mean and variance</td>
+</tr>
+<tr>
+<td>Critic</td>
+<td>104 → 512 → 256 → 128 → 1</td>
+<td>ELU</td>
+<td>Running mean and variance</td>
+</tr>
+</tbody>
+</table>
+<p>The asymmetric critic sees clean observations and foot contact information. That lowers the variance of its value estimates, which makes the advantages the actor learns from less noisy, while the actor stays limited to what a robot can sense.</p>
+<h2 id="what-training-produced">What Training Produced<a class="headerlink" href="#what-training-produced" title="Permanent link">&para;</a></h2>
+<p>One run, training seed 42, on the RTX 4090. The per-iteration values are RSL-RL's running means over recently completed training episodes.</p>
+<p><img alt="Return, episode length, positive terms and exploration noise over training" src="../assets/digit-m0/training_progress.png" /></p>
+<ul>
+<li><strong>Iterations 0–400: staying up.</strong> Episodes lengthen slowly, to about 11 s. Upright and posture rise first, because not falling earns them without any tracking.</li>
+<li><strong>Iterations 400–480: the policy stops falling.</strong> Episodes reach 19 s and upright reaches 0.93.</li>
+<li><strong>Iterations 480–1200: tracking.</strong> Linear tracking climbs from 0.36 to 0.80 of its maximum, and exploration noise falls from 0.69 to 0.48. At iteration 600 the policy walks forward but not yet backward or sideways.</li>
+<li><strong>After 1200: diminishing returns.</strong> The return rises from 83 to 87 over the last 1800 iterations.</li>
+</ul>
+<p><img alt="Per-command tracking error at checkpoints 600, 1200 and 2999" src="../assets/digit-m0/gate_tracking.png" /></p>
+<p>The gate (the Digit project's <code>evaluate</code> task) tests 45 fixed commands over the initial range, with eight replicates of 10 s each, and pushes. The rows above show the same progression:</p>
+<ul>
+<li><strong>Checkpoint 600</strong> tracks only standing and slow forward walking (vy = 0, vx of 0 or 0.5 m/s). It falls 0.24–0.35 m/s short at 1 m/s forward. Backward and sideways errors are about the size of the command, and the gate fails.</li>
+<li><strong>Checkpoint 1200</strong> is the first to pass, with a mean planar error of 0.098 m/s against the 0.1 m/s limit.</li>
+<li><strong>Checkpoint 2999</strong> passes on two evaluation seeds. The mean planar error is 0.09 m/s, with no falls in 360 tracking runs and full survival of 0.5 m/s and 1 m/s kicks.</li>
+</ul>
+<p>The largest remaining errors are:</p>
+<ul>
+<li>0.10–0.13 m/s under lateral commands;</li>
+<li>up to 0.15 rad/s when turning in place.</li>
+</ul>
+<p>The resulting gait takes about three steps per second, with no flight phase, and the foot apex reaches 85–111 mm at 0.5–1 m/s. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md">VALIDATION.md</a> holds the gate criteria and the gait table.</p>
+<p>The capsule behind these figures is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/README.md">2026-09-27-digit-m0-velocity-policy</a>.</p>
+<h2 id="what-m0-does-not-cover">What M0 Does Not Cover<a class="headerlink" href="#what-m0-does-not-cover" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Transfer.</strong> Everything on this page is inside mjlab. M1 has since run the same policy in the C++ plant: the five flat scenarios complete on truth (M1a) and on InEKF estimates (M1b). The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/roadmaps/learning-roadmap.md">learning roadmap</a> records that gate.</li>
+<li><strong>Estimation.</strong> Training sees true base velocity. In M1b, the policy's tracking on estimates was within 0.01 m/s of its truth runs. The simulated IMU is noiseless, so this says nothing about hardware estimation.</li>
+<li><strong>Small commands.</strong> In mjlab and in the plant, the policy barely responds to small lateral and yaw commands. The gate's grid tests only 0 and ±0.5 on those axes, so M0 could not see this; M1 found it.</li>
+<li><strong>Hardware realism.</strong> Training has no latency, actuator-dynamics, gain or mass randomization, and no terrain. The plant adds one 1 ms tick of action latency.</li>
+<li><strong>Variance.</strong> There is one training seed.</li>
+<li><strong>Range.</strong> Commands above 1 m/s forward, 0.5 m/s lateral or 0.5 rad/s yaw were never trained.</li>
+<li><strong>Reward interpretation.</strong> Tracking accuracy comes from the gate, not the training reward, because the tracking kernels barely distinguish 0 from 0.2 m/s of error.</li>
+</ul>
+<h2 id="reproduce">Reproduce<a class="headerlink" href="#reproduce" title="Permanent link">&para;</a></h2>
+<p>The commands below use the current Digit project entry points. Training today runs the current task definition; it does not automatically reproduce the September baseline. For a historical comparison, use the revision, configuration and reduced data recorded in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/README.md">M0 evidence capsule</a>, and keep a new run distinct from the recorded results.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Train (CUDA workstation), evaluate, export: in the Digit project.</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>learn<span class="w"> </span>train<span class="w"> </span>Digit-Velocity-Flat-1ms<span class="w"> </span>--env.scene.num-envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>--agent.max-iterations<span class="w"> </span><span class="m">3000</span><span class="w"> </span>--agent.run-name<span class="w"> </span>NAME
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>learn<span class="w"> </span>evaluate<span class="w"> </span>--run<span class="w"> </span>learning/checkpoints/runs/digit_velocity/RUN
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>learn<span class="w"> </span>export-policy<span class="w"> </span>--run<span class="w"> </span>learning/checkpoints/runs/digit_velocity/RUN
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">cd</span><span class="w"> </span>../..
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="c1"># Figures on this page, from the capsule's reduced data.</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/scripts/render.py
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/roadmaps/learning-m0-digit-velocity.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../setup/student-projects.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Start a G1 project">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Start a G1 project
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../design/models-and-simulation.html" class="md-footer__link md-footer__link--next" aria-label="Next: Models and simulation">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Models and simulation
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

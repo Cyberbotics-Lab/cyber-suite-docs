@@ -1,0 +1,148 @@
+---
+Status: candidate
+Owner: repo
+---
+
+# Estimation
+
+## Purpose
+
+State and contact-evidence estimation for robot/control workflows, focused on the signals needed before the control module is migrated.
+
+## Public API
+
+`JointStateObserver` additionally supports the experimental `impact-imm` algorithm: one smooth constant-acceleration mode and one velocity-jump mode per joint, with likelihood-weighted means and total mixture covariance including between-mode dispersion. It publishes acceleration/full q/qd/qdd covariance and innovation-mode probability; that probability is not physical contact confidence. `position_only` discards the velocity observation for differenced encoders. Fixed sensor/process assumptions are configurable and are not hardware calibration. Updates are transactional and use preallocated storage. `StateEstimatorOptions::shared_joint_state` declares that composing momentum/contact consumers use the same current observer posterior; absent/false retains legacy selection and true requires an enabled group-velocity joint observer.
+
+`SharedStateEstimate` freezes a current physical joint/base posterior into preallocated floating-base q/v, the InEKF 15-state covariance and per-joint q/qd covariance, stamped by sensor time, source sequence and authority epoch. Each capture invalidates prior contact evidence; current DSG evidence can be attached once with the exact same stamps. Base tangent velocities are derived from the physical base posterior. Marginals omit cross-joint/base correlation. Contact support/capacity remain uncalibrated scores and force variance is explicitly unavailable (NaN), never interpreted as zero uncertainty. The class owns no correction, control smoothing, probability calibration or authority policy.
+
+`KinematicStateFilter` provides a preallocated q/v EMA for composing apps. Floating-base pose passes through, velocity blocks have independent cutoffs, timestamps strictly increase within an epoch, and reset or epoch change re-primes from the current sample. It does not replace physical estimator input or its uncertainty. `StateEstimatorOptions::raw_joint_measurement` optionally propagates configured encoder q/qd covariance in group-velocity correction, with information scale 1. It is mutually exclusive with the joint observer; an absent profile block preserves disabled behavior. The raw covariance runtime matches an explicit InEKF covariance update in the focused contract. Digit walking retains the joint observer default after a noisy raw-input regression; its shared-state and experimental raw evidence are app-owned.
+
+- `types.hpp`
+- `state.hpp`
+- `invariant_ekf.hpp`
+- `contact_group_velocity.hpp`
+- `contact_group_odometry.hpp`
+- `stationary_gravity_dwell.hpp`
+- `kinematics_estimator.hpp`
+- `joint_state_observer.hpp`
+- `momentum_observer.hpp`
+- `state_estimator_options.hpp`
+- `state_estimator_runtime.hpp`
+- `kinematic_state_filter.hpp`
+- `shared_state_estimate.hpp`
+- `flat_support_local_initializer.hpp`
+- `contact_credibility_channel.hpp`
+- `contact_credibility_estimator.hpp`
+- `contact_credibility_queries.hpp`
+- `dynamics_support_gate.hpp`
+- `estimation_profile.hpp`: the YAML loader for one estimation deployment, built as `cyber_suite_estimation_profile` so the filter itself carries no YAML dependency. It reads `dynamics_support_gate` and `state_estimation` with the foundation `ProfileReader`: unknown keys are rejected and renamed keys keep their migration message. The optional joint observer block means disabled when absent; every key inside a stated block is required. Every mode's block is required whichever mode is selected, so a campaign edits only the mode, authority or initialization. The loader applies the linear-velocity policy of the contact-group modes, so the tilt-bootstrap parameters are not keys. `estimation_profile_yaml` emits the full schema, which the loader reads back, and `applied_estimation_yaml` emits the selected composition for resolved reports. Digit walking loads `apps/digit/walking/config/profiles/estimation.yaml` and TRON1 walking `apps/tron1/walking/config/profiles/estimation.yaml`.
+- Python package: `cyber_suite.estimation`
+
+Group-velocity contact correction preserves the stacked joint q/qd covariance and cross-foot correlation. Exactly symmetric joint covariances permit one block triangle to be accumulated and mirrored; accepted asymmetric covariance inputs retain the full calculation. Exact zero kinematic partials skip only zero outer products. Measurement/state timestamps, support-point fitting, confidence scaling, correction authority and Joseph covariance propagation are unchanged.
+
+## Dependencies
+
+- Eigen
+- `cyber_suite_foundation`
+- `cyber_suite_robot`
+- pybind11 for Python bindings
+- yaml-cpp and `cyber_suite_foundation_profile`, for `cyber_suite_estimation_profile` only
+
+## Contact Credibility Contract
+
+CCC remains an available estimation component for applications that explicitly choose it. TAC-QP does not depend on CCC types or snapshots. The accepted Digit design uses DSG-owned group capacity at the controller boundary; migration of other applications that still use CCC is intentionally deferred until that design has final behavioral evidence.
+
+## Point-support startup
+
+`FlatStartOptions::support_geometry` is the profile's required `flat_start.support_geometry: planar-footprints | point-supports`. The `point-supports` option accepts exactly one finite kinematic point per support group, retaining quiet-IMU gravity/bias initialization and agreement between support heights. It does not weaken footprint tilt tests or enable point-contact tilt corrections. TRON1 states `point-supports` with the group-velocity mode, whose correction is linear-velocity only; Digit states `planar-footprints`. The focused `FlatSupportStartup` regression is in the existing estimation contract suite.
+
+## State Estimator Deployment Contract
+
+`state_estimator_options.hpp` owns the vocabulary for deploying a floating-base InEKF: correction mode, output authority, initialization source, flat-start tolerances, and the support-group set. These are three independent axes -- which filter, how much of it reaches control, where its initial state came from -- and a run picks one value on each, so a hardware campaign is a sweep rather than a rewrite. Every mode is kept deliberately, `ImuOnly` included: it is the dead reckoning baseline the contact-corrected modes are measured against.
+
+`state_estimator_runtime.hpp` deploys the filter: startup, gravity alignment, frame qualification, the startup deadline, fault latching, and authority. The filter itself only predicts and corrects; everything between "a robot powered on" and "control may run on this estimate" is the runtime, and none of it is robot-specific.
+
+The runtime never calls back into its owner. Each entry point returns a `StateEstimatorTransition` naming what changed -- the filter acquired a state, the frame qualified, authority was promoted, a fault latched and whether it is fatal -- and the caller decides what those milestones mean for its controller, its planner, and its operator. That is what keeps the runtime testable without any of them, and what keeps application policy out of the module. Output flows the same way: `applied_base_state()` returns which base rows the configured authority permits writing, and the caller writes them, so the module never takes a dependency on a control state type.
+
+`flat_support_local_initializer.hpp` builds the initial state a real robot can actually produce -- a stationary IMU window for attitude, the encoders and the model's contact geometry for a support-centroid origin. It has no simulator, contact-sensor, or terrain dependency. Its caller owns the retry deadline: a rejected attempt is an ordinary outcome, and `rejection_reason()` names the precondition that failed.
+
+Neither header assumes a biped. `support_groups` is a list, and the initializer levels and centroids across whatever it names.
+
+## Experimental joint-state observer
+
+`JointStateObserver` estimates each continuous/unwrapped joint's `(q, qd)` at its sensor timestamp, with three explicit experimental algorithms:
+
+- `constant-velocity`: the original Kalman observer, including white acceleration process noise and correlated encoder noise. Its acceleration tracking error failed Digit walking qualification.
+- `constant-acceleration`: an opt-in three-state `(q, qd, qdd)` Kalman observer with configured, fixed sensor covariance and continuous white-jerk process noise. `jerk_spectral_density` has units rad²/s⁵ and `initial_acceleration_std_radps2` sets the initial acceleration uncertainty; both are required when this algorithm is selected. The exact discrete constant-acceleration transition and integrated white-jerk covariance use the supplied sample interval. A Joseph covariance update publishes the q/qd marginal, including its cross term. The initial sample seeds q/qd directly with zero acceleration mean. This model can have gain peaking and phase lag; it is an experiment, not a qualified replacement for controller filtering.
+- `adaptive-polynomial`: a causal quadratic fit to position and velocity over 2, 4, 8, 16 or 32 samples, evaluated at the newest timestamp. Choose the longest history whose normalized fit residual is within the 99% chi-square threshold (2N-3 degrees of freedom). The fit represents constant acceleration exactly; general motion still has approximation error.
+
+Polynomial mode estimates common sensor noise from third position differences and second velocity differences (white-noise variance factors 20 and 6), using a median absolute value across joints followed by a trailing 127-sample median. The configured position/velocity sigmas seed the first samples; numerical floors are 1e-7 rad and 1e-5 rad/s. This assumes comparable, independent sensor noise across joints; widespread rapid motion can contaminate the noise estimate. Nonzero position/velocity measurement correlation is explicitly unsupported in this mode. The acceleration PSD applies only to constant-velocity mode.
+
+A one-step constant-acceleration predictor checks new samples against four innovation standard deviations. An isolated large sample is withheld. A same-direction large innovation on the following sample confirms a change and starts a new fitting history for that joint. A persistent jump therefore takes one sample to confirm; past published estimates are never rewritten. The fit covariance is inflated by excess residual, and a withheld innovation adds its squared discrepancy to the marginal variances. Model selection, cleaned samples and noise estimation make these covariances approximate, not calibrated posterior probabilities. No mechanical loop-closure projection is performed.
+
+Cross-joint independence is assumed; no commanded acceleration, torque, simulator truth or terrain input is used. `covariances()` returns a separate 2x2 `(q, qd)` matrix for each joint. Construction allocates; successful updates and reset do not. Invalid dimensions, nonfinite samples and non-increasing timestamps leave the previous estimate intact. Polynomial mode requires uniform sampling: an interval change above max(1e-10 s, 1e-6 times the prior interval) reprimes its sample/noise history from the current measurement.
+
+`StateEstimatorRuntime` optionally owns this observer and uses its current sample for flat-start geometry and group-velocity correction. The base InEKF keeps its 15-state core. The optional `state_estimation.joint_state_observer` profile block defaults to disabled when absent; the original six keys remain required when present. Its optional `algorithm` key defaults to `constant-velocity` for compatibility. Digit's app profile explicitly enables `impact-imm` and the ALIP/DCM shared physical-state composition; the reusable options remain disabled by default. Enabled modes other than `group-velocity` are rejected. Runtime contact correction consumes one fresh prediction; repeated correction without a new prediction is rejected. This deployment supports at most 64 scalar joints, with matching position and velocity counts.
+
+The contact update propagates joint uncertainty through derivatives of WORLD point velocity with respect to q and qd, including each joint's q/qd cross covariance and shared encoder covariance between feet. An optional `JointStateUncertainty::joint_covariances` span supplies unequal joint marginals; an empty span retains the common-covariance interface. Support weights are held fixed during linearization. Confidence scales the joint covariance by a congruence, alongside the existing contact-noise floor. `measurement_std_world` records the resulting marginal standard deviations. The robot backend must implement `contact_velocity_derivatives`; unsupported or nonfinite derivatives fail explicitly when this path is enabled.
+
+Successive observer outputs are correlated. The explicit `contact_information_period_s` scales the entire stacked measurement covariance by `max(1, period/dt)` as an information-rate guard. This is an approximation, not exact temporal whitening or joint/base cross-covariance tracking. It does not establish statistical consistency. Contact admission and speed gates are unchanged. Hardware calibration and walking robustness remain qualification questions; Digit adopts the experimental observer as an app default without promoting the observer's lifecycle or claiming those qualifications.
+
+## Momentum Observer Contract
+
+The observer first requests the model's optional direct `M*v`, `C.transpose()*v` and gravity products at the exact input q/v, with its existing preallocated M/C path as the backend fallback. Reset, update and same-instant rebase use the same products. Passive force still uses the live model options and remains on the known-force side; torque hold, trapezoidal integration, residual feedback and IMU authority are unchanged. Direct-product and full-matrix parity, affected contracts and warmed allocation probes are retained under `artifacts/servo_computation_20261010/`.
+
+`MomentumObserver` estimates external and otherwise unmodeled generalized forces from generalized momentum. Every update unconditionally includes the `RobotModel::passive_generalized_force(q, qd)` result on the known-force side of the observer. Backends without a passive-force model retain the base zero-force behavior. Model-provided damping, friction, and stiffness therefore enter the known-force model rather than being deliberately left in the external residual. In sampled operation, the state-dependent known force `tau_passive + C.transpose()*qd - g` is trapezoided between consecutive state samples. The actuator torque argument remains the zero-order-held force applied over that elapsed interval, and residual feedback remains explicit at the left endpoint. The observer retains its full generalized-force residual; model error, holonomic reactions, and other forces not supplied through the known-force contract may remain in it.
+
+## Dynamics Support Gate Contract
+
+`MomentumObserver::rebase` changes a measurement representation at the last update's same physical instant while preserving the residual and accumulated integral. It shifts the initial momentum reference by the representation's momentum difference and refreshes the known-force integration endpoint. The composing owner must first integrate the elapsed interval with the old representation and the actual held torque. It must not use rebase to discard a physical impact. Digit uses it once when switching from raw-joint local-frame qualification to the shared posterior; DSG history and readiness thresholds are preserved.
+
+DSG's exact nonnegative ridge fit reuses two bounded caches of Gram matrices and subset LLT factors within one update, keyed by exact point membership and compatibility scales. Every new sample invalidates the caches, so changed geometry, internal projection or velocity compatibility cannot reuse stale factors. Other group topologies can evict slots safely. A finite, nonnegative full unconstrained solution with positive ridge is already the unique constrained optimum and returns immediately; otherwise the existing exhaustive support enumeration remains. Rank projection, ridge, force/support thresholds and filter history are unchanged. Coplanar Digit geometry, separating points and zero-ridge parity are checked against the retained original algorithm.
+
+`DynamicsSupportGateEstimator` is an experimental support gate. It produces one continuous load-bearing gate per contact group from dynamics residual evidence, contact Jacobians, and contact-point velocities. An optional `internal_force_basis` supplies generalized-force directions that must not be attributed to contact. DSG computes their numerical column space and applies the same orthogonal-complement projection to the residual and every contact-normal column before the nonnegative fit. This is equivalent to eliminating unrestricted nuisance-force coefficients; projecting only the residual is not part of the contract. Empty or rank-zero bases preserve the unprojected behavior. Malformed or nonfinite bases invalidate the whole sample, and a basis spanning the complete residual space publishes no support. It does not consume acceleration, terrain height, planned foothold height, terrain-nearness predicates, contact normal directions, or measured contact forces. An optional first-order low-pass (`residual_filter_time_constant`, zero bypasses it) acts on the input residual before projection and fitting; its seed clears with the support filters. A momentum-observer residual carries `K_O*M*(velocity error)` unfiltered, and the nonnegative fit rectifies that zero-mean error into positive support, so a caller feeding raw encoder velocity should set it. Each point contributes only its gravity-up linear Jacobian column. Positive upward separation reduces that point's column continuously; stationary and descending points retain full compatibility. An optional horizontal point-speed band (`horizontal_speed_low`/`_high`, both zero disables it) multiplies that compatibility, falling smoothly from full to none across the band: a point bearing load on the ground is nearly stationary. For each group, deterministic nonnegative ridge regression first removes normal-load residual explainable by all other groups and then attributes the remainder to the selected group. Each fit is solved exactly: the ridge makes the minimizer unique, and it is the nonnegative candidate with the best objective among the unconstrained solves on every subset of columns. One side of a split may hold at most `kMaximumFitColumns` (8) points; a larger input is rejected. An exactly indistinguishable residual therefore fails closed instead of being shared arbitrarily. DSG exposes no point-contact gate or physical contact-location estimate. The authored normal-force score is raw support `S_raw`. One exact symmetric first-order filter produces `S`, and `C=clip((S-support_on)/(support_full-support_on),0,1)` produces normalized group capacity. Residual explainability remains diagnostic and does not attenuate support or capacity.
+
+The per-group split is only well determined when one group can explain the residual. Two coplanar feet load nearly the same residual direction, so in double support many splits explain it about equally well, and the returned split moves inside that near-null space between ticks. The exact-collinearity guarantee above does not extend to this near-collinear case: it does not fail closed. Measured on Digit at 2 m/s, a foot carrying 802 N of true normal force was attributed 30 N while the opposite foot took the difference. Consumers must therefore not read one group's `group_capacity` or `group_support_force` as evidence that that group is or is not bearing load while another group may share it. The sum across groups is not in the null space and tracks body weight; single-support splits are sound.
+
+Invalid whole-estimator samples clear all filter seeds and publish no groups. Invalid points are omitted; a group with no valid point publishes no output, loses its filter seed, and reseeds directly from its next valid raw sample. DSG owns only group support and normalized capacity. It does not own planner topology, reference retention, pointwise contact authority, or QP force policy.
+
+## Invariant EKF Contract
+
+`InvariantEKF` owns IMU prediction plus two additive floating-base contact updates. The existing named-frame API anchors contact position. The group-velocity API selects one effective support point inside each configured rigid contact-group footprint by minimizing confidence-gated kinematic velocity over simplex weights, then stacks one 3D zero-velocity observation per admitted group. Floating-base linear and angular velocity are supplied to Pinocchio in the base tangent frame. The measurement Jacobian directly linearizes effective contact velocity against the right-invariant attitude, world velocity, and base-frame gyro bias. That full linearization is enabled for the first 0.15 s of applied updates and thereafter only when the configured contact footprint plane lies within 5 degrees of gravity-level; steeper or degenerate footprints retain the velocity-only row. This gate is derived from estimated pose and kinematics and does not consume terrain truth or a mapped surface normal. The default Schmidt-style gain mask permits velocity, roll/pitch, roll/pitch gyro bias, and accelerometer-bias correction while blocking all position, gravity-axis yaw, and gravity-axis gyro-bias correction. The stricter `LinearVelocityOnly` correction mode retains only world linear velocity and accelerometer-bias rows and disables the full attitude Jacobian and tilt bootstrap. It is intended for consumers that want contact-aided velocity without granting uncertain support geometry attitude authority. The filter uses an LDLT innovation solve and Joseph covariance update. Diagnostics expose group admission, weights, effective point kinematics, measurement trust, rejection reason, raw/masked corrections, and removed gauge terms.
+
+### Contact-Group Local-Odometry Contract
+
+`contact_group_odometry.hpp` is implemented as an additive InEKF update. It preserves the public `State` and its `15 x 15` core covariance marginal in error order `[delta_theta, delta_v, delta_p, delta_bg, delta_ba]`, while the filter internally augments covariance with correlated 3D nuisance anchors for frozen effective contact points. Group velocity remains the sole velocity authority; group odometry applies only the translation rows selected by `group_odometry_position_correction_projector()`.
+
+Each configured group moves explicitly through `Absent`, `Candidate`, `Anchored`, and `Suspended`. Confidence, anchor dwell, effective-point speed, measurement trust, update cadence, innovation, geometry, and numerical-health checks fail closed with named reject reasons. Release and re-anchor update the correlated covariance consistently. Diagnostics expose anchor lifecycle, frozen weights, innovations, correction projection, covariance health, continuity epoch, and unanchored duration.
+
+Digit owns initialization, estimator selection, and control authority. The CORTA walking application supports group odometry only with flat-support-local initialization and validates its authority milestones and artifact diagnostics. Terrain perception, global localization, and hardware transport remain non-goals.
+
+The module does not choose contact confidence, sensor-frame calibration, initialization policy, control authority, or privileged truth; those remain app or hardware-adapter responsibilities.
+
+`apps/digit/walking/digit_corta_walking` is the live consumer. It adapts foot-level DSG/schedule confidence to corner-position, group-velocity, or group-odometry observations and owns the `shadow`, `velocity-only`, `velocity-orientation`, and `closed-loop` output selectors. They do not select filter policy: group-velocity and group-odometry use `LinearVelocityOnly` regardless of output authority. Stationary-IMU startup, local-frame readiness, and authority handoff remain app policy. The module still owns no control-authority decision. Scenario evidence does not promote the estimator beyond candidate or claim hardware readiness.
+
+## Owned Examples
+
+- None in this slice. Estimation examples should stay thin and be added only after the control-facing contracts settle.
+
+## Validation
+
+- C++ contract tests: `pixi run test estimation`
+- Joint observer: `JointStateObserver.*` pins constant-velocity noise reduction, polynomial acceleration/change response, constant-acceleration model tracking and q/qd covariance, correlated covariance where supported, timestamp/reset/cadence behavior, runtime routing and unequal-joint stacked contact covariance against finite differences. Impact IMM adds noise reduction/clean jump response, full mixture covariance, position-only independence and transactional rejection. `SharedStateEstimate.*` pins sensor/sequence/epoch identity, stale contact rejection and atomic attachment. The allocation target includes polynomial, constant-acceleration and IMM observation, physical/contact capture and momentum rebase across support phases.
+- 2026-10-10: 88 estimator tests and 4 allocation guards pass. The production IMM matches four independent frozen trajectories below 2e-10 normalized error. Digit adopts the shared physical composition after a bounded four-case matched comparison; three flat cases complete and both upstairs arms fail. Joint velocity error improves 18–79%, base velocity error changes by less than 0.001 m/s, and median Servo cost increases by 0.3–11.9 µs. Estimation remains candidate, contact uncertainty uncalibrated and controller EMA retained; see Digit VALIDATION.md for exact limits and provenance.
+- 2026-10-04: 78 estimator tests and 4 allocation tests pass. The opt-in constant-acceleration candidate improves the bounded Digit 0.6 m/s noisy walking comparison but fails sustained combined-noise walking. At 1.0 m/s, model error can make its joint-velocity RMSE worse than raw encoders. Process-noise tuning is a tracking/phase/noise tradeoff; this mode is not a qualified replacement for controller filtering. See Digit VALIDATION.md.
+- 2026-10-03: 77 estimator tests and 4 allocation tests pass. Independent replay matches polynomial C++ q/qd within 1.4e-13 rad / 6.1e-12 rad/s with identical history selection. On saved walking trajectories it reduces nominal and 3x joint error. Digit completes 5/9 cases versus baseline 6/9, including a lateral regression; this remains opt-in. The original constant-velocity arm was 2/9. See Digit VALIDATION.md for exact cases, artifacts and statistical limits.
+- Python binding tests: `pixi run py-test estimation`
+- Digit estimator modes, output authority, initialization, milestones, and artifact gates: `pixi run test -R '^cyber_suite_digit_walking\.(corta_estimator_output_authorities|corta_telemetry|artifact_truth_join)$' --output-on-failure`
+
+Last verified: see the current focused results in `apps/digit/walking/VALIDATION.md`.
+
+Hardware boundary: the linear-velocity policy of the contact-group modes was chosen on MuJoCo evidence, whose gyro has no bias wander. Against Agility's simulator through its low-level API (walking VALIDATION.md, 2026-10-14), the simulated gyro bias wandered by about 1 mrad/s, and Digit's group-velocity composition, with no tilt correction after startup, drifted 1° in pitch over 30 s of standing; controlling on it, the robot fell. Roll/pitch aiding for long or hardware sessions is open.
+
+## Non-goals
+
+- Control contact scheduling or support-authority ownership
+- TAC-QP task construction
+- LOAM, scan matching, or mapping surfaces from the old repo
+- Hardware sensor drivers or app-level estimator orchestration

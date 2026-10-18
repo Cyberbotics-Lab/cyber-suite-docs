@@ -1,0 +1,118 @@
+---
+Status: working
+Owner: modules/locomotion, apps/digit/walking, apps/tron1/walking
+Last reviewed: 2026-10-18
+Code anchors: modules/locomotion/include/cyber_suite/locomotion/walking/coordinator.hpp, modules/locomotion/src/walking/coordinator.cpp, modules/locomotion/include/cyber_suite/locomotion/walking/contact_history.hpp, apps/digit/walking/config/profiles/coordinator.yaml, apps/tron1/walking/config/profiles/coordinator.yaml
+---
+
+# Walking coordinator and planner–Servo boundary
+
+Digit and TRON1 use `locomotion::walking::Coordinator` with both ALIP and DCM. The former `WalkCoordinator` is retired. The shared coordinator owns walking lifecycle and contact-event decisions on the planner side; Servo publishes evidence and executes authored references. This deep reference explains that division, the implemented event/clock behavior, and the differences between robot profiles.
+
+Read [model-based walking](model-based-walking.md) first for the complete loop. The [locomotion contract](../../modules/locomotion/MODULE.md) owns the reusable API. [Digit](../../apps/digit/walking/APP.md) and [TRON1](../../apps/tron1/walking/APP.md) own their compositions; their validation records determine demonstrated behavior. Sharing a coordinator does not qualify either robot's gait or hardware operation.
+
+## Why the planner owns walking decisions
+
+A numerical planner chooses a landing and its timing; a reference author turns that choice into continuous task trajectories. Contact admission and support exchange must use the same step identity and clock. Splitting those decisions between a deferred planner and an independent Servo gait machine creates competing transition rules and makes delayed preview delivery difficult to interpret.
+
+The implemented boundary places lifecycle, step timing, support roles and admission in the planner system. Servo remains responsible for full-rate measurements, controller realization and safety faults. The boundary is ownership, not a requirement that every calculation run at one rate.
+
+```mermaid
+flowchart TB
+  plant["Plant observation"] --> servo["Servo: estimate and realize"]
+  servo --> history["Contact history and delivered-reference acknowledgement"]
+  history --> coord["Planner-owned coordinator"]
+  coord --> kernel["ALIP or DCM solve"]
+  kernel --> coord
+  coord --> author["Reference author"]
+  author --> preview["Timed futures and binary task targets"]
+  preview --> servo
+  servo --> plant
+```
+
+## Responsibility boundary
+
+| Servo | Planner system |
+| --- | --- |
+| State estimation and per-tick contact evidence | Walking mode, step identity, stance and support exchange |
+| Installed-preview identity and commanded reference jets | Contact admission, thresholds and dwell |
+| Reference installation, sampling and RHRS joins | Numerical solve, retiming and reference authoring |
+| Applying binary activation targets through controller ramps | Binary swing/support-height roles |
+| TAC-QP realization, physical constraints and controller faults | Start, stop, capture assessment and recovery preparation |
+
+A Servo must not advance gait phase, select a stance from step labels, or infer a walking transition from planned timing. It receives time-indexed references and activation commands. Delivery acknowledgement is different: it reports which opaque preview/activation identity actually arrived, without interpreting the gait.
+
+Contact force authority is also distinct from the planner's swing/support-height roles. DSG capacity and TAC-QP's contact model determine available force and release behavior at the control rate. A planner role does not certify contact or grant force authority.
+
+## Full-rate contact evidence
+
+[ContactHistory](../../modules/locomotion/include/cyber_suite/locomotion/walking/contact_history.hpp) is a fixed-capacity ring of 64 samples. Servo appends each tick. The planner consumes unseen samples in order, preserving the timing needed for release detection and dwell rather than receiving only a minimum, maximum or average.
+
+Each sample includes tick/time, estimated yaw, requested vertical force, per-foot capacity/support/load and allocated force, force-bound and reference-retention information, estimated foot position/velocity, and installed activation/preview acknowledgement. These are measurements or delivery facts. Thresholding, filtering and gait decisions remain on the planner side.
+
+At a configured 1 kHz Servo and 50 Hz planner, roughly 20 samples arrive per planner period. The 64-sample capacity provides bounded slack for delayed consumption, not unlimited history. The cursor detects a gap in newly consumed tick indices, non-increasing new-sample time, malformed storage and an epoch change without reset. A missing interval is an explicit failure rather than silent interpolation.
+
+## One gait event per step
+
+The coordinator's gait event is an admitted touchdown. It starts the next cycle on the landed foot and requests a successor solve. Until the first plan is accepted, that cycle is planless and both support-height roles remain enabled. The first accepted timing starts its execution clock and enables the next swing.
+
+Physical double support is not a separate transfer stage inserted after every touchdown. The enum value `DoubleSupport` is the preparation mode used for startup or capture recovery. During an executable step, outgoing-foot release follows the authored swing reference and controller contact mechanics; there is no coordinator liftoff event or fixed transfer timer.
+
+| State or event | Implemented consequence |
+| --- | --- |
+| Neutral, captured startup | Remain in Stand |
+| Motion request or valid capture assessment outside the standing region | Enter preparation with a latched first stance |
+| Preparation ready and timing accepted | Enter executable Walk |
+| Failed launch/planless successor | Hold supports and retry; do not invent a successful plan |
+| Admitted touchdown | Retire the outgoing cycle and request a successor |
+| Neutral touchdown gate, capture and alignment all satisfied | Return to Stand |
+
+The step clock begins at the first accepted plan, so a planless wait after touchdown is not step time. Phase advances once per planner tick and remains continuous/non-decreasing through retiming. At the configured commitment phase, ordinary replanning stops until touchdown. A failed refresh does not by itself discard an existing executable plan.
+
+## Admission uses the installed command
+
+Admission starts when the evidence acknowledges installation of the swing activation. It first requires the incoming foot to have unloaded to the release threshold. The landing window then opens at a fraction of the installed step duration; capacity must meet the admission threshold for the configured dwell.
+
+`record_preview(generation)` retains planner-owned timing for a published preview. With delivery-aware admission enabled, an evidence sample's installed preview identity selects that timing. A newer solve must not retroactively change the landing window for samples gathered before its preview arrived. An unmapped identity fails explicitly.
+
+For example, if the planner has solved a shorter duration but Servo is still executing the previous preview, admission replays those samples using the previous duration. This preserves the distinction between solving a plan, publishing it and executing it. The acknowledgement does not move gait logic into Servo.
+
+## Robot-owned settings
+
+The same mechanism uses different calibration. The following values are read from the current [Digit profile](../../apps/digit/walking/config/profiles/coordinator.yaml) and [TRON1 profile](../../apps/tron1/walking/config/profiles/coordinator.yaml); they are not universal defaults.
+
+| Setting | Digit | TRON1 |
+| --- | --- | --- |
+| Release capacity threshold | 0.50 | 0.50 |
+| Admission capacity threshold | 0.50 | 0.50 |
+| Earliest contact fraction | 0.60 | 0.85 |
+| Capacity dwell | 0.005 s | 0.020 s |
+| Shared-load hold fraction | 0.0: disabled | 0.0: disabled |
+| Neutral touchdowns required | 2 | 2 |
+| Fore-aft Stand tolerance | 0.03 m | 0.03 m |
+
+The reusable coordinator supports maintaining a dwell through a per-foot capacity dip when the pair's load exceeds a configured fraction of body weight. Both app profiles disable this exception. In Digit, the outgoing foot alone can carry body weight while the incoming foot is airborne; pair load cannot establish incoming touchdown. The old description of an active 0.85-body-weight hold is therefore not the current Digit configuration.
+
+Durations and commitment phase come from the selected planner profile; execution periods come from the app. Constructor defaults are not a substitute for the resolved application configuration.
+
+## Standing, capture and completion
+
+Capture assessment is planner-owned. For Digit it uses the available-foot support geometry and an inward-eroded standing region. Startup with unknown capture does not by itself leave neutral Stand. Loss of capture validity after an established captured stop can initiate recovery preparation. Preparation does not lift a foot until launch readiness and an accepted plan permit it.
+
+Returning from Walk requires the configured number of touchdowns from steps that began neutral, capture inside the standing region, and fore-aft foot alignment. The planner owns any aligned final landing request. TRON1's point feet do not certify the same standing polygon; its continuous-stepping behavior must be understood through its own app contract, not copied from Digit's Stand acceptance.
+
+Coordinator Stand is not the same as successful experiment completion. Digit continues updating standing references and permitting recovery until its app-owned measured settling gate passes. The profile currently requires planar speed at most 0.08 m/s, at least 0.15 body weight on each foot, held for one second. Physical completion and termination reasons belong to app validation.
+
+## Planner and reference-author integration
+
+The [coordinator interface](../../modules/locomotion/include/cyber_suite/locomotion/walking/coordinator.hpp) exposes `update`, `plan_required`, `accept_timing`, `record_preview`, `elapsed` and a read-only view. A consumer answers each requested solve with valid or failed timing. It owns the numerical state, geometry, model height, command interpretation and reference futures; the coordinator owns the lifecycle and clock.
+
+DCM composes this mechanism through `dcm::DcmWalkingPlanner`. ALIP supplies its own numerical solve and delivered-state prediction. The shared mechanism does not make their optimization or swing-reference policy identical. App authors map coordinator roles to robot tasks and seed replacement references from the commanded jets appropriate to their delivery/join contract.
+
+The library remains independent of robot models, numerical solver selection, task names, perception and CORTA graph composition. It covers supported biped stepping; flight, hand contacts and arbitrary contact schedules are outside its contract.
+
+## Evidence and design rationale
+
+The migration removed parallel Servo-side admission/gait logic and retired the old `WalkCoordinator`. Its enduring decisions are planner-owned lifecycle, ordered full-rate evidence, one touchdown event per step, explicit delivery timing and no planner-owned contact-force authority. Reintroducing a transfer timer or Servo phase branch would change that boundary and needs an owner-level design review.
+
+Use the [locomotion validation section](../../modules/locomotion/MODULE.md#validation) for mechanism checks. [Digit validation](../../apps/digit/walking/VALIDATION.md) records shared-coordinator adoption and subsequent walking changes; [TRON1 validation](../../apps/tron1/walking/VALIDATION.md) records its point-foot regressions and limits. Matching software transitions, an upright interval, or a shared profile does not establish physical recovery, a qualified gait or real-time deadlines.

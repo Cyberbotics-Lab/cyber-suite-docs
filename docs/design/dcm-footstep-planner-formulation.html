@@ -1,0 +1,3823 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A modular C++ and Python foundation for robotics research. Explore models, algorithms, execution and experiments.">
+      
+      
+      
+        <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/design/dcm-footstep-planner-formulation.html">
+      
+      
+        <link rel="prev" href="alip-footstep-planner-formulation.html">
+      
+      
+        <link rel="next" href="../../apps/digit/walking/RUNNING.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>DCM formulation - Cyber Suite</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/project.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dcm-footstep-planner-formulation-progress-tracking-heading" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Cyber Suite" class="md-header__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Cyber Suite
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DCM formulation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../index.html" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+          
+  
+  
+  Learn
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="models-and-simulation.html" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/walking/RUNNING.html" class="md-tabs__link">
+          
+  
+  
+  Use
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../apps/digit/docs/overview.html" class="md-tabs__link">
+          
+  
+  
+  Projects
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../setup/development-workflow.html" class="md-tabs__link">
+          
+  
+  
+  Develop
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Cyber Suite" class="md-nav__button md-logo" aria-label="Cyber Suite" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    Cyber Suite
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Cyberbotics-Lab/cyber-suite" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cyber Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learn
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learn
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../handbook/chapters/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From command to motion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/first-run.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/student-projects.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start a G1 project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmaps/learning-m0-digit-velocity.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Worked example — Digit M0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="models-and-simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models and simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="runtime-execution.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime and execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model-based-walking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model-based walking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="state-and-perception.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State and perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="learned-policy-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learned policy deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep references
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep references
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="corta-design-specs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA execution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="corta_adapter.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORTA adapters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="walking-coordinator-boundary.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walking coordinator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="alip-footstep-planner-formulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ALIP formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="dcm-footstep-planner-formulation.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DCM formulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#current-implementation-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current implementation map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-core-model-frames-and-notation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Core model, frames, and notation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Core model, frames, and notation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-dcm-definition-flat-terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1) DCM definition (flat terrain)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-step-indexed-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2) Step-indexed variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-desired-world-heading-solve-chart-pre-computed-per-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3) Desired-world-heading solve chart (pre-computed per solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-step-to-step-dcm-dynamics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4) Step-to-step DCM dynamics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-simplifying-assumptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5) Simplifying assumptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-flat-terrain-planner-one-heading-aware-qp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Flat terrain planner: one heading-aware QP
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Flat terrain planner: one heading-aware QP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-planner-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1) Planner inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-pre-compute-the-continuous-bounded-heading-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2) Pre-compute the continuous bounded heading sequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-decision-variables-flat-terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3) Decision variables (flat terrain)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-objective-cumulative-progress-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4) Objective: cumulative progress tracking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4) Objective: cumulative progress tracking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#241-gait-geometry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1) Gait geometry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2411-the-reference-gait-and-the-stridecadence-preferences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1.1) The reference gait, and the stride/cadence preferences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2412-exact-constant-twist-preference-in-the-midpoint-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1.2) Exact constant-twist preference in the midpoint frame
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#242-cumulative-forward-progress-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.2) Cumulative forward progress tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#243-lateral-velocity-when-v_y-neq-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.3) Lateral velocity (when \(v_y \neq 0\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#244-capturability-feedback-without-a-fixed-periodic-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.4) Capturability feedback without a fixed periodic point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#245-admitted-step-gait-smoothness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.5) Admitted-step gait smoothness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#246-soft-operating-envelope-penalty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.6) Soft operating-envelope penalty
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#247-swing-operating-penalty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.7) Swing operating penalty
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#248-complete-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.8) Complete objective
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-constraints-flat-terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5) Constraints (flat terrain)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.5) Constraints (flat terrain)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-dcm-dynamics-qp-with-first-step-timing-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (a) DCM dynamics (QP with first-step timing only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a1-elapsed-time-floor-on-the-current-step-timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (a.1) Elapsed-time floor on the current-step timing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-kinematic-feasibility-desired-heading-midpoint-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (b) Kinematic feasibility (desired-heading midpoint frame)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-hard-outer-invariant-envelope-and-soft-operating-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (c) Hard outer invariant envelope and soft operating envelope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="(c) Hard outer invariant envelope and soft operating envelope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timing-controlled-invariant-set-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing-controlled invariant-set derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#251-complete-two-envelope-qp-retired-python-variant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5.1) Complete two-envelope QP (retired Python variant)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-heading-aware-tracking-and-guarantee-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6) Heading-aware tracking and guarantee boundary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-late-step-kernel-commitment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7) Late-step kernel commitment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-timing-what-changes-if-sigma_k-is-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8) Timing: what changes if \(\sigma_k\) is variable?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-hard-feasibility-rows-and-soft-operating-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9) Hard feasibility rows and soft operating rows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#210-command-admission-saturation-and-failure-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.10) Command admission, saturation, and failure handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-extension-stepping-stones-discontinuous-footholds-miqp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Extension: stepping stones (discontinuous footholds) → MIQP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-extension-variable-height-terrain-discrete-heights-per-region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Extension: variable height terrain (discrete heights per region)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Extension: variable height terrain (discrete heights per region)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-step-dependent-dcm-constant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1) Step-dependent DCM constant
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-region-dependent-timing-bounds-miqp-friendly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2) Region-dependent timing bounds (MIQP-friendly)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#421-optimized-current-timing-and-fixed-preview-region-dynamics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2.1) Optimized current timing and fixed-preview region dynamics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-height-dependent-straight-heading-invariant-envelopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3) Height-dependent straight-heading invariant envelopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-vertical-kinematic-constraints-minimal-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4) Vertical kinematic constraints (minimal set)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-summary-by-complexity-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Summary by complexity level
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-implementation-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Implementation checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-validation-contract-for-turning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) Validation contract for turning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7) Validation contract for turning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-focused-formulation-and-module-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1) Focused formulation and module checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-integrated-digit-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2) Integrated Digit scenarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-required-diagnostics-and-pass-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3) Required diagnostics and pass boundary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Use
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/walking/RUNNING.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/learning-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Train and export a policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/evaluating-experiments.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluate an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/remote-development.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/learning/OSC_WORKFLOW.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training at OSC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Projects
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/digit/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/unitree-g1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unitree G1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/tron1/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TRON1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/perception/mapping/docs/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Terrain mapping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Develop
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Develop
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/development-workflow.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup/documentation-site.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintain this website
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#current-implementation-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current implementation map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-core-model-frames-and-notation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) Core model, frames, and notation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1) Core model, frames, and notation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-dcm-definition-flat-terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1) DCM definition (flat terrain)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-step-indexed-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2) Step-indexed variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-desired-world-heading-solve-chart-pre-computed-per-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3) Desired-world-heading solve chart (pre-computed per solve)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-step-to-step-dcm-dynamics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4) Step-to-step DCM dynamics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-simplifying-assumptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5) Simplifying assumptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-flat-terrain-planner-one-heading-aware-qp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) Flat terrain planner: one heading-aware QP
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) Flat terrain planner: one heading-aware QP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-planner-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1) Planner inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-pre-compute-the-continuous-bounded-heading-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2) Pre-compute the continuous bounded heading sequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-decision-variables-flat-terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3) Decision variables (flat terrain)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-objective-cumulative-progress-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4) Objective: cumulative progress tracking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.4) Objective: cumulative progress tracking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#241-gait-geometry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1) Gait geometry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2411-the-reference-gait-and-the-stridecadence-preferences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1.1) The reference gait, and the stride/cadence preferences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2412-exact-constant-twist-preference-in-the-midpoint-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.1.2) Exact constant-twist preference in the midpoint frame
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#242-cumulative-forward-progress-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.2) Cumulative forward progress tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#243-lateral-velocity-when-v_y-neq-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.3) Lateral velocity (when \(v_y \neq 0\))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#244-capturability-feedback-without-a-fixed-periodic-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.4) Capturability feedback without a fixed periodic point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#245-admitted-step-gait-smoothness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.5) Admitted-step gait smoothness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#246-soft-operating-envelope-penalty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.6) Soft operating-envelope penalty
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#247-swing-operating-penalty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.7) Swing operating penalty
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#248-complete-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4.8) Complete objective
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-constraints-flat-terrain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5) Constraints (flat terrain)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.5) Constraints (flat terrain)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-dcm-dynamics-qp-with-first-step-timing-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (a) DCM dynamics (QP with first-step timing only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a1-elapsed-time-floor-on-the-current-step-timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (a.1) Elapsed-time floor on the current-step timing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-kinematic-feasibility-desired-heading-midpoint-frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (b) Kinematic feasibility (desired-heading midpoint frame)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-hard-outer-invariant-envelope-and-soft-operating-envelope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        (c) Hard outer invariant envelope and soft operating envelope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="(c) Hard outer invariant envelope and soft operating envelope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#timing-controlled-invariant-set-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing-controlled invariant-set derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#251-complete-two-envelope-qp-retired-python-variant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5.1) Complete two-envelope QP (retired Python variant)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-heading-aware-tracking-and-guarantee-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6) Heading-aware tracking and guarantee boundary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-late-step-kernel-commitment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7) Late-step kernel commitment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-timing-what-changes-if-sigma_k-is-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8) Timing: what changes if \(\sigma_k\) is variable?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-hard-feasibility-rows-and-soft-operating-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9) Hard feasibility rows and soft operating rows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#210-command-admission-saturation-and-failure-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.10) Command admission, saturation, and failure handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-extension-stepping-stones-discontinuous-footholds-miqp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) Extension: stepping stones (discontinuous footholds) → MIQP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-extension-variable-height-terrain-discrete-heights-per-region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) Extension: variable height terrain (discrete heights per region)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) Extension: variable height terrain (discrete heights per region)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-step-dependent-dcm-constant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1) Step-dependent DCM constant
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-region-dependent-timing-bounds-miqp-friendly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2) Region-dependent timing bounds (MIQP-friendly)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#421-optimized-current-timing-and-fixed-preview-region-dynamics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2.1) Optimized current timing and fixed-preview region dynamics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-height-dependent-straight-heading-invariant-envelopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3) Height-dependent straight-heading invariant envelopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-vertical-kinematic-constraints-minimal-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4) Vertical kinematic constraints (minimal set)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-summary-by-complexity-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) Summary by complexity level
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-implementation-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) Implementation checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-validation-contract-for-turning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) Validation contract for turning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7) Validation contract for turning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-focused-formulation-and-module-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1) Focused formulation and module checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-integrated-digit-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2) Integrated Digit scenarios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-required-diagnostics-and-pass-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3) Required diagnostics and pass boundary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+<div class="document-meta">
+  <span class="document-status">working</span>
+  <span>Reviewed 2026-10-18</span>
+  <a href="../../markdown/docs/design/dcm-footstep-planner-formulation.md.txt" download="dcm-footstep-planner-formulation.md">Markdown source</a>
+</div>
+
+
+
+                  
+
+
+
+<h1 id="dcm-footstep-planner-formulation-progress-tracking-heading">DCM Footstep Planner Formulation (Progress Tracking + Heading)<a class="headerlink" href="#dcm-footstep-planner-formulation-progress-tracking-heading" title="Permanent link">&para;</a></h1>
+<p>This deep reference explains the DCM model, heading-aware geometry and alternative optimization formulations. Its current implementation is the C++ <code>locomotion::dcm::DcmPlanner</code>, alongside the independent ALIP kernel. The <a href="../../modules/locomotion/MODULE.html">module contract</a>, <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/locomotion/src/dcm_planner.cpp">kernel implementation</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/config/profiles/dcm.yaml">Digit profile</a> own the actual API and assembled problem.</p>
+<h2 id="current-implementation-map">Current implementation map<a class="headerlink" href="#current-implementation-map" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Current C++ behavior</th>
+<th>Retained derivation or alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model and heading</td>
+<td>Constant-height DCM; desired heading precomputed outside the QP; yaw-rate and absolute-target commands</td>
+<td>Section 1 derives the shared dynamics and frames</td>
+</tr>
+<tr>
+<td>Timing and cadence</td>
+<td>First-step timing optimized before commitment; command-scaled planar reference cadence is unconditional</td>
+<td>The former <code>command_scaled_reference_gait</code> switch is retired</td>
+</tr>
+<tr>
+<td>Objective</td>
+<td>Six authorable weights: length, width, width symmetry, timing, progress and lateral</td>
+<td>Python gait-smoothness, operating-envelope and swing weights are retired</td>
+</tr>
+<tr>
+<td>Geometry and viability</td>
+<td>Hard physical gait and correct-side topology rows; viability slacks have an exact-penalty weight, with explicit stopping/recovery handling</td>
+<td>The two-envelope hard/soft program below is the retired Python variant, not the current matrix layout</td>
+</tr>
+<tr>
+<td>Swing capability</td>
+<td>No swing-speed or swing-acceleration rows</td>
+<td>The swing-capability derivation is an uninstalled alternative</td>
+</tr>
+<tr>
+<td>Terminal storage</td>
+<td>A reserved coordinate and final rows remain pinned/inactive to preserve the established numerical layout</td>
+<td>The old terminal schedule is not an authorable controller feature</td>
+</tr>
+<tr>
+<td>Terrain extensions</td>
+<td>Current numerical solve remains planar</td>
+<td>Disjoint-region MIQP and variable-height sections are mathematical extensions, not deployed terrain capability</td>
+</tr>
+</tbody>
+</table>
+<p>The Python implementation was retired on 2026-09-18. Its two-envelope QP remains here to explain the modeling choices and comparisons; sections that describe it are labeled accordingly. The current C++ solver does not have a maintained Python/CVXPY parity backend. Numerical feasibility does not certify swing tracking, controller feasibility, persistent-turn invariance or physical recovery.</p>
+<p>The current <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/config/profiles/dcm.yaml">Digit profile</a> allows 0.30–0.60 s solver duration, with a separate 0.42–0.48 s reference cadence band. The <a href="walking-coordinator-boundary.html">walking coordinator</a> owns lifecycle and installed-command admission; the numerical kernel does not own a Servo gait state machine.</p>
+<h2 id="1-core-model-frames-and-notation">1) Core model, frames, and notation<a class="headerlink" href="#1-core-model-frames-and-notation" title="Permanent link">&para;</a></h2>
+<h3 id="11-dcm-definition-flat-terrain">1.1) DCM definition (flat terrain)<a class="headerlink" href="#11-dcm-definition-flat-terrain" title="Permanent link">&para;</a></h3>
+<p>In LIPM-like walking with constant CoM height, define the DCM (a.k.a. capture point)</p>
+<div class="arithmatex">\[
+z \;=\; x_c + \frac{1}{\lambda}\dot{x}_c,\qquad \lambda = \sqrt{\frac{g}{z_c}}.
+\]</div>
+<p>We plan in the horizontal plane, so <span class="arithmatex">\(z_k, p_k \in \mathbb{R}^2\)</span>.</p>
+<h3 id="12-step-indexed-variables">1.2) Step-indexed variables<a class="headerlink" href="#12-step-indexed-variables" title="Permanent link">&para;</a></h3>
+<p>At (touchdown of) step <span class="arithmatex">\(k\)</span>:</p>
+<ul>
+<li>DCM: <span class="arithmatex">\(z_k \in \mathbb{R}^2\)</span></li>
+<li>Stance foot position: <span class="arithmatex">\(p_k \in \mathbb{R}^2\)</span></li>
+<li>Desired heading (world yaw): <span class="arithmatex">\(\theta_k \in \mathbb{R}\)</span>. This is the state of the command-side heading generator, not the measured yaw of the stance foot or robot body.</li>
+</ul>
+<p>Store this state on an unwrapped real line so repeated turns remain continuous. The retired Python command integrated scalar yaw rate directly and therefore computes no wrapped target-angle error.</p>
+<ul>
+<li>Stance flag: <span class="arithmatex">\(l_k \in \{0,1\}\)</span> with</li>
+<li><span class="arithmatex">\(l_k = 0\)</span> = <strong>right</strong> stance</li>
+<li><span class="arithmatex">\(l_k = 1\)</span> = <strong>left</strong> stance</li>
+<li>stance sign: <span class="arithmatex">\(s_k := (-1)^{l_k} \in \{+1,-1\}\)</span></li>
+</ul>
+<blockquote>
+<p><strong>Conventions:</strong> some earlier drafts use the opposite encoding for left/right stance. All formulas in this note assume <span class="arithmatex">\(l_k=0\)</span> (right) and <span class="arithmatex">\(l_k=1\)</span> (left).</p>
+</blockquote>
+<ul>
+<li>Step displacement (world frame):
+  $$
+  u_k^w := p_{k+1}^w - p_k^w \in \mathbb{R}^2.
+  $$</li>
+<li>Step duration <span class="arithmatex">\(T_k\)</span> encoded by timing factor
+  $$
+  \sigma_k := e^{\lambda T_k} \in [\sigma_{\min},\sigma_{\max}],\qquad \sigma_{\min} &gt; 1.
+  $$
+  On flat terrain with constant <span class="arithmatex">\(\lambda\)</span>, these bounds correspond to
+  $$
+  \sigma_{\min} = e^{\lambda T_{\min}},\qquad \sigma_{\max} = e^{\lambda T_{\max}}.
+  $$</li>
+</ul>
+<p>The stance alternates:</p>
+<div class="arithmatex">\[
+l_{k+1} = 1 - l_k,\qquad s_{k+1} = -s_k.
+\]</div>
+<h3 id="13-desired-world-heading-solve-chart-pre-computed-per-solve">1.3) Desired-world-heading solve chart (pre-computed per solve)<a class="headerlink" href="#13-desired-world-heading-solve-chart-pre-computed-per-solve" title="Permanent link">&para;</a></h3>
+<p>Rotation from desired-heading coordinates (forward/left) to world:</p>
+<div class="arithmatex">\[
+R(\theta) =
+\begin{bmatrix}
+\cos\theta &amp; -\sin\theta\\
+\sin\theta &amp; \cos\theta
+\end{bmatrix}.
+\]</div>
+<p>At each admitted touchdown, freeze one solve chart with measured translation and planner-owned orientation:</p>
+<div class="arithmatex">\[
+o_1^w:=p_1^w,
+\qquad
+Q_1:=R(\theta_1),
+\qquad
+\widetilde r:=Q_1^\top(r^w-o_1^w).
+\]</div>
+<p>Thus <span class="arithmatex">\(\widetilde p_1=0\)</span>. Every preview foothold and DCM node in that solve uses this same chart; predicted nodes are not re-originated. From here onward, unless a world superscript is shown, <span class="arithmatex">\(p_k\)</span> and <span class="arithmatex">\(z_k\)</span> denote these solve-chart coordinates and the tilde is dropped. The DCM dynamics are unchanged by this rigid coordinate change.</p>
+<p>Accordingly, from this point forward</p>
+<div class="arithmatex">\[
+u_k:=p_{k+1}-p_k=Q_1^\top u_k^w.
+\]</div>
+<p>Define relative node headings</p>
+<div class="arithmatex">\[
+\delta_k:=\theta_k-\theta_1,
+\qquad \delta_1=0.
+\]</div>
+<p>The corresponding desired-heading axes in the solve chart are</p>
+<div class="arithmatex">\[
+\hat{x}_k :=
+\begin{bmatrix}\cos\delta_k\\ \sin\delta_k\end{bmatrix},
+\qquad
+\hat{y}_k :=
+\begin{bmatrix}-\sin\delta_k\\ \cos\delta_k\end{bmatrix}.
+\]</div>
+<p>Equivalently, the world axes remain the columns of <span class="arithmatex">\(R(\theta_k)\)</span>.</p>
+<p>For turning, express each step in the frame at the midpoint of its two endpoint headings. Define</p>
+<div class="arithmatex">\[
+\alpha_k := \theta_{k+1}-\theta_k,
+\qquad
+\bar\delta_k := \delta_k + \frac{\alpha_k}{2},
+\]</div>
+<p>and let <span class="arithmatex">\(\hat x_{k+1/2},\hat y_{k+1/2}\)</span> be the columns of <span class="arithmatex">\(R(\bar\delta_k)\)</span> in the solve chart, or <span class="arithmatex">\(R(\theta_k+\alpha_k/2)\)</span> in world. The desired-heading step coordinates are</p>
+<div class="arithmatex">\[
+\nu_k := R(\bar\delta_k)^\top u_k
+=
+\begin{bmatrix}
+\nu_k^x\\
+\nu_k^y
+\end{bmatrix}
+=
+\begin{bmatrix}
+\hat{x}_{k+1/2}^\top (p_{k+1}-p_k)\\
+\hat{y}_{k+1/2}^\top (p_{k+1}-p_k)
+\end{bmatrix}.
+\]</div>
+<p>Equivalently in world coordinates, <span class="arithmatex">\(\nu_k=R(\theta_k+\alpha_k/2)^\top u_k^w\)</span>.</p>
+<p>The measured stance-foot translation is therefore only the chart origin. Its yaw, which can be distorted by uneven terrain, never enters <span class="arithmatex">\(Q_1\)</span>, <span class="arithmatex">\(\delta_k\)</span>, or any planned axis. At admitted touchdown, re-anchor translation at the new measured contact but advance orientation only through <span class="arithmatex">\(\theta_1\leftarrow\theta_2^{\mathrm{accepted}}\)</span>. The body and feet are downstream tracking systems: they follow the desired-world heading; they do not define it.</p>
+<h3 id="14-step-to-step-dcm-dynamics">1.4) Step-to-step DCM dynamics<a class="headerlink" href="#14-step-to-step-dcm-dynamics" title="Permanent link">&para;</a></h3>
+<p>Assuming CoP is at the stance foot <span class="arithmatex">\(p_k\)</span> during step <span class="arithmatex">\(k\)</span>, the DCM update is</p>
+<div class="arithmatex">\[
+z_{k+1} = p_k + (z_k - p_k)\sigma_k
+= \sigma_k z_k + (1-\sigma_k)p_k.
+\]</div>
+<p>Define DCM error w.r.t. the stance foot:</p>
+<div class="arithmatex">\[
+e_k := z_k - p_k.
+\]</div>
+<p>Then using <span class="arithmatex">\(p_{k+1}=p_k+u_k\)</span>,</p>
+<div class="arithmatex">\[
+e_{k+1} = \sigma_k e_k - u_k.
+\]</div>
+<p>In node desired-heading coordinates,</p>
+<div class="arithmatex">\[
+\eta_k := R(\delta_k)^\top e_k,
+\]</div>
+<p>the same update is</p>
+<div class="arithmatex">\[
+\boxed{\;
+\eta_{k+1}
+= \sigma_k R(-\alpha_k)\eta_k
+- R(-\alpha_k/2)\nu_k.
+\;}
+\]</div>
+<p>This exact coupled recursion reduces to <span class="arithmatex">\(\eta_{k+1}=\sigma_k\eta_k-\nu_k\)</span> when <span class="arithmatex">\(\alpha_k=0\)</span>. The finite-horizon planner uses it directly; projecting the scalar straight-heading invariant envelope into a rotating preview does not claim the nonzero-heading set is invariant.</p>
+<h3 id="15-simplifying-assumptions">1.5) Simplifying assumptions<a class="headerlink" href="#15-simplifying-assumptions" title="Permanent link">&para;</a></h3>
+<p>The following assumptions are made throughout this formulation:</p>
+<ul>
+<li><strong>CoP at stance foot:</strong> no ankle torque exploitation; the center of pressure is fixed at the stance foot position during each step.</li>
+<li><strong>Single support only:</strong> the double support phase is not modeled; transitions are instantaneous.</li>
+<li><strong>Point-contact / flat feet:</strong> foot rotation dynamics are not QP states; desired-yaw trajectory screening enforces the downstream acceleration limit and a rate envelope coherent with the planner's own increment/timing range.</li>
+<li><strong>Constant CoM height:</strong> the LIPM assumption <span class="arithmatex">\(z_c = \text{const}\)</span> holds within each step (on flat terrain, globally; on variable-height terrain, per-step).</li>
+<li><strong>No swing-foot translation trajectory optimization:</strong> only the landing position is optimized. The mandatory yaw interpolation is constructed algebraically after the solve; swing-foot collision avoidance remains a separate downstream responsibility.</li>
+<li><strong>Pre-computed heading:</strong> the heading sequence <span class="arithmatex">\(\{\theta_k\}\)</span> is fixed before the optimization to preserve linearity.</li>
+</ul>
+<hr />
+<h2 id="2-flat-terrain-planner-one-heading-aware-qp">2) Flat terrain planner: one heading-aware QP<a class="headerlink" href="#2-flat-terrain-planner-one-heading-aware-qp" title="Permanent link">&para;</a></h2>
+<p>The dynamics, heading construction and physical gait geometry motivate the current kernel. The complete objective and two-envelope assembly developed in this section describe the retired Python variant. Use the implementation map above to distinguish shared mathematics from optional or removed terms; do not copy its variable layout or config keys into the current C++ app.</p>
+<h3 id="21-planner-inputs">2.1) Planner inputs<a class="headerlink" href="#21-planner-inputs" title="Permanent link">&para;</a></h3>
+<p>At each solve the planner receives:</p>
+<ul>
+<li>the measured stance translation, DCM, stance side, elapsed step time, and held step duration;</li>
+<li>the last admitted step's command-relative fore-aft residual, physical width, and duration (or the launch seed <span class="arithmatex">\(0,W_{\mathrm{nom}},T_{\mathrm{nom}}\)</span>);</li>
+<li>the planner-owned accepted desired-world heading <span class="arithmatex">\(\theta_1\)</span>;</li>
+<li>horizon, gait limits, timing limits, nominal gait, hard-set numerical tolerance, and objective weights;</li>
+<li>commanded desired-heading-frame velocity <span class="arithmatex">\((v_x,v_y)\)</span>; and</li>
+<li>one signed body yaw rate <span class="arithmatex">\(\omega\)</span>.</li>
+</ul>
+<p>The desired heading is command state, not a measured robot frame. Session/reset initializes it from the accepted app state. An app or upstream navigation source that wants to face an absolute world heading owns that feedback law and supplies a yaw rate before this boundary; measured body and stance-foot yaw are downstream tracking feedback only.</p>
+<p>All finite translational and heading commands proceed to the same QP after structural validation and increment clamping. There is no velocity-domain or turning-profile certification gate. The accepted-plan governor may report a realized translational velocity no larger than the request, but it does not pre-certify <span class="arithmatex">\(v_x\)</span> or <span class="arithmatex">\(v_y\)</span> as a condition for turning.</p>
+<h3 id="22-pre-compute-the-continuous-bounded-heading-sequence">2.2) Pre-compute the continuous bounded heading sequence<a class="headerlink" href="#22-pre-compute-the-continuous-bounded-heading-sequence" title="Permanent link">&para;</a></h3>
+<p>To preserve convexity, <span class="arithmatex">\(\theta_k\)</span> is not a decision variable. The command-side generator builds the unwrapped desired-world sequence before QP assembly. The fixed preview duration is <span class="arithmatex">\(T_{\mathrm{nom}}\)</span>.</p>
+<p>The sole maintained command rule is:</p>
+<div class="arithmatex">\[
+\alpha_k
+=
+\operatorname{clamp}\!\left(
+\omega T_{\mathrm{nom}},
+-\alpha_{\max},
++\alpha_{\max}
+\right).
+\]</div>
+<p>Advance</p>
+<div class="arithmatex">\[
+\theta_{k+1}=\theta_k+\alpha_k.
+\]</div>
+<p>The increment is continuous within its clamp bounds. There is no quantization, same-sign snapping, certified table, or nonzero deadband. Zero and nonzero increments use the same generator.</p>
+<p>Although <span class="arithmatex">\(\sigma_1\)</span> is optimized, <span class="arithmatex">\(T_{\mathrm{nom}}\)</span> is fixed before the QP. Therefore every <span class="arithmatex">\(\theta_k\)</span>, <span class="arithmatex">\(\alpha_k\)</span>, node/midpoint axis, rotation, and constant-twist chord remains constant in the solve. Retiming changes the reported accepted average body rate to</p>
+<div class="arithmatex">\[
+\omega_{\mathrm{real}}=\frac{\alpha_1}{T_1},
+\]</div>
+<p>but it does not change the accepted geometric increment.</p>
+<p>There is no special turn-in-place mode. Setting <span class="arithmatex">\(v_x=v_y=0\)</span> zeros the translational reference while nonzero <span class="arithmatex">\(\alpha_k\)</span> rotates the same alternating-step gait.</p>
+<p>At an accepted touchdown, advance the persistent heading only through <span class="arithmatex">\(\theta_1\leftarrow\theta_2^{\mathrm{accepted}}\)</span>. Re-anchor chart translation at the measured new stance contact, but never re-anchor chart orientation from measured foot or body yaw. The accepted payload carries the heading sequence. The consuming application owns its body and foot orientation trajectories.</p>
+<h3 id="23-decision-variables-flat-terrain">2.3) Decision variables (flat terrain)<a class="headerlink" href="#23-decision-variables-flat-terrain" title="Permanent link">&para;</a></h3>
+<p>For a horizon of <span class="arithmatex">\(N\)</span> steps, the decision variables are</p>
+<div class="arithmatex">\[
+\{p_k\}_{k=2}^{N+1},\qquad
+\{z_k\}_{k=2}^{N+1},\qquad
+\sigma_1,\qquad
+\rho,\qquad
+\{\varepsilon_k^x,\varepsilon_k^y\}_{k=1}^{N}\ge0,\qquad
+\varepsilon_{\mathrm{sw}}\in\mathbb{R}_{\ge0}^2.
+\]</div>
+<p><span class="arithmatex">\(\varepsilon_k^x\)</span> and <span class="arithmatex">\(\varepsilon_k^y\)</span> are meter-valued excursions outside the nominal-cadence operating envelope. They do not relax the outer viable set. <span class="arithmatex">\(\rho\in[0,1]\)</span> is the existing terminal schedule relaxation; its upper bound is set to zero when the terminal schedule is disabled. <span class="arithmatex">\(\varepsilon_{\mathrm{sw}}\)</span> relaxes only the preferred swing acceleration band, never the hard swing capability rows. Thus the implemented problem has <span class="arithmatex">\(6N+4\)</span> scalar decision variables.</p>
+<p>The current-step timing <span class="arithmatex">\(\sigma_1\)</span> is optimized on every precommit solve. Future timing is fixed at the authored nominal preview duration:</p>
+<div class="arithmatex">\[
+\sigma_k \equiv \sigma_{\mathrm{preview}} = e^{\lambda T_{\mathrm{preview}}},
+\qquad k=2,\dots,N.
+\]</div>
+<p>This preserves a convex QP because <span class="arithmatex">\(\sigma_1\)</span> appears in the <span class="arithmatex">\(k=1\)</span> dynamics only where <span class="arithmatex">\((z_1,p_1)\)</span> are known constants. Optimizing future timing would make the recursion bilinear; see Section 2.8.</p>
+<h3 id="24-objective-cumulative-progress-tracking">2.4) Objective: cumulative progress tracking<a class="headerlink" href="#24-objective-cumulative-progress-tracking" title="Permanent link">&para;</a></h3>
+<p>The retired Python objective assigned one owner to each behavior. Cumulative prefix progress tracks the commanded fore-aft displacement, complete-cycle cumulative progress tracks lateral translation, and width terms shape the alternating gait. The hard first-successor controlled-invariant set closes DCM feedback around the one preview state that receding-horizon execution actually reaches. Two high-priority quadratic slack costs discourage leaving the nominal DCM envelope or exceeding the preferred swing acceleration. Hard reach, width, swing-capability, dynamics, and outer-envelope rows remain the final authority.</p>
+<p>There is deliberately no separate per-step length objective. It would track the same command as cumulative progress while giving equal importance to deeper preview steps that this MPC will discard. There is likewise no fixed one-step, all-preview, or two-step DCM-periodicity cost. Section 2.4.4 explains why capturability is enforced as a reachable set rather than attraction to one arbitrarily selected walking orbit.</p>
+<h4 id="241-gait-geometry">2.4.1) Gait geometry<a class="headerlink" href="#241-gait-geometry" title="Permanent link">&para;</a></h4>
+<p>Define the <strong>step width</strong> in the desired-heading midpoint frame (always positive):</p>
+<div class="arithmatex">\[
+W_k := s_k \nu_k^y.
+\]</div>
+<p>The absolute width-shaping cost is</p>
+<div class="arithmatex">\[
+J_{\text{width}} = \sum_{k=1}^{N} w_w(W_k - W_{\text{nom}})^2.
+\]</div>
+<p>This term regulates nominal stance width. For lateral translation and turning, Section 2.4.1.2 removes the commanded body chord and heading geometry before evaluating physical width. The old preview-only adjacent-width term is replaced by the admitted-step smoothness cost in Section 2.4.5, so the first action is not left unregularized at every receding-horizon solve.</p>
+<h4 id="2411-the-reference-gait-and-the-stridecadence-preferences">2.4.1.1) The reference gait, and the stride/cadence preferences<a class="headerlink" href="#2411-the-reference-gait-and-the-stridecadence-preferences" title="Permanent link">&para;</a></h4>
+<p><strong>Retired Python implementation, 2026-09-05.</strong> The coherent command-scaled reference gait derived below was implemented in the retired Python kernel as <code>dcm_planar_reference_gait</code>, behind <code>planner.command_scaled_reference_gait</code>. It resolves one <span class="arithmatex">\((L_{\text{ref}}, W_{\text{ref}}, T_{\text{ref}})\)</span> per solve and supplies it wherever the solve <em>predicts</em> rather than decides: deeper preview DCM propagation, the heading increment, the preview command chords, the preview swing reach, the soft operating envelope, and the launch smoothness seed. It changes no hard row -- <span class="arithmatex">\(\sigma_1\)</span> still ranges over the whole timing interval and the hard <span class="arithmatex">\(T_{\min}\)</span> envelope is still evaluated at <span class="arithmatex">\(\sigma_{\min}\)</span>.</p>
+<p>The two <em>objective</em> halves, an absolute stride preference and the timing target <span class="arithmatex">\(w_\sigma(\sigma_1-\sigma_{\text{ref}})^2\)</span>, are present as <code>weights.reference_length</code> and <code>weights.reference_timing</code> and both default to zero.</p>
+<p><strong>Digit ships the whole mechanism disabled</strong>, on a matched measurement rather than on the analysis below: enabling it takes flat <code>vx=1.0</code> from 11 admitted steps to 6, and flat <code>vx=0.20</code> from zero high-severity support-force findings to four. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/journal/entries/2026-09-05-reference-gait-restored-and-measured-off.md">the reference-gait entry</a> and, for the objective halves, <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/journal/entries/2026-09-04-timing-reference-restoration-ablation.md">the timing-reference ablation</a>.</p>
+<p>The rest of this section is the derivation and the historical rationale for why an <em>independent</em> stride and timing pair is the wrong shape. That part is unchanged and still governs.</p>
+<p>The legacy choice <span class="arithmatex">\(L_{\text{nom}} = v_{\text{des}} T_{\text{nom}}\)</span> together with <span class="arithmatex">\(w_\sigma(\sigma_1-\sigma_{\text{nom}})^2\)</span> creates two <strong>independent</strong> set points. The first grows with the command; the second does not. Nothing in the objective expresses speed as <span class="arithmatex">\(L/T\)</span>, so raising <span class="arithmatex">\(v_{\text{des}}\)</span> is met entirely by a longer stride, and cadence moves only when the hard row <span class="arithmatex">\(|\nu^x|\le L_{\max}\)</span> makes that impossible. Measured on a speed sweep (<span class="arithmatex">\(L_{\max}=0.5\)</span>, <span class="arithmatex">\(T_{\text{nom}}=0.40\)</span>, <span class="arithmatex">\(T_{\min}=0.30\)</span>), <span class="arithmatex">\(T_1\)</span> sits at exactly <span class="arithmatex">\(0.4000\)</span> up to <span class="arithmatex">\(v_{\text{des}}=1.2\)</span> and then jumps to <span class="arithmatex">\(0.3137\)</span> once the stride pins to <span class="arithmatex">\(L_{\max}\)</span>. One authority is spent before the other is touched, and the handover is a discontinuity.</p>
+<p>These values are a pre-solve <strong>objective preference</strong>, not the optimized plan and not the task reference ultimately sent to the controller. Making the <span class="arithmatex">\(k=1\)</span> length residual timing-consistent — replacing <span class="arithmatex">\(L_{\text{nom}}\)</span> with <span class="arithmatex">\(L_{\text{nom}} + a_v(\sigma_1-\sigma_{\text{nom}})\)</span>, which is the correct linearization of <span class="arithmatex">\(v_{\text{des}}T_1(\sigma_1)\)</span> and matches what Sections 2.4.2 and 2.4.3 already do — removes the inconsistency but changes nothing: a term that tracks speed is degenerate along the iso-speed line, and <span class="arithmatex">\(w_\sigma\)</span> resolves the degeneracy straight back to <span class="arithmatex">\(\sigma_{\text{nom}}\)</span>.</p>
+<p>The <strong>coherent command-dependent gait preference</strong> below is the one that was implemented. It uses the spatial range <span class="arithmatex">\([0,L_{\max}]\)</span> and the temporal range <span class="arithmatex">\([T_{\min},T_{\text{nom}}]\)</span> in equal proportion. Let <span class="arithmatex">\(r\)</span> be their shared normalized utilization:</p>
+<div class="arithmatex">\[
+\boxed{\;
+r(v_{\mathrm{des}}^g)
+=\frac{|v_{\mathrm{des}}^g|\,T_{\text{nom}}}
+{L_{\max}+|v_{\mathrm{des}}^g|\,(T_{\text{nom}}-T_{\min})},
+\qquad
+L_{\text{pref}}=\operatorname{sign}(v_{\mathrm{des}}^g)\,r\,L_{\max},
+\qquad
+T_{\text{pref}}=T_{\text{nom}}-r\,(T_{\text{nom}}-T_{\min}).
+\;}
+\]</div>
+<p><span class="arithmatex">\(r\)</span> is precisely the value that makes <span class="arithmatex">\(L_{\text{pref}}/T_{\text{pref}}=v_{\mathrm{des}}^g\)</span> — solve <span class="arithmatex">\(rL_{\max}=|v_{\mathrm{des}}^g| \big(T_{\text{nom}}-r(T_{\text{nom}}-T_{\min})\big)\)</span> and restore the sign through <span class="arithmatex">\(L_{\mathrm{pref}}=\operatorname{sign}(v_{\mathrm{des}}^g)rL_{\max}\)</span> — so the preference is a coherent gait nominal rather than a pair of unrelated set points, and both quantities move continuously with the command. <span class="arithmatex">\(r=1\)</span> occurs exactly at <span class="arithmatex">\(|v_{\mathrm{des}}^g|=L_{\max}/T_{\min}\)</span>, so the two authorities saturate at the same speed. The governance in Section 2.1 guarantees <span class="arithmatex">\(r\in[0,1]\)</span>; a defensive clamp is allowed only with the same reported saturation and governed value, never while publishing the raw velocity. At <span class="arithmatex">\(v_{\mathrm{des}}^g=0\)</span> it degenerates correctly to <span class="arithmatex">\(L_{\text{pref}}=0\)</span>, <span class="arithmatex">\(T_{\text{pref}}=T_{\text{nom}}\)</span>.</p>
+<p>At <span class="arithmatex">\(L_{\max}=0.75\)</span>, <span class="arithmatex">\(T_{\text{nom}}=0.40\)</span>, <span class="arithmatex">\(T_{\min}=0.30\)</span>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(v_x\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(L_{\text{pref}}\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(T_{\text{pref}}\)</span></th>
+<th style="text-align: right;">reserve <span class="arithmatex">\(1-r\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.152 m</td>
+<td style="text-align: right;">0.380 s</td>
+<td style="text-align: right;">80%</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">0.289 m</td>
+<td style="text-align: right;">0.361 s</td>
+<td style="text-align: right;">61%</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">0.414 m</td>
+<td style="text-align: right;">0.345 s</td>
+<td style="text-align: right;">45%</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">0.527 m</td>
+<td style="text-align: right;">0.330 s</td>
+<td style="text-align: right;">30%</td>
+</tr>
+<tr>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">0.632 m</td>
+<td style="text-align: right;">0.316 s</td>
+<td style="text-align: right;">16%</td>
+</tr>
+<tr>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">0.750 m</td>
+<td style="text-align: right;">0.300 s</td>
+<td style="text-align: right;">0%</td>
+</tr>
+</tbody>
+</table>
+<p><span class="arithmatex">\(T_{\text{pref}}\)</span> then replaces <span class="arithmatex">\(T_{\text{nom}}\)</span> <strong>consistently</strong> in the timing anchor, preview DCM propagation <span class="arithmatex">\(\sigma_{\text{pref}}=e^{\lambda T_{\text{pref}}}\)</span>, translational preferences, and heading increment. The bounds of Section 2.5(c) separately use the fresh-step timing range because the next executed step retimes when replanned.</p>
+<p><span class="arithmatex">\(\sigma_1\)</span> remains a decision variable around this preference. Its nominal gait range is <span class="arithmatex">\([\sigma_{\min},\sigma_{\max}]\)</span>, while the authoritative online interval is <span class="arithmatex">\([\sigma_1^{\mathrm{lo}},\max(\sigma_1^{\mathrm{lo}},\sigma_{\max})]\)</span> from Section 2.5(a.1). Thus the usual range is unchanged until the elapsed-time floor overtakes it; after that, the <span class="arithmatex">\(T_{\max}\)</span> preference deliberately yields to causality. Nothing here adds a decision variable: every affected preference quantity is a constant of the solve, and the problem stays a convex QP.</p>
+<p>Measured on the same sweep, each configuration started from its own steady state: stride and cadence both move from the first speed, commanded speed is tracked exactly through <span class="arithmatex">\(1.2\)</span> m/s, and <span class="arithmatex">\(L_{\max}\)</span> saturation moves from <span class="arithmatex">\(v_x=1.6\)</span> to <span class="arithmatex">\(v_x=2.0\)</span> against an unchanged <span class="arithmatex">\(L_{\max}/T_{\min}\)</span> ceiling — the reserve costs no top speed.</p>
+<p>The deferred C++ backend retains a private command-scaled resolver. The retired Python backend did not use that output or expose those preferences as objective weights.</p>
+<h4 id="2412-exact-constant-twist-preference-in-the-midpoint-frame">2.4.1.2) Exact constant-twist preference in the midpoint frame<a class="headerlink" href="#2412-exact-constant-twist-preference-in-the-midpoint-frame" title="Permanent link">&para;</a></h4>
+<p>For each fixed, pre-computed increment <span class="arithmatex">\(\alpha_k\)</span>, define</p>
+<div class="arithmatex">\[
+\gamma_k:=\operatorname{sinc}\!\left(\frac{\alpha_k}{2}\right),
+\qquad
+\operatorname{sinc}(x):=
+\begin{cases}
+\sin x/x,&amp;x\ne0,\\
+1,&amp;x=0,
+\end{cases}
+\]</div>
+<p>and integrate the commanded desired-body/tangent-frame translational velocity over the fixed preview duration:</p>
+<div class="arithmatex">\[
+\boxed{
+d_k:=\gamma_k T_{\mathrm{nom}}
+\begin{bmatrix}v_{\mathrm{des}}\\v_y\end{bmatrix}.
+}
+\]</div>
+<p>This is the exact constant-body-twist chord expressed in the edge-midpoint heading frame. It is the planner's progress target. An application trajectory need not use constant twist as its instantaneous time law; this chord is an objective target, not an executed reference. If the nominal feet lie at lateral offsets <span class="arithmatex">\(\mp W_{\mathrm{nom}}/2\)</span> from the desired body path, the corresponding footstep preference is</p>
+<div class="arithmatex">\[
+\boxed{
+\nu_k^{\mathrm{pref}}
+=d_k+
+\begin{bmatrix}0\\s_kW_{\mathrm{nom}}\cos(\alpha_k/2)\end{bmatrix}.
+}
+\]</div>
+<p>Define the physical-width proxy</p>
+<div class="arithmatex">\[
+\overline W_k:=
+\frac{s_k(\nu_k^y-d_k^y)}{\cos(\alpha_k/2)}.
+\]</div>
+<p>The bounded increment must keep</p>
+<div class="arithmatex">\[
+\cos(\alpha_k/2)&gt;0
+\]</div>
+<p>with a numerical floor, so the physical-width proxy remains well conditioned. The heading-aware absolute width cost is</p>
+<div class="arithmatex">\[
+J_{\mathrm{width}}
+=\sum_{k=1}^{N}w_w(\overline W_k-W_{\mathrm{nom}})^2.
+\]</div>
+<p>For the executed step only, make <span class="arithmatex">\(d_1\)</span> timing-aware without changing <span class="arithmatex">\(\alpha_1\)</span>:</p>
+<div class="arithmatex">\[
+T_1^{\mathrm{lin}}(\sigma_1)
+:=T_c
++\frac{\sigma_1-\sigma_c}
+       {\lambda\sigma_c},
+\qquad
+d_1(\sigma_1)
+:=\gamma_1T_1^{\mathrm{lin}}(\sigma_1)
+\begin{bmatrix}v_{\mathrm{des}}\\v_y\end{bmatrix}.
+\]</div>
+<p>Here <span class="arithmatex">\(\sigma_c\)</span> is the midpoint of the currently admissible growth-factor interval and <span class="arithmatex">\(T_c=\log(\sigma_c)/\lambda\)</span>. All rotations and trigonometric factors remain constants of the solve, while <span class="arithmatex">\(d_1\)</span> is affine in <span class="arithmatex">\(\sigma_1\)</span>. The progress objective therefore remains convex quadratic. With <span class="arithmatex">\(v_{\mathrm{des}}=v_y=0\)</span>, the same preference produces ordinary alternating steps around a stationary desired body path; no turn-in-place mode exists.</p>
+<p>The chord is exact at fixed <span class="arithmatex">\(T_{\mathrm{nom}}\)</span> for future steps; the current-step duration correction is first order in <span class="arithmatex">\(\sigma_1\)</span>, not an exact evaluation of <span class="arithmatex">\(\log\sigma_1\)</span>. For the active feasible timing interval, record</p>
+<div class="arithmatex">\[
+\epsilon_T^{\mathrm{lin}}
+:=\max_{\sigma\in[\sigma_1^{\mathrm{lo}},\sigma_1^{\mathrm{hi}}]}
+\left|\frac{\log\sigma}{\lambda}-T_1^{\mathrm{lin}}(\sigma)\right|,
+\]</div>
+<p>which occurs at an interval endpoint. Declare and validate the operating range over which this objective approximation is acceptable. Outside that range, report degraded velocity-preference accuracy rather than claiming exact current-step constant-twist chord evaluation. This approximation changes no hard dynamics or viability row.</p>
+<h4 id="242-cumulative-forward-progress-tracking">2.4.2) Cumulative forward progress tracking<a class="headerlink" href="#242-cumulative-forward-progress-tracking" title="Permanent link">&para;</a></h4>
+<p>This was the retired Python planner's mean fore-aft displacement-tracking objective. Cumulative progress makes later preview steps react to an earlier preview deficit and naturally gives the executed first action the greatest weight. The hard first-successor invariant set separately closes DCM-state feedback. This term is not cross-solve integral action.</p>
+<p>Define the cumulative desired-heading forward displacement from step 1:</p>
+<div class="arithmatex">\[
+F_k := \sum_{i=1}^{k-1} \nu_i^x
+= \sum_{i=1}^{k-1} \hat{x}_{i+1/2}^\top(p_{i+1} - p_i),
+\qquad k = 2,\dots,N+1.
+\]</div>
+<p>Using the constant-twist chords from Section 2.4.1.2, the timing-aware reference progress is</p>
+<div class="arithmatex">\[
+F_k^{\text{des}}(\sigma_1)
+:=d_1^x(\sigma_1)+\sum_{i=2}^{k-1}d_i^x,
+\qquad k=2,\dots,N+1.
+\]</div>
+<p>The progress tracking cost:</p>
+<div class="arithmatex">\[
+J_{\text{progress}} = \sum_{k=2}^{N+1} w_F\left(F_k - F_k^{\text{des}}(\sigma_1)\right)^2.
+\]</div>
+<p><strong>Key properties:</strong></p>
+<ul>
+<li><strong>Within-horizon deficit compensation (not cross-step integral action).</strong> Let <span class="arithmatex">\(\epsilon_i:=\nu_i^x-d_i^x\)</span>. Then <span class="arithmatex">\(F_k-F_k^{\text{des}}=\sum_{i&lt;k}\epsilon_i\)</span>, so within a single solve a short early step is felt by every later term. <strong>This does not accumulate across solves.</strong> <span class="arithmatex">\(F_k\)</span> is measured from the current <span class="arithmatex">\(p_1\)</span>, so it resets at every touchdown and the planner carries no commanded-versus-realized progress state. Genuine integral action would require such a state, and on a divergent plant it would also require its own anti-windup treatment; neither is specified here. Do not read this term as eliminating steady-state position error.</li>
+<li><strong>Natural time-discounting.</strong> Step 1's error appears in all <span class="arithmatex">\(N\)</span> terms; step <span class="arithmatex">\(N\)</span>'s error appears in only 1 term. This is appropriate for an MPC that executes only step 1.</li>
+<li><strong>Timing coupling.</strong> <span class="arithmatex">\(d_1(\sigma_1)\)</span> adjusts the reference when the optimizer changes current-step duration.</li>
+<li><strong>Convexity.</strong> <span class="arithmatex">\(F_k\)</span> is linear in <span class="arithmatex">\(\{p_k\}\)</span> and <span class="arithmatex">\(F_k^{\text{des}}\)</span> is linear in <span class="arithmatex">\(\sigma_1\)</span>, so <span class="arithmatex">\(J_{\text{progress}}\)</span> is convex quadratic. Cross-terms between <span class="arithmatex">\(p_k\)</span> and <span class="arithmatex">\(\sigma_1\)</span> appear in the Hessian but the QP structure is preserved.</li>
+</ul>
+<h4 id="243-lateral-velocity-when-v_y-neq-0">2.4.3) Lateral velocity (when <span class="arithmatex">\(v_y \neq 0\)</span>)<a class="headerlink" href="#243-lateral-velocity-when-v_y-neq-0" title="Permanent link">&para;</a></h4>
+<p>Lateral velocity arises from the body-chord component <span class="arithmatex">\(d_k^y\)</span>. Remove the nominal rotating foot offset from each step:</p>
+<div class="arithmatex">\[
+\chi_k^y:=\nu_k^y-s_kW_{\mathrm{nom}}\cos(\alpha_k/2),
+\]</div>
+<p>Only complete same-foot cycles are compared, because a single foot-to-foot step contains the alternating stance-width offset. For cycle endpoint <span class="arithmatex">\(m\in\{2,4,\ldots,2\lfloor N/2\rfloor\}\)</span>, define</p>
+<div class="arithmatex">\[
+C_m^y:=\sum_{k=1}^{m}\chi_k^y,
+\qquad
+C_m^{y,\mathrm{des}}(\sigma_1):=
+d_1^y(\sigma_1)+\sum_{k=2}^{m}d_k^y.
+\]</div>
+<p>The Digit application additionally supplies one bounded carried error <span class="arithmatex">\(E_y\)</span> in meters. Its sign convention is requested minus measured lateral progress over completed same-foot cycles. The QP residual and cost are</p>
+<div class="arithmatex">\[
+\boxed{
+r_m^y=C_m^y-C_m^{y,\mathrm{des}}(\sigma_1)-E_y,
+\qquad
+J_{\text{lat}}=w_{\text{lat}}\sum_{m\in\{2,4,\ldots\}}(r_m^y)^2.
+}
+\]</div>
+<p>Thus a positive realized deficit asks the QP to plan the missing progress once; it does not alter the private gait preference before problem construction.</p>
+<p>At the application boundary, after a newly admitted transition closes a same-foot cycle,</p>
+<div class="arithmatex">\[
+E_y^+
+=\operatorname{clip}\!\left(
+E_y+\Delta y_{\mathrm{requested}}-\Delta y_{\mathrm{measured}},
+-(W_{\max}-W_{\min}),
++(W_{\max}-W_{\min})
+\right).
+\]</div>
+<p>Requested and measured displacements are integrated on the same control-tick intervals in the accepted desired-heading chart. The state resets on session reset, zero lateral command, or command-sign reversal. There is no enable flag, filter coefficient, integral gain, or pre-QP displacement correction. The geometry-derived clip is anti-windup; hard width and viability rows remain the final authority if the requested make-up progress is infeasible.</p>
+<p>When <span class="arithmatex">\(v_y = 0\)</span>, all lateral body-chord reference displacements vanish, the carried state is reset, and width regulation in <span class="arithmatex">\(J_{\text{width}}\)</span> drives symmetric stepping.</p>
+<h4 id="244-capturability-feedback-without-a-fixed-periodic-point">2.4.4) Capturability feedback without a fixed periodic point<a class="headerlink" href="#244-capturability-feedback-without-a-fixed-periodic-point" title="Permanent link">&para;</a></h4>
+<p>Velocity progress alone does not constrain the unstable step-to-step DCM state, while driving DCM error to zero would describe standing capture rather than commanded walking. The maintained planner therefore closes DCM feedback with the reachable sets in Section 2.5(c), not with a preferred point:</p>
+<ul>
+<li>the reconstructed current state must lie in the hard <span class="arithmatex">\(T_{\min}\)</span> controlled-invariant envelope;</li>
+<li>the executable successor <span class="arithmatex">\((e_2^x,q_2)\)</span> must remain in that same hard set; and</li>
+<li>slacks against the inner <span class="arithmatex">\(T_{\mathrm{nom}}\)</span> envelope measure and penalize loss of ordinary-cadence capture reserve.</li>
+</ul>
+<p>This admits the family of walking states that can be continued by a legal step. Width preference, cumulative commanded progress, and admitted-step smoothness select among those states. There is no authored lateral DCM center, contraction pole, or Poincare-map residual in the QP objective.</p>
+<p>The hard row applies only to the successor that can execute before replanning. Deeper preview timing is fixed at <span class="arithmatex">\(T_{\mathrm{nom}}\)</span> and those nodes are discarded. Requiring the final preview node to enter the nominal envelope would reject some states near the valid <span class="arithmatex">\(T_{\min}\)</span> capture boundary even though a new solve at the first successor can select another legal duration. A hard terminal capture set would require either controllable future timing or a backward- reachable set derived for the fixed preview cadence; neither is claimed here.</p>
+<h4 id="245-admitted-step-gait-smoothness">2.4.5) Admitted-step gait smoothness<a class="headerlink" href="#245-admitted-step-gait-smoothness" title="Permanent link">&para;</a></h4>
+<p>The MPC executes only its first step and discards the rest of the preview at the next support exchange. Adjacent-preview differences alone therefore do not penalize the discontinuity between the action that was just executed and the new first action. Define the command-relative fore-aft correction</p>
+<div class="arithmatex">\[
+r_k^x:=\nu_k^x-d_k^x
+\]</div>
+<p>and let <span class="arithmatex">\((r_{\mathrm{prev}}^x,\overline W_{\mathrm{prev}},T_{\mathrm{prev}})\)</span> be the last admitted step. The application advances this boundary only after contact admission and holds it fixed through every replan in the new step. At launch it is initialized to</p>
+<div class="arithmatex">\[
+(r_{\mathrm{prev}}^x,\overline W_{\mathrm{prev}},T_{\mathrm{prev}})
+=(0,W_{\mathrm{nom}},T_{\mathrm{nom}}).
+\]</div>
+<p>For the preview sequences, define boundary-seeded differences</p>
+<div class="arithmatex">\[
+\Delta r_1^x=r_1^x-r_{\mathrm{prev}}^x,
+\qquad
+\Delta r_k^x=r_k^x-r_{k-1}^x,\quad k=2,\dots,N,
+\]</div>
+<div class="arithmatex">\[
+\Delta \overline W_1=\overline W_1-\overline W_{\mathrm{prev}},
+\qquad
+\Delta \overline W_k=\overline W_k-\overline W_{k-1},
+\quad k=2,\dots,N,
+\]</div>
+<p>and, because only the first duration is an online decision,</p>
+<div class="arithmatex">\[
+\Delta T_1=T_1^{\mathrm{lin}}(\sigma_1)-T_{\mathrm{prev}}.
+\]</div>
+<p>One public dimensionless weight acts on the three physically normalized residuals:</p>
+<div class="arithmatex">\[
+\boxed{
+J_{\mathrm{smooth}}=w_{\mathrm{smooth}}\left[
+\sum_{k=1}^{N}\left(\frac{\Delta r_k^x}{L_{\max}}\right)^2
++\sum_{k=1}^{N}\left(
+\frac{\Delta\overline W_k}{W_{\max}-W_{\min}}
+\right)^2
++\left(\frac{\Delta T_1}{T_{\max}-T_{\min}}\right)^2
+\right].
+}
+\]</div>
+<p>This is action regularization, not a periodic-orbit or Lyapunov objective. It does not restore an absolute per-step length or timing target, and it cannot by itself prove contraction of the step-to-step DCM map.</p>
+<h4 id="246-soft-operating-envelope-penalty">2.4.6) Soft operating-envelope penalty<a class="headerlink" href="#246-soft-operating-envelope-penalty" title="Permanent link">&para;</a></h4>
+<p>The outer invariant envelope in Section 2.5(c) is hard. Inside it, the maintained implementation gives the narrower nominal-cadence envelope a soft quadratic penalty:</p>
+<div class="arithmatex">\[
+J_{\mathrm{env}}=w_{\mathrm{env}}\sum_{k=1}^{N}
+\left[(\varepsilon_k^x)^2+(\varepsilon_k^y)^2\right].
+\]</div>
+<p>This is a soft-constraint penalty, not a DCM-periodicity target. It selects a preferred region without choosing a nominal point inside that region, and it does not change the outer hard feasible set.</p>
+<h4 id="247-swing-operating-penalty">2.4.7) Swing operating penalty<a class="headerlink" href="#247-swing-operating-penalty" title="Permanent link">&para;</a></h4>
+<p>Section 2.5(d) defines nonnegative per-axis slacks <span class="arithmatex">\(\varepsilon_{\mathrm{sw}}\)</span> on the preferred swing-acceleration band. Their penalty is</p>
+<div class="arithmatex">\[
+J_{\mathrm{swing}}=w_{\mathrm{swing}}
+\lVert\varepsilon_{\mathrm{sw}}\rVert_2^2.
+\]</div>
+<p>The physical swing-acceleration and mean-speed rows remain hard. This soft inner row is what lets the QP trade stride against the current-step duration without an authored cadence target.</p>
+<h4 id="248-complete-objective">2.4.8) Complete objective<a class="headerlink" href="#248-complete-objective" title="Permanent link">&para;</a></h4>
+<div class="arithmatex">\[
+J = J_{\text{width}} + J_{\text{progress}} + J_{\text{lat}}
+  + J_{\text{smooth}} + J_{\text{env}} + J_{\text{swing}}
+  + w_\rho\rho + J_{\text{ridge}}.
+\]</div>
+<p>Every width/progress/smoothness/slack residual above is affine in <span class="arithmatex">\((p_k,z_k,\sigma_1)\)</span> after <span class="arithmatex">\(\{\alpha_k\}\)</span> is selected. Consequently the complete objective remains convex quadratic for straight walking, translating turns, and turn-in-place. The terminal relaxation is linear, and the small relative ridge keeps every solver variable in a positive-definite Hessian block.</p>
+<p><strong>Interpretation:</strong> with zero translational command, <span class="arithmatex">\(d_k=0\)</span> and the robot uses the same alternating gait to turn in place. With nonzero translation, the constant-twist chord makes the reference follow the commanded arc. The forward cumulative term discourages deficit only within the current horizon. Lateral cumulative tracking additionally receives the bounded cross-solve same-foot progress error from Section 2.4.3.</p>
+<h3 id="25-constraints-flat-terrain">2.5) Constraints (flat terrain)<a class="headerlink" href="#25-constraints-flat-terrain" title="Permanent link">&para;</a></h3>
+<h4 id="a-dcm-dynamics-qp-with-first-step-timing-only">(a) DCM dynamics (QP with first-step timing only)<a class="headerlink" href="#a-dcm-dynamics-qp-with-first-step-timing-only" title="Permanent link">&para;</a></h4>
+<p>For the <strong>current</strong> step:</p>
+<div class="arithmatex">\[
+z_{2} = \sigma_{1} z_1 + (1-\sigma_{1})p_1.
+\]</div>
+<p>For the remaining horizon (fixed reference timing), for <span class="arithmatex">\(k=2,\dots,N\)</span>:</p>
+<div class="arithmatex">\[
+z_{k+1} = \sigma_{\text{pref}} z_k + (1-\sigma_{\text{pref}})p_k.
+\]</div>
+<h4 id="a1-elapsed-time-floor-on-the-current-step-timing">(a.1) Elapsed-time floor on the current-step timing<a class="headerlink" href="#a1-elapsed-time-floor-on-the-current-step-timing" title="Permanent link">&para;</a></h4>
+<p><span class="arithmatex">\(\sigma_1\)</span> encodes the <strong>total</strong> duration <span class="arithmatex">\(T_1\)</span> of the current step, measured from its own touchdown — not the remaining swing time. A solve issued at elapsed time <span class="arithmatex">\(\tilde t\)</span> must therefore never command <span class="arithmatex">\(T_1 &lt; \tilde t\)</span>, which would place the landing in the past. The static bound <span class="arithmatex">\(\sigma_{\min} \le \sigma_1\)</span> does not express this: once <span class="arithmatex">\(\tilde t &gt; T_{\min}\)</span> it admits landing times that have already elapsed.</p>
+<p>Impose instead</p>
+<div class="arithmatex">\[
+\boxed{\;
+\sigma_1^{\text{lo}} := \max\big(\sigma_{\min},\; e^{\lambda(\tilde t + \Delta T)}\big)
+\;\le\;
+\sigma_1
+\;\le\;
+\sigma_1^{\text{hi}} := \max\big(\sigma_1^{\text{lo}},\; \sigma_{\max}\big),
+\qquad \Delta T \ge 0 .
+\;}
+\]</div>
+<p><strong>Key properties:</strong></p>
+<ul>
+<li><strong>Causality.</strong> <span class="arithmatex">\(\Delta T = 0\)</span> recovers the minimal requirement <span class="arithmatex">\(T_1 \ge \tilde t\)</span>: the step may end now, but not earlier.</li>
+<li><strong>Executable-policy reserve.</strong> The equality case is an algebraic limit. A composing robot profile chooses <span class="arithmatex">\(\Delta T&gt;0\)</span> so its swing policy has a finite remaining interval.</li>
+<li><strong>Executable reserve.</strong> <span class="arithmatex">\(\Delta T &gt; 0\)</span> additionally reserves a minimum <em>remaining</em> swing time, so a consumer is not handed a landing time its swing policy cannot reach. Choose <span class="arithmatex">\(\Delta T\)</span> as the shortest swing segment the foot controller can traverse.</li>
+<li><strong>The ceiling yields, not causality.</strong> When <span class="arithmatex">\(\tilde t + \Delta T\)</span> overruns <span class="arithmatex">\(T_{\max}\)</span>, <span class="arithmatex">\(\sigma_1^{\text{hi}}\)</span> rises to meet the floor. An earlier draft clamped the <em>floor</em> down to <span class="arithmatex">\(\sigma_{\max}\)</span> instead, which returns <span class="arithmatex">\(T_1 &lt; \tilde t\)</span> — a landing already in the past — and preserves neither causality nor the promised swing reserve. <span class="arithmatex">\(T_{\max}\)</span> is a gait-shape preference; causality is not, so the preference is what gives way. The scalar timing interval stays nonempty either way; its coupling through dynamics and hard gait/viability rows can still make the full QP infeasible.</li>
+<li><strong>Soft self-commitment.</strong> The floor meets a candidate duration when <span class="arithmatex">\(\tilde t+\Delta T=T_1\)</span>. Thus the available retiming window closes as the reserved landing time approaches, not necessarily only as <span class="arithmatex">\(\tilde t\to T_1\)</span>. Section 2.7 makes that closure explicit and extends it to landing position and desired touchdown heading.</li>
+<li><strong>Not a commitment.</strong> The floor moves with <span class="arithmatex">\(\tilde t\)</span> but leaves <span class="arithmatex">\(\sigma_1\)</span> free above it. Timing is re-optimized at <strong>every</strong> solve; freezing it for the duration of a step would remove the cheapest and fastest disturbance response the planner has.</li>
+</ul>
+<h4 id="b-kinematic-feasibility-desired-heading-midpoint-frame">(b) Kinematic feasibility (desired-heading midpoint frame)<a class="headerlink" href="#b-kinematic-feasibility-desired-heading-midpoint-frame" title="Permanent link">&para;</a></h4>
+<p>For <span class="arithmatex">\(k=1,\dots,N\)</span>:</p>
+<div class="arithmatex">\[
+-L_{\max} \le \hat{x}_{k+1/2}^\top(p_{k+1}-p_k) \le L_{\max},
+\]</div>
+<div class="arithmatex">\[
+W_{\min} \le s_k\,\hat{y}_{k+1/2}^\top(p_{k+1}-p_k) \le W_{\max}.
+\]</div>
+<p>These constraints are linear because <span class="arithmatex">\(\hat{x}_{k+1/2},\hat{y}_{k+1/2}\)</span> are pre-computed constants. They are the mathematical gait box; the online rows use the once-tightened execution bounds defined in Section 2.5(c) and formalized in Section 2.9.</p>
+<p>They are not a swing-speed certificate. Reaching <span class="arithmatex">\(L_{\max}\)</span> or <span class="arithmatex">\(W_{\max}\)</span> at <span class="arithmatex">\(T_{\min}\)</span> repeatedly may be infeasible for the full robot even though every landing lies in this box. A physically meaningful online swing constraint must start from the measured or currently commanded swing-foot position, velocity, and acceleration, the remaining time to touchdown, and calibrated directional velocity/acceleration limits. Those values are not part of the numerical <code>DcmPlannerState</code> today, so the maintained QP does not pretend that a second displacement box proves swing reachability. Adding the necessary state and calibration is a separate app-to-kernel contract change.</p>
+<h4 id="c-hard-outer-invariant-envelope-and-soft-operating-envelope">(c) Hard outer invariant envelope and soft operating envelope<a class="headerlink" href="#c-hard-outer-invariant-envelope-and-soft-operating-envelope" title="Permanent link">&para;</a></h4>
+<p>At each predicted touchdown define the desired-heading coordinates</p>
+<div class="arithmatex">\[
+e_{k+1}^x:=\hat x_{k+1}^\top(z_{k+1}-p_{k+1}),
+\qquad
+q_{k+1}:=s_{k+1}\hat y_{k+1}^\top(z_{k+1}-p_{k+1}).
+\]</div>
+<p><span class="arithmatex">\(q\)</span> is the stance-folded lateral DCM error. Negative <span class="arithmatex">\(q\)</span> is permitted by the reduced model: it means the DCM is outboard of the current stance foot, but it does not permit the next foot to cross because signed step width remains an independent hard constraint. The planner has no <span class="arithmatex">\(q_{\mathrm{periodic}}\)</span> field, no <span class="arithmatex">\(q&gt;0\)</span> row, and no measured-state ankle allowance.</p>
+<h5 id="timing-controlled-invariant-set-derivation">Timing-controlled invariant-set derivation<a class="headerlink" href="#timing-controlled-invariant-set-derivation" title="Permanent link">&para;</a></h5>
+<p>At zero heading increment, the stance-folded recursion is</p>
+<div class="arithmatex">\[
+q^+=W-\sigma q,
+\qquad W\in[W_{\min},W_{\max}],
+\qquad \sigma\in[\sigma_{\min},\sigma_{\max}].
+\]</div>
+<p>Seek the widest interval <span class="arithmatex">\([L,U]\)</span> for which every state has at least one legal width and timing that returns the successor to the interval. At <span class="arithmatex">\(q=U\)</span>, the largest achievable successor uses the widest, fastest step and must reach <span class="arithmatex">\(L\)</span>; at <span class="arithmatex">\(q=L\)</span>, the smallest achievable successor uses the narrowest, fastest step and must reach <span class="arithmatex">\(U\)</span>. The boundary conditions are therefore</p>
+<div class="arithmatex">\[
+W_{\max}-\sigma_{\min}U=L,
+\qquad
+W_{\min}-\sigma_{\min}L=U.
+\]</div>
+<p>Solving them gives</p>
+<div class="arithmatex">\[
+\boxed{
+L(\sigma)=\frac{\sigma W_{\min}-W_{\max}}{\sigma^2-1},
+\qquad
+U(\sigma)=\frac{\sigma W_{\max}-W_{\min}}{\sigma^2-1}.
+}
+\]</div>
+<p>The longitudinal map <span class="arithmatex">\(e_x^+=\sigma e_x-u_x\)</span> with <span class="arithmatex">\(|u_x|\le L_{\max}\)</span> has the symmetric invariant interval</p>
+<div class="arithmatex">\[
+\boxed{
+|e_x|\le B_x(\sigma),
+\qquad B_x(\sigma)=\frac{L_{\max}}{\sigma-1}.
+}
+\]</div>
+<p>The ordinary timing authority is the complete interval <span class="arithmatex">\(\sigma\in[\sigma_{\min},\sigma_{\max}]\)</span>. Since the least unstable factor <span class="arithmatex">\(\sigma_{\min}\)</span> produces the widest invariant intervals, the hard outer envelope is</p>
+<div class="arithmatex">\[
+\mathcal V_{\mathrm{hard}}=
+[-B_x(\sigma_{\min}),B_x(\sigma_{\min})]
+\times[L(\sigma_{\min}),U(\sigma_{\min})].
+\]</div>
+<p>This does not make <span class="arithmatex">\(T_{\min}\)</span> a recovery mode. It proves the existential statement behind controlled invariance: a state on the outer boundary may need the shortest ordinary step, while an interior state may use any feasible timing. For Digit simulation <span class="arithmatex">\(T_{\min}=0.30\)</span> s is ordinary solver authority, and no cost or mode switch is attached merely to selecting it.</p>
+<p>The nominal-cadence envelope uses exactly the same equations at <span class="arithmatex">\(\sigma_{\mathrm{nom}}=e^{\lambda T_{\mathrm{nom}}}\)</span>:</p>
+<div class="arithmatex">\[
+\mathcal V_{\mathrm{nom}}=
+[-B_x(\sigma_{\mathrm{nom}}),B_x(\sigma_{\mathrm{nom}})]
+\times[L(\sigma_{\mathrm{nom}}),U(\sigma_{\mathrm{nom}})].
+\]</div>
+<p>It is narrower and is imposed softly at every predicted touchdown:</p>
+<div class="arithmatex">\[
+|e_{k+1}^x|\le B_x(\sigma_{\mathrm{nom}})+\varepsilon_k^x,
+\]</div>
+<div class="arithmatex">\[
+L(\sigma_{\mathrm{nom}})-\varepsilon_k^y
+\le q_{k+1}\le
+U(\sigma_{\mathrm{nom}})+\varepsilon_k^y,
+\qquad \varepsilon_k^x,\varepsilon_k^y\ge0.
+\]</div>
+<p>These slack variables measure departure from nominal operation. They are not recovery authority and cannot weaken <span class="arithmatex">\(\mathcal V_{\mathrm{hard}}\)</span>.</p>
+<p>The physical width row <span class="arithmatex">\(W_{\min}\le s_k\hat y_{k+1/2}^\top(p_{k+1}-p_k)\le W_{\max}\)</span> remains separately hard. It prevents leg crossing at landing; the invariant envelope constrains the DCM state. Neither substitutes for the other.</p>
+<p>The reconstructed initial state <span class="arithmatex">\((e_1^x,q_1)\)</span> must lie in <span class="arithmatex">\(\mathcal V_{\mathrm{hard}}\)</span> and is passed into the dynamics unchanged. The QP then imposes the same hard envelope on <span class="arithmatex">\((e_2^x,q_2)\)</span>, the only successor that will execute before the next solve. It does not impose the timing-controlled outer envelope on nodes <span class="arithmatex">\(k\ge3\)</span>: their timing is fixed at <span class="arithmatex">\(\sigma_{\mathrm{preview}}\)</span>, so doing so would silently remove the timing choice used in the invariant-set proof and can reject a valid negative <span class="arithmatex">\(q_1\)</span>. The soft nominal envelope still shapes every preview node. This is the receding-horizon recursive-feasibility contract.</p>
+<p>For nonzero <span class="arithmatex">\(\alpha_k\)</span>, the exact two-axis recursion is coupled. The implementation applies the same scalar limits to projections in each next desired-heading frame as a finite-horizon contract; it does not claim a recursively invariant turning set.</p>
+<h3 id="251-complete-two-envelope-qp-retired-python-variant">2.5.1) Complete two-envelope QP (retired Python variant)<a class="headerlink" href="#251-complete-two-envelope-qp-retired-python-variant" title="Permanent link">&para;</a></h3>
+<p>For every precomputed heading sequence define</p>
+<div class="arithmatex">\[
+W_k:=s_k\hat y_{k+1/2}^\top(p_{k+1}-p_k),
+\]</div>
+<div class="arithmatex">\[
+e_{k+1}^x:=\hat x_{k+1}^\top(z_{k+1}-p_{k+1}),
+\qquad
+q_{k+1}:=s_{k+1}\hat y_{k+1}^\top(z_{k+1}-p_{k+1}).
+\]</div>
+<p>The retired Python variant solved the following online problem</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\min_{\{p_k,z_k\},\,\sigma_1,\,\rho,
+      \,\{\varepsilon_k^x,\varepsilon_k^y\},
+      \,\varepsilon_{\mathrm{sw}}} \quad &amp;
+J_{\mathrm{width}}+J_{\mathrm{progress}}+J_{\mathrm{lat}}
++J_{\mathrm{smooth}}+J_{\mathrm{env}}+J_{\mathrm{swing}}
++w_\rho\rho+J_{\mathrm{ridge}}\\
+\text{s.t.}\quad&amp;
+z_2=\sigma_1z_1+(1-\sigma_1)p_1,\\
+&amp;
+z_{k+1}=\sigma_{\mathrm{preview}}z_k+
+(1-\sigma_{\mathrm{preview}})p_k,\quad k=2,\dots,N,\\
+&amp;
+-L_{\max}^{\mathrm{exec}}
+\le\hat x_{k+1/2}^\top(p_{k+1}-p_k)
+\le L_{\max}^{\mathrm{exec}},\\
+&amp;
+W_{\min}^{\mathrm{exec}}\le W_k\le W_{\max}^{\mathrm{exec}},\\
+&amp;
+B_x(\sigma_{\min})\ge |e_2^x|,\\
+&amp;
+L(\sigma_{\min})\le q_2\le U(\sigma_{\min}),\\
+&amp;
+|e_{k+1}^x|\le B_x(\sigma_{\mathrm{nom}})+\varepsilon_k^x,\\
+&amp;
+L(\sigma_{\mathrm{nom}})-\varepsilon_k^y
+\le q_{k+1}\le
+U(\sigma_{\mathrm{nom}})+\varepsilon_k^y,\\
+&amp;
+\varepsilon_k^x,\varepsilon_k^y\ge0,
+\qquad k=1,\dots,N,\\
+&amp;
+\sigma_1^{\mathrm{lo}}
+\le\sigma_1\le
+\max(\sigma_1^{\mathrm{lo}},\sigma_{\max}),\\
+&amp;0\le\rho\le\rho_{\max},\\
+&amp;\text{fixed terminal midpoint rows parameterized by }\rho,\\
+&amp;\text{hard and preferred swing-capability rows from Section 2.5(d).}
+\end{aligned}
+\]</div>
+<p>The reconstructed initial state must independently satisfy <span class="arithmatex">\(|e_1^x|\le B_x(\sigma_{\min})\)</span> and <span class="arithmatex">\(L(\sigma_{\min})\le q_1\le U(\sigma_{\min})\)</span>. A violation receives the explicit <code>initial_state_outside_viable_set</code> status; the state is not projected. The gait rows and first-successor outer envelope are hard and independently postchecked at their mathematical boundaries. Nominal-envelope slack exists in both axes but never enters those hard rows. <span class="arithmatex">\(\rho_{\max}=0\)</span> disables the terminal schedule without changing graph structure; <span class="arithmatex">\(\rho_{\max}=1\)</span> enables its bounded relaxation.</p>
+<p>All heading quantities are constants, so this is a convex QP for <span class="arithmatex">\(\alpha_k=0\)</span> and <span class="arithmatex">\(\alpha_k\ne0\)</span> with identical dimensions. At horizon <span class="arithmatex">\(N\)</span>, the retired Python layout had <span class="arithmatex">\(6N+4\)</span> decision variables and <span class="arithmatex">\(2N\)</span> equality rows. Persistent turning and start/cruise/stop regimes change parameter values, not the problem dimensions.</p>
+<p>That retired runtime assembled dense matrices for the repository's dual active-set QP adapter. Its cached DPP-compliant CVXPY problem and parity checks belonged to the retired implementation; they are not available reproduction commands for the current C++ kernel. A small regularization relative to the normalized physical objective remains on every variable so the active- set Hessian stays positive definite.</p>
+<h3 id="26-heading-aware-tracking-and-guarantee-boundary">2.6) Heading-aware tracking and guarantee boundary<a class="headerlink" href="#26-heading-aware-tracking-and-guarantee-boundary" title="Permanent link">&para;</a></h3>
+<p>Turning is represented by the same three mechanisms for translation and turn-in-place:</p>
+<ol>
+<li>the command-side generator advances planner-owned world headings independently of measured foot/body yaw;</li>
+<li>gait geometry and progress use desired-heading midpoint axes and the exact constant-twist chord; and</li>
+<li>the hard outer invariant envelope is projected onto the executable successor, while the soft nominal envelope discourages operation near the outer-set boundary without selecting one periodic DCM point.</li>
+</ol>
+<p>For constant nonzero <span class="arithmatex">\(\alpha\)</span>, define <span class="arithmatex">\(\omega_{\mathrm{preview}}=\alpha/T_{\mathrm{nom}}\)</span>. With <span class="arithmatex">\(v_y=0\)</span>, the preview chord traces the endpoint displacement of a constant-twist circle. With <span class="arithmatex">\(v_x=v_y=0\)</span>, the same formulation turns in place.</p>
+<p>The guarantee is finite-horizon DCM consistency plus hard gait feasibility and one-step preservation of the straight-heading outer invariant envelope. The soft envelope is an operating preference, not a guarantee. Because heading rotation couples the error axes, this document does not claim recursive invariance for persistent turning. Integrated simulation is the current evidence boundary.</p>
+<h3 id="27-late-step-kernel-commitment">2.7) Late-step kernel commitment<a class="headerlink" href="#27-late-step-kernel-commitment" title="Permanent link">&para;</a></h3>
+<p>The numerical kernel replans only before the configured commit phase <span class="arithmatex">\(\phi_c\)</span>. Before commitment, a successful solve replaces its held numerical result. At or after commitment, it bypasses optimization and republishes that held result unchanged. Bypass is a successful kernel status, not a failure.</p>
+<p>Elapsed time and the held step duration are explicit kernel inputs. The kernel does not own a support-transition clock, swing trajectory, body-yaw trajectory, contact admission rule, or controller task. A composing application must keep those meanings coherent with the elapsed time it supplies. Resetting the kernel at an admitted support transition clears the held result so a new step cannot bypass into the previous landing.</p>
+<p>The accepted geometric increment remains <span class="arithmatex">\(\alpha_1=\theta_2-\theta_1\)</span>, and the accepted average rate remains <span class="arithmatex">\(\omega_{\mathrm{real}}=\alpha_1/T_1\)</span>. These are numerical outputs; they do not prescribe the instantaneous orientation trajectory used by a robot controller.</p>
+<h3 id="28-timing-what-changes-if-sigma_k-is-variable">2.8) Timing: what changes if <span class="arithmatex">\(\sigma_k\)</span> is variable?<a class="headerlink" href="#28-timing-what-changes-if-sigma_k-is-variable" title="Permanent link">&para;</a></h3>
+<p>If you optimize <span class="arithmatex">\(\sigma_k\)</span> for <span class="arithmatex">\(k\ge2\)</span>, the DCM dynamics</p>
+<div class="arithmatex">\[
+z_{k+1} = \sigma_k z_k + (1-\sigma_k)p_k
+\]</div>
+<p>become <strong>bilinear</strong> in decision variables <span class="arithmatex">\((\sigma_k,z_k,p_k)\)</span>.</p>
+<p>Common ways to handle this:</p>
+<ol>
+<li><strong>Optimize only <span class="arithmatex">\(\sigma_1\)</span>, fix <span class="arithmatex">\(\sigma\_{k\ge2}=\sigma\_{\text{pref}}\)</span></strong> (baseline in this note; preserves QP/MIQP structure because <span class="arithmatex">\((z_1,p_1)\)</span> are constants).</li>
+<li><strong>Convex relaxations / successive convexification</strong> (McCormick envelopes or iterative linearization) for full-horizon timing optimization.</li>
+</ol>
+<blockquote>
+<p><strong>Decision: option 1 is structural, not a default.</strong> Optimizing <span class="arithmatex">\(\{\sigma_k\}_{k\ge2}\)</span> leaves the QP class — successive convexification turns a single convex solve into an iterated nonlinear program with no bounded solve time and no single feasibility certificate, neither of which a per-tick footstep planner can carry. Therefore the numerical preview fixes <span class="arithmatex">\(\sigma_{k\ge2}=\sigma_{\text{pref}}\)</span>.</p>
+<p>This does not pin the closed-loop cadence. The next solve again optimizes its current step timing. Deeper fixed-cadence rows are preview regularization for both straight and turning commands; no future <span class="arithmatex">\(\sigma_k\)</span> becomes an online decision variable.</p>
+</blockquote>
+<p>The first-order linearization of step duration around <span class="arithmatex">\(\sigma_{\text{pref}}\)</span> is:</p>
+<div class="arithmatex">\[
+T_k = \frac{1}{\lambda}\log\sigma_k
+\approx T_{\text{pref}}
++ \frac{1}{\lambda\sigma_{\text{pref}}}
+(\sigma_k-\sigma_{\text{pref}}).
+\]</div>
+<p>This is used in the progress tracking objective (Section 2.4.2) to adjust the preference when <span class="arithmatex">\(\sigma_1\)</span> deviates from the command-dependent preference. In a variable-timing extension with all <span class="arithmatex">\(\sigma_k\)</span> optimized, the preferred progress would need per-step timing corrections—feasible but denser in the Hessian.</p>
+<h3 id="29-hard-feasibility-rows-and-soft-operating-rows">2.9) Hard feasibility rows and soft operating rows<a class="headerlink" href="#29-hard-feasibility-rows-and-soft-operating-rows" title="Permanent link">&para;</a></h3>
+<p>This table describes the retired two-envelope formulation. Current C++ physical gait/topology rows remain hard, while configured viability slack is separately reported and penalized. It has no soft nominal-cadence envelope or swing-capability rows.</p>
+<p>Constraint authority is uniform across heading increments:</p>
+<ul>
+<li><strong>Hard:</strong> step reach, physical width, timing/input validity, DCM dynamics, initial and executable-successor outer DCM envelope, and terminal rows after their explicit schedule relaxation <span class="arithmatex">\(\rho\)</span>.</li>
+<li><strong>Quadratically penalized:</strong> longitudinal and lateral excursions from the nominal-cadence operating envelope.</li>
+</ul>
+<p>A positive execution tightening keeps solver tolerance from weakening hard boundaries:</p>
+<div class="arithmatex">\[
+L_{\max}^{\mathrm{exec}}=L_{\max}-\epsilon_{\mathrm{hard}},
+\quad
+W_{\min}^{\mathrm{exec}}=W_{\min}+\epsilon_{\mathrm{hard}},
+\quad
+W_{\max}^{\mathrm{exec}}=W_{\max}-\epsilon_{\mathrm{hard}}.
+\]</div>
+<p>After solving, independently check the mathematical bounds <span class="arithmatex">\(|u_x|\le L_{\max}\)</span>, <span class="arithmatex">\(W_{\min}\le W\le W_{\max}\)</span>, and <span class="arithmatex">\(|e_2^x|\le B_x(\sigma_{\min})\)</span> and <span class="arithmatex">\(L(\sigma_{\min})\le q_2\le U(\sigma_{\min})\)</span>. A hard-envelope violation is never accepted as a solver-tolerance convention.</p>
+<p>The operating-envelope penalty is</p>
+<div class="arithmatex">\[
+\min\;J+w_{\mathrm{env}}\sum_{k=1}^{N}
+\left[(\varepsilon_k^x)^2+(\varepsilon_k^y)^2\right],
+\qquad \varepsilon_k^x,\varepsilon_k^y\ge0.
+\]</div>
+<p>This L2 cost is not an exact penalty. A nonzero slack reports how far a preview lies outside preferred nominal operation. It does not relax hard gait geometry or the outer invariant envelope. The full robot may have additional recovery authority through ankle torque, foot roll, or double support, but ordinary walking neither models nor spends that authority here. A separate recovery planner, with explicit physical semantics, is deferred.</p>
+<p>Slack therefore does not make the planner unconditionally feasible. Hard gait or outer-envelope infeasibility, invalid input, solver failure, and yaw-trajectory screening can still reject a candidate.</p>
+<h3 id="210-command-admission-saturation-and-failure-handling">2.10) Command admission, saturation, and failure handling<a class="headerlink" href="#210-command-admission-saturation-and-failure-handling" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Validate structure and hard initial viability.</strong> Reject nonfinite state, commands, timing, or heading bounds. Reconstruct the step-start DCM and require it to lie in the outer longitudinal/lateral envelope. Negative <span class="arithmatex">\(q_1\)</span> is admissible when <span class="arithmatex">\(q_1\ge L(\sigma_{\min})\)</span>; do not project it.</li>
+<li><strong>Clamp heading continuously.</strong> Apply the scalar yaw-rate rule in Section 2.2. Clamping is ordinary command saturation and is reported through the selected <span class="arithmatex">\(\alpha\)</span> and realized <span class="arithmatex">\(\alpha_1/T_1\)</span>; it is not unsupported turning.</li>
+<li><strong>Invoke one candidate QP.</strong> Every finite bounded heading sequence uses the one row construction. No asset lookup, command cell, profile, kernel, QP bank, or fallback straight solve is consulted.</li>
+<li><strong>Screen the result.</strong> Require a solved backend status, acceptable residual, and hard mathematical gait/outer-envelope postchecks.</li>
+<li><strong>Retain or report failure.</strong> A failed precommit refresh leaves an already accepted result unchanged. If no initial result exists, report failure to the caller. Postcommit ticks bypass optimization and republish the held result.</li>
+</ol>
+<p>Planner diagnostics distinguish solved, bypass, invalid input, degenerate bounds, initial state outside the viable set, and solver failure. They report QP dimensions, timing bounds, hard and nominal envelopes, raw initial DCM error/utilization, both nominal-envelope slacks, swing demand/slack, solver residuals, and lateral commanded/planned/residual progress. There is no unsupported-turning or asset-validation status.</p>
+<h2 id="3-extension-stepping-stones-discontinuous-footholds-miqp">3) Extension: stepping stones (discontinuous footholds) → MIQP<a class="headerlink" href="#3-extension-stepping-stones-discontinuous-footholds-miqp" title="Permanent link">&para;</a></h2>
+<p>On stepping stones, each foot placement must lie in a union of convex regions (polytopes):</p>
+<div class="arithmatex">\[
+\mathcal{S}^w = \bigcup_{j=1}^{M}\mathcal{S}_j^w,
+\qquad
+\mathcal{S}_j^w := \{p^w\in\mathbb{R}^2 \mid A_j^w p^w \le b_j^w\}.
+\]</div>
+<p>Terrain regions are world-fixed. Because unsuperscripted <span class="arithmatex">\(p_k\)</span> is a frozen solve-chart coordinate, use <span class="arithmatex">\(p_k^w=o_1^w+Q_1p_k\)</span> in membership rows (or pretransform each region once into that same frozen chart).</p>
+<p>Introduce binary region indicators <span class="arithmatex">\(\delta_{k j}\in\{0,1\}\)</span> for each planned step <span class="arithmatex">\(k\)</span> and region <span class="arithmatex">\(j\)</span>:</p>
+<div class="arithmatex">\[
+\sum_{j=1}^{M}\delta_{k j} = 1,\qquad k=2,\dots,N+1.
+\]</div>
+<p>Big-<span class="arithmatex">\(M\)</span> membership constraints:</p>
+<div class="arithmatex">\[
+A_j^w(o_1^w+Q_1p_k)
+\le b_j^w + M_{\text{big}}(1-\delta_{k j}),
+\qquad
+k=2,\dots,N+1,\;\; j=1,\dots,M.
+\]</div>
+<p>Everything else (dynamics, kinematics, capture, and progress tracking objective) stays the same. The problem class becomes <strong>MIQP</strong> because of the binaries.</p>
+<p><strong>Practical notes:</strong></p>
+<ul>
+<li>The desired-world heading sequence is still pre-computed; without this, the heading-aligned stride constraints would become nonlinear.</li>
+<li>Choose <span class="arithmatex">\(M_{\text{big}}\)</span> as tightly as possible (use environment bounding boxes) to avoid weak relaxations.</li>
+<li>If your solver supports <em>indicator constraints</em>, prefer them over big-<span class="arithmatex">\(M\)</span> for numerical stability.</li>
+</ul>
+<hr />
+<h2 id="4-extension-variable-height-terrain-discrete-heights-per-region">4) Extension: variable height terrain (discrete heights per region)<a class="headerlink" href="#4-extension-variable-height-terrain-discrete-heights-per-region" title="Permanent link">&para;</a></h2>
+<p>Assume each region/stone has an associated height <span class="arithmatex">\(h_j\)</span> (stairs, platforms, uneven stepping stones). The key modeling question is how height changes the DCM constant.</p>
+<h3 id="41-step-dependent-dcm-constant">4.1) Step-dependent DCM constant<a class="headerlink" href="#41-step-dependent-dcm-constant" title="Permanent link">&para;</a></h3>
+<p>A common approximation is</p>
+<div class="arithmatex">\[
+\lambda_k = \sqrt{\frac{g}{z_{c,k}}},
+\]</div>
+<p>where <span class="arithmatex">\(z_{c,k}\)</span> is the effective CoM height above the stance foot during step <span class="arithmatex">\(k\)</span>.</p>
+<p><strong>Important modeling choice:</strong> if the controller enforces an (approximately) constant CoM height <em>relative to the current stance foot</em>, then <span class="arithmatex">\(z_{c,k}\)</span> can be treated as constant and <span class="arithmatex">\(\lambda_k \approx \lambda\)</span> even on stairs/platforms. In that case, “variable height” mainly enters through <strong>3D kinematics/collision</strong> and region feasibility, not through the 2D DCM constant. If instead <span class="arithmatex">\(z_{c,k}\)</span> varies with terrain (or you want a conservative bound), then <span class="arithmatex">\(\lambda_k\)</span> becomes step-dependent as below.</p>
+<p>If heights are discrete and tied to region selection, you can precompute per-region parameters <span class="arithmatex">\((\lambda_j,\sigma_{j,\min},\sigma_{j,\max})\)</span> and then <em>activate</em> them according to the selected region.</p>
+<h3 id="42-region-dependent-timing-bounds-miqp-friendly">4.2) Region-dependent timing bounds (MIQP-friendly)<a class="headerlink" href="#42-region-dependent-timing-bounds-miqp-friendly" title="Permanent link">&para;</a></h3>
+<p>Precompute for each region <span class="arithmatex">\(j\)</span>:</p>
+<div class="arithmatex">\[
+\sigma_{j,\min} = e^{\lambda_j T_{\min}},\qquad \sigma_{j,\max} = e^{\lambda_j T_{\max}}.
+\]</div>
+<h3 id="421-optimized-current-timing-and-fixed-preview-region-dynamics">4.2.1) Optimized current timing and fixed-preview region dynamics<a class="headerlink" href="#421-optimized-current-timing-and-fixed-preview-region-dynamics" title="Permanent link">&para;</a></h3>
+<p>Keep the command-dependent preferred time <span class="arithmatex">\(T_{\text{pref}}\)</span> fixed for future steps, giving the per-region factors</p>
+<div class="arithmatex">\[
+\sigma_{j,\text{pref}} := e^{\lambda_j T_{\text{pref}}},
+\]</div>
+<p>while retaining the ordinary optimized current-step factor.</p>
+<p>For <span class="arithmatex">\(k=1\)</span>, the current stance region <span class="arithmatex">\(j_1\)</span> and <span class="arithmatex">\(\lambda_{j_1}\)</span> are known. Optimize <span class="arithmatex">\(\sigma_1\)</span> with the corresponding region-specific timing bounds and elapsed-time floor, and impose directly</p>
+<div class="arithmatex">\[
+z_2=\sigma_1 z_1+(1-\sigma_1)p_1.
+\]</div>
+<p>This remains affine because <span class="arithmatex">\((z_1,p_1)\)</span> are known. No <span class="arithmatex">\(\delta_{1j}\)</span> is introduced.</p>
+<p>For future <span class="arithmatex">\(k=2,\dots,N\)</span>, the planned stance <span class="arithmatex">\(p_k\)</span> has the region indicator <span class="arithmatex">\(\delta_{kj}\)</span> already defined in Section 3. Activate the fixed-preview dynamics component-wise:</p>
+<div class="arithmatex">\[
+-M_{\text{big}}(1-\delta_{k j})
+\le
+z_{k+1} - \sigma_{j,\text{pref}} z_k - (1-\sigma_{j,\text{pref}})p_k
+\le
+M_{\text{big}}(1-\delta_{k j}),
+\qquad j=1,\dots,M,\;\;k=2,\dots,N.
+\]</div>
+<p>This keeps the problem MIQP (or MILP plus quadratic objective): <span class="arithmatex">\(\sigma_1\)</span> remains the sole timing decision, while no <span class="arithmatex">\(\sigma_{k\ge2}\)</span> decision variables are introduced. Region-conditional optimization of future <span class="arithmatex">\(\sigma_k\)</span> is a different extension; combined with free <span class="arithmatex">\(z_k,p_k\)</span> it reintroduces the bilinearity described in Section 2.8 and is not part of this MIQP baseline.</p>
+<h3 id="43-height-dependent-straight-heading-invariant-envelopes">4.3) Height-dependent straight-heading invariant envelopes<a class="headerlink" href="#43-height-dependent-straight-heading-invariant-envelopes" title="Permanent link">&para;</a></h3>
+<p>For <span class="arithmatex">\(\alpha=0\)</span>, define the region-dependent fresh lower factor</p>
+<div class="arithmatex">\[
+\sigma_{k,\mathrm{fresh}}
+:=\max(\sigma_{k,\min},e^{\lambda_k\Delta T}).
+\]</div>
+<p>The scalar quantities of Section 2.5(c) become step-dependent:</p>
+<div class="arithmatex">\[
+ B_{x}^{(k)} = \frac{L_{\max}}{\sigma_{k,\mathrm{fresh}}-1},
+\qquad
+L^{(k)}=
+\frac{\sigma_{k,\mathrm{fresh}}W_{\min}-W_{\max}}
+     {\sigma_{k,\mathrm{fresh}}^2-1},
+\qquad
+U^{(k)}=
+\frac{\sigma_{k,\mathrm{fresh}}W_{\max}-W_{\min}}
+     {\sigma_{k,\mathrm{fresh}}^2-1}.
+\]</div>
+<p>Region-selection binaries activate the corresponding precomputed hard outer and soft nominal envelopes. Both hard axes remain slack-free; both nominal axes may use operating-envelope slack. For nonzero heading this retains the same finite-horizon, not recursive-turning-invariance, interpretation.</p>
+<p><strong>Cross-height note:</strong> viability at touchdown <span class="arithmatex">\(k+1\)</span> is naturally expressed using the <em>next</em> stance parameters (height, <span class="arithmatex">\(\lambda\)</span>, timing bounds) because the next admissible control is chosen from that stance.</p>
+<h3 id="44-vertical-kinematic-constraints-minimal-set">4.4) Vertical kinematic constraints (minimal set)<a class="headerlink" href="#44-vertical-kinematic-constraints-minimal-set" title="Permanent link">&para;</a></h3>
+<p>If heights are part of region definitions, add at least a step-to-step height change limit:</p>
+<div class="arithmatex">\[
+|h_{k+1} - h_k| \le H_{\max},
+\]</div>
+<p>or asymmetric bounds for up/down steps.</p>
+<p>For discrete regions, this can be enforced via pairwise region transitions (big-<span class="arithmatex">\(M\)</span> on <span class="arithmatex">\((\delta_{k,i},\delta_{k+1,j})\)</span>) if needed.</p>
+<hr />
+<h2 id="5-summary-by-complexity-level">5) Summary by complexity level<a class="headerlink" href="#5-summary-by-complexity-level" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Heading</th>
+<th>Timing</th>
+<th>Terrain</th>
+<th>Problem class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flat</td>
+<td>continuous bounded, precomputed</td>
+<td>optimize <span class="arithmatex">\(\sigma_1\)</span>, fix preview</td>
+<td>continuous</td>
+<td>QP</td>
+</tr>
+<tr>
+<td>Stepping stones</td>
+<td>continuous bounded, precomputed</td>
+<td>optimize <span class="arithmatex">\(\sigma_1\)</span>, fix preview</td>
+<td>union of polytopes</td>
+<td>MIQP</td>
+</tr>
+<tr>
+<td>Discrete heights</td>
+<td>continuous bounded, precomputed</td>
+<td>optimize <span class="arithmatex">\(\sigma_1\)</span>, region-fixed preview</td>
+<td>union plus heights</td>
+<td>MIQP</td>
+</tr>
+</tbody>
+</table>
+<p>For flat terrain, zero heading, translating turns, and turn-in-place all use the first row with identical QP dimensions. The outer longitudinal/lateral envelope is hard for the reconstructed initial state and executable successor; the nominal-cadence envelope is soft in both axes over the preview. For nonzero heading, the scalar derivation is a finite-horizon contract rather than a proof of recursive turning invariance.</p>
+<h2 id="6-implementation-checklist">6) Implementation checklist<a class="headerlink" href="#6-implementation-checklist" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Initialize desired world heading to zero on reset. Permit explicit app or navigation assignment while inactive; never initialize it from measured body or stance-foot yaw.</li>
+<li>Form the frozen solve chart from captured stance translation and the planner-owned desired heading. Mid-step replans retain that chart.</li>
+<li>Back-propagate the latest measured DCM to step start:
+   $$
+   z_1=p_1+e^{-\lambda\tilde t}\left(\xi(\tilde t)-p_1\right).
+   $$</li>
+<li>Validate finite state, command, limits, and hard-set tolerance. Admit the reconstructed state only inside the timing-controlled outer envelope; negative <span class="arithmatex">\(q_1\)</span> inside <span class="arithmatex">\([L,U]\)</span> is passed through unchanged.</li>
+<li>Build the fixed preview duration/factor, current timing bounds, and the continuous bounded heading sequence from one command snapshot.</li>
+<li>Precompute node axes, midpoint axes, constant-twist progress chords, the hard <span class="arithmatex">\(T_{\min}\)</span> invariant envelope, and the soft <span class="arithmatex">\(T_{\mathrm{nom}}\)</span> operating envelope.</li>
+<li>Update the numeric data for the fixed-dimension QP: current-step timing, fixed preview timing, hard gait/outer-envelope rows, soft nominal and swing rows, the fixed last-admitted-step boundary, terminal schedule, and heading-aware objectives.</li>
+<li>Solve through the runtime dual active-set adapter and independently postcheck hard reach, width, executable-successor viability, dynamics, and terminal rows. Record solver status, dimensions, timing, both envelopes and slacks, swing demand, and lateral progress.</li>
+<li>Convert the accepted first foothold to world coordinates. Publish <span class="arithmatex">\(T_1\)</span>, <span class="arithmatex">\((\theta_1,\theta_2)\)</span>, <span class="arithmatex">\(\alpha_1\)</span>, and <span class="arithmatex">\(\omega_{\mathrm{real}}=\alpha_1/T_1\)</span> atomically.</li>
+<li>Splice the C1 desired-yaw trajectory from the currently published desired yaw/rate to the accepted endpoint. Screen rate against at least <span class="arithmatex">\(\alpha_{\max}/T_{\min}\)</span> and screen acceleration against its configured bound; reject an inadmissible trajectory without a second QP. Replan only before the commit phase; bypass and hold the accepted plan afterward.</li>
+<li>At admitted touchdown, advance desired heading to the accepted endpoint, promote the accepted command-relative fore-aft residual, physical width, and duration to the next solve's fixed gait boundary, and re-anchor the translation.</li>
+</ol>
+<h2 id="7-validation-contract-for-turning">7) Validation contract for turning<a class="headerlink" href="#7-validation-contract-for-turning" title="Permanent link">&para;</a></h2>
+<h3 id="71-focused-formulation-and-module-checks">7.1) Focused formulation and module checks<a class="headerlink" href="#71-focused-formulation-and-module-checks" title="Permanent link">&para;</a></h3>
+<p>The maintained checks must establish:</p>
+<ul>
+<li>yaw-rate increments equal <span class="arithmatex">\(\operatorname{clamp}(\omega T_{\mathrm{nom}}, -\alpha_{\max},+\alpha_{\max})\)</span> without snapping;</li>
+<li>zero, positive, negative, and saturated yaw rates integrate into continuous unwrapped headings with the same per-step bound;</li>
+<li><span class="arithmatex">\(\alpha=0\)</span> retains established straight behavior;</li>
+<li>arbitrary finite nonzero <span class="arithmatex">\(\alpha\)</span> reaches the ordinary QP without a velocity-domain or asset gate;</li>
+<li>QP dimensions depend only on horizon and match for straight, translating turns, and turn-in-place;</li>
+<li>every accepted preview satisfies hard reach and width, while its executable successor satisfies the hard longitudinal/lateral outer envelope;</li>
+<li>nominal-envelope slack in either axis cannot cross hard gait or outer-set rows;</li>
+<li>desired world heading is independent of measured body and stance-foot yaw; and</li>
+<li>the accepted yaw trajectory is C1, respects the planner-coherent rate envelope and configured acceleration limit, and preserves nonzero body rate across touchdown while swing-foot yaw holds its landing endpoint independently.</li>
+</ul>
+<h3 id="72-integrated-digit-scenarios">7.2) Integrated Digit scenarios<a class="headerlink" href="#72-integrated-digit-scenarios" title="Permanent link">&para;</a></h3>
+<p>Run with a static configuration and ordinary command ramps:</p>
+<ul>
+<li>turn-in-place in both directions for at least two swing landings;</li>
+<li>translating left and right arcs;</li>
+<li>zero-yaw straight regression;</li>
+<li>precommit yaw-rate changes and postcommit hold;</li>
+<li>a multi-revolution turn generated by sustained yaw rate; and</li>
+<li>uneven terrain where measured stance yaw differs from desired world heading.</li>
+</ul>
+<p>Each scenario must complete the expected step sequence, keep the DCM QP solved or bypassed without unsupported-turning admission, track nonzero desired yaw in the requested direction, preserve hard viability/gait rows, and either complete terminal capture or report an explicit existing failure mode.</p>
+<p>The focused flat-ground positive-direction turn-in-place and translating-arc runs are historical implementation evidence. They do not replace the remaining signed-rate, saturation, rough-terrain, or repeatability matrix, and they are not hardware or safety qualification.</p>
+<h3 id="73-required-diagnostics-and-pass-boundary">7.3) Required diagnostics and pass boundary<a class="headerlink" href="#73-required-diagnostics-and-pass-boundary" title="Permanent link">&para;</a></h3>
+<p>Log on one clock:</p>
+<ul>
+<li>requested scalar yaw rate;</li>
+<li>accepted unwrapped <span class="arithmatex">\(\theta_1\)</span>, <span class="arithmatex">\(\theta_2\)</span>, <span class="arithmatex">\(\alpha_1\)</span>, <span class="arithmatex">\(T_1\)</span>, and <span class="arithmatex">\(\omega_{\mathrm{real}}\)</span>;</li>
+<li>desired-yaw trajectory position/rate/acceleration and endpoint continuation;</li>
+<li>measured body and foot yaws as downstream tracking signals only;</li>
+<li>solve-chart origin/orientation, stance side, foothold, and plan/step identity;</li>
+<li>hard reach, width, and executable-successor viability residuals;</li>
+<li>hard/nominal invariant envelopes, both nominal-envelope slacks, swing demand/slack, raw initial utilization, and carried lateral-progress error; and</li>
+<li>solver status, dimensions, iterations, residual, solve time, and acceptance/bypass/capture-hold outcome.</li>
+</ul>
+<p>The historical DCM-planner HDF5 schema stores each raw planar QP vector once in the frozen solve chart and names that chart explicitly. It stores desired headings as unwrapped world scalars and command/published velocities in the desired-heading tangent frame. Offline analysis derives the constraint views:</p>
+<div class="arithmatex">\[
+e_k^{\theta_k}=R(\theta_k-\theta_1)^T(z_k-p_k),\qquad
+u_k^{\bar\theta_k}=R\!\left(\frac{\theta_k+\theta_{k+1}}{2}-\theta_1\right)^T
+(p_{k+1}-p_k).
+\]</div>
+<p>Thus DCM-envelope plots use each node heading, reach/width plots use each edge-midpoint heading, and closure rotates the committed <span class="arithmatex">\(e_2\)</span> into the incoming node/solve heading before comparing it with the next measured <span class="arithmatex">\(e_1\)</span>. The file does not duplicate these derived projections or mix them into the raw preview arrays.</p>
+<p>A scenario passes only when the hard mathematical postchecks hold and accepted heading/result identities remain coherent through replacement and commitment. Nominal-envelope slack is allowed and must be reported in both axes; the hard outer envelope has no slack. Focused QP tests and simulation artifacts establish formulation and software behavior only; application task trajectories and physical walking need separate validation.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+
+<div class="document-origin">Source: <code>docs/design/dcm-footstep-planner-formulation.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="alip-footstep-planner-formulation.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: ALIP formulation">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                ALIP formulation
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../apps/digit/walking/RUNNING.html" class="md-footer__link md-footer__link--next" aria-label="Next: Run Digit">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Run Digit
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/mathjax.js"></script>
+      
+        <script src="../../assets/external/cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+      
+    
+  </body>
+</html>

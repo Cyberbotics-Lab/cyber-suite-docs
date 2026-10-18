@@ -1,0 +1,97 @@
+---
+Status: experimental
+Owner: repo
+---
+
+# Policy
+
+## Purpose
+
+Deployment side of learned policies, independent of any trainer, robot or controller:
+
+- the **policy contract** a trained policy ships with, which records what training computed at each link of the chain from observation to joint torque;
+- C++ implementations of the module's own links: the **observation builder**, the `joint_affine` **action decoder** and the `joint_pd` **realization**;
+- **ONNX Runtime** evaluation;
+- in Python, the **bundle writer** a trainer adapter calls and the **parity replay** that checks a bundle.
+
+A policy bundle is a directory with `policy_contract.yaml`, the model files it names and `parity_fixture.npz`. The trainer's exporter writes all three. Deployment reads only the contract, never trainer-side metadata attached to the model. This is M1 infrastructure of the [learning roadmap](../../docs/roadmaps/learning-roadmap.md); [the deployment design](../../docs/design/learned-policy-deployment.md) explains the chain and what each project owns.
+
+The module requires two things of a project that deploys a policy, and nothing else: its commands go through the robot's plant boundary (for Digit, `modules/digit_hardware`), and its bundle passes parity replay. The trainer, this module's observation terms, decoder, PD law and ONNX runner are offered, not required.
+
+## Public API
+
+- `contract.hpp`: `PolicyContract`, `load_policy_contract(path)`, `is_project_kind(kind)`.
+  - Version 2 is current; version 1 still loads. `PolicyContract::version` keeps the file's number.
+  - **Models.** `models` is a list of `ModelSpec` (name, file, rate, input and output tensors bound by name to an observation group and to `action`). `model()` returns the policy model.
+  - **Observation.** Named groups of terms (`ObservationGroup`); the model input reads one. The terms are a closed vocabulary (`ObservationKind`), each with one frame, unit and size: base linear and angular velocity in the base frame; projected gravity; joint position minus a per-joint reference; joint velocity; last action; velocity command.
+  - **Action.** `action.decode` turns model output into references; `action.realization` turns references into actuator commands, as training computed them.
+    - `joint_affine` decode: `target = offset + scale * action` per named joint, held between model evaluations.
+    - `joint_pd` realization: stiffness `kp * (target - q)` and damping `-kd * qd`, each run where its placement says (`controller` or `actuator`). The controller clamps what it sends to `controller_limit`; the actuator clamps the sum to `actuator_limit`. An actuator's delay is not part of the law.
+  - **Project kinds.** A dotted kind such as `digit.pose_task` (optionally `@<version>`) belongs to the project named before the dot. The loader accepts it for a decode or a realization, keeps its `params` as YAML text (`params_yaml`), and never interprets it. A project decode declares its output `size` and may name its `joints`.
+  - **Reserved.** These are written into the schema and rejected with "reserved in contract version 2 and not yet implemented" until a consumer needs them: several models, several model inputs or outputs, tensor shapes, recurrent state (`state_from`), several observation groups, project observation terms, and per-term `scale`, `clip` and `history`.
+  - **Rejections.** The loader rejects unknown terms and kinds, unknown keys (version 2 only), mismatched lengths, duplicate joints, non-finite or out-of-range values, an input that reads an undefined group and an output not bound to `action`, and names the problem.
+  - **Version 1.** Maps to one model named `policy`, one group named `actor`, `joint_affine`, and `joint_pd` with both terms in the controller and one limit. `JointPdSpec::placement_declared` is false: version 1 did not record where the damping ran.
+- `observation.hpp`: `ObservationBuilder(contract, source_joint_names)`, `PolicyInputs`, `projected_gravity(q_xyzw)`. Joints are matched by name against the caller's joint order once, at construction. `build` then only indexes into the caller's buffer and allocates nothing.
+- `action.hpp`: `ActionDecoder(contract, target_joint_names)` implements `joint_affine`: `targets` maps model output to the caller's joint order and allocates nothing. It throws for a project decode. `joint_order` is the shared name mapping.
+- `joint_pd.hpp`: `JointPdLaw(contract, target_joint_names)` implements `joint_pd` in the caller's joint order. It throws for a project realization. None of these allocate:
+  - `controller_torque(target, q, qd, torque)`: the terms placed in the controller, clamped to the controller limit;
+  - `actuator_gains(kp, kd)`: what the actuator must run, zero for terms the controller runs;
+  - `joint_torque(target, q, qd, torque)`: the torque reaching the joint, as training computed it;
+  - `placed(stiffness, damping)`: the same law placed elsewhere, for a deployment that must run a term somewhere other than training did. The caller chooses and reports that explicitly.
+- `onnx_policy.hpp`: `OnnxPolicy`, one float [1, N] to [1, M] model on the CPU.
+  - The model's declared shapes are checked against the contract at load time.
+  - Input and output buffers are bound once.
+  - ONNX Runtime may still allocate inside `run`, so run it off the hard real-time tick.
+- Python package `cyber_suite.policy`:
+  - the bindings above (`PolicyContract` with `decode_kind`, `realization_kind`, `realization_params` and `pd_placement`, `ObservationBuilder`, `ActionDecoder`, `JointPdLaw`, `OnnxPolicy`);
+  - `cyber_suite.policy.bundle`: trainer-free bundle writing from plain values (`joint_affine`, `joint_pd`, `project_kind`, `policy_contract`, `contract_from_v1`, `validate`, `write_bundle`). It needs only numpy and PyYAML and imports without the bindings, so a trainer's environment can use it. `write_bundle` assembles the bundle beside its destination, refuses to overwrite, rejects a non-finite fixture, and records source hashes and the Git revision in provenance;
+  - `cyber_suite.policy.parity`: the parity replay, which documents the fixture's keys.
+
+## Dependencies
+
+- yaml-cpp (private)
+- ONNX Runtime 1.30, CPU build (`onnxruntime-cpp`; private)
+- pybind11 for Python bindings
+- numpy and PyYAML for `cyber_suite.policy.bundle`
+
+## Owned Examples
+
+- `tools/parity_replay.py` (`pixi run policy-parity BUNDLE [--stage KIND=FILE] [--mutate NAME] [--json OUT]`): the parity replay's entry point (`cyber_suite.policy.parity`). It replays a bundle's trainer fixture through the C++ path link by link: `observation.<group>.<term>`, `model.<name>` (on the trainer's observation and on the C++ one), `decode.<kind>` and `realization.<kind>`. A module kind brings its own stage. A project kind brings a stage file with `check(contract, fixture)`, and a kind without one fails as unchecked. `--mutate` corrupts the fixture on purpose (`quaternion_wxyz`, `shift_joints`, `reverse_action`).
+
+Trainer adapters are outside this module, which never imports a trainer: `python/cyber_suite_mjlab` maps an mjlab environment to the bundle writer, and projects extend it (TRON1, G1 and Digit's exporters use it).
+
+## Validation
+
+- `pixi run test policy`: version 1 mapping, version 2 loading, project kinds kept opaque and refused by the module's decoder and law, reserved and unknown fields rejected by name, name-based joint reordering, projected gravity against a hand-computed rotation, and the PD law under each placement.
+- `pixi run py-test policy`: the bundle writer's `validate` and the C++ loader reject the same 18 malformed version 2 contracts, keep a project kind's parameters, and agree on the version 1 conversion.
+- `pixi run policy-parity BUNDLE`: convention parity against the trainer at float32-rounding bounds. The torque bound is 1e-3 Nm plus 1e-5 of the torque plus the float32 rounding of the law's products, which matters at stiff gains.
+
+Last verified: 2026-10-15 (branch `policy-contract-v2`).
+
+- Unit tests 9/9 and Python schema tests 21/21 pass.
+- All 18 local bundles (11 Digit, 7 TRON1, version 1) pass parity with the version 2 code, with every observation, model and target error unchanged from version 1's harness.
+- TRON1 and G1 checkpoints exported through the mjlab adapter give contracts equivalent to their version 1 exports, byte-identical ONNX and equal fixtures. G1's smoke-armature bundle: observation 7.45e-9, action 1.79e-7, target 3.03e-8 rad, torque 1.51e-5 Nm.
+- The Digit drive model: the zero-action hold bundle exported with `--drives` passes with damping in the actuator, the C++ law within 1.4e-5 Nm of the trainer's drive torque at up to 202 Nm.
+- Each mutation fails at the stage it corrupts:
+
+  | Mutation                   | Fails at                                  |
+  | -------------------------- | ----------------------------------------- |
+  | Quaternion stored wxyz     | projected gravity, model on the C++ chain |
+  | Joint names shifted by one | joint terms, model on the C++ chain       |
+  | Action order reversed      | decode, realization                       |
+
+  TRON1's six joints share one set of gains, so a reversed action order shows at decode only.
+
+Earlier evidence (2026-09-27, version 1): parity PASS on the Mac CPU smoke-trained and the GPU-trained M0 Digit policies over 200 closed-loop steps, actions within 7e-7 and 2.9e-6, torques within 7.5e-5 and 8.8e-5 Nm.
+
+The first consumer is the Digit walking app's `planner: policy` (`apps/digit/walking`, APP.md). It uses the builder, decoder, `JointPdLaw` and ONNX backend inside a 1 kHz CORTA servo and a deferred inference worker, and refuses a version 2 bundle whose damping placement differs from its plant's. Its plant-side observation check shows why parity is necessary but not sufficient. Parity proves the builder on correct inputs; the first plant run fed the builder a world-frame velocity, and only a check against simulation truth caught it (walking VALIDATION.md, 2026-09-27).
+
+Not yet shown: estimated base state, real-time timing, a project kind deployed, and any reserved feature.
+
+## Non-goals
+
+- Training, trainers, trainer adapters or trainer metadata. Those live in apps and in optional adapter packages such as `python/cyber_suite_mjlab`, which this module never imports.
+- Implementing project kinds. A dotted kind's decode or realization belongs to its project's controller; it moves into this module only when a second project deploys it.
+- Deployment-only additions such as safety filters. A contract records what training computed; additions are the deploying app's choice and are validated by its scenarios, not by parity.
+- Observation noise, delay randomization and history before a consumer needs them. Noise and delay are training properties recorded in provenance, never in the contract.
+- Estimation. Callers supply base state from truth or an estimator.
