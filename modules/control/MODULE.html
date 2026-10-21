@@ -209,8 +209,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../../docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -218,6 +225,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -514,6 +524,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1923,8 +2161,8 @@
 <h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
 <p>Feedback and whole-body control contracts for robot workflows, including the full joint servo controller and TAC-QP core. Robot walking lifecycle policy, planner scheduling, contact schedules, and scenario logging are app-owned.</p>
 <h2 id="public-api">Public API<a class="headerlink" href="#public-api" title="Permanent link">&para;</a></h2>
-<p>TAC-QP uses combined dense solver preparation when available, retaining the separate sparse path. For timing comparisons, sum <code>solver_matrix_update_time_us</code> and <code>solver_vector_update_time_us</code>: combined preparation is charged to the matrix timer and the dense vector timer is zero. Three-row CoM/frame/relative-position costs share direct weighted rank accumulation with signed/zero weights preserved; CoM tasks consume the current kinematics-cache position when valid. Logged per-task objective deltas copy only a single declared Ddq or LambdaC block, while mixed-variable tasks retain full copies. This changes preparation/copying, not task objectives, constraints, conditioning, solver settings or torque semantics. Objective parity and integrated timing evidence are retained under <code>artifacts/servo_computation_20261010/</code> and the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization">walking validation</a>.</p>
-<p>Sparse-selector actuation uses a guarded reduced holonomic solve for the same coupled left inverse of L=[S,J_h.transpose()]. Non-selector or poorly conditioned cases retain the full Gram solve. Projected dynamics uses leading coordinate rows only after current geometry and left-inverse consistency checks; the generic basis and invalid-map sentinel remain. Built-in joint position/velocity CBFs gather signed contact-projector rows and the same affine acceleration credit, while other barriers retain dense projection. Torque-smoothing cross blocks and three-row costs reuse symmetric contributions, contact-projector Gram assembly uses its lower self-adjoint triangle, and the force allocator uses one combined solver update. These are algebra/storage optimizations with the same task catalog, constraints, contact authority, torque policy and upstream solver algorithms. Bounded parity and timing evidence is recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-10-servo-assembly-optimization">walking validation</a>.</p>
+<p>TAC-QP uses combined dense solver preparation when available, retaining the separate sparse path. For timing comparisons, sum <code>solver_matrix_update_time_us</code> and <code>solver_vector_update_time_us</code>: combined preparation is charged to the matrix timer and the dense vector timer is zero. Three-row CoM/frame/relative-position costs share direct weighted rank accumulation with signed/zero weights preserved; CoM tasks consume the current kinematics-cache position when valid. Logged per-task objective deltas copy only a single declared Ddq or LambdaC block, while mixed-variable tasks retain full copies. This changes preparation/copying, not task objectives, constraints, conditioning, solver settings or torque semantics. Objective parity and integrated timing evidence are retained under <code>artifacts/servo_computation_20261010/</code> and the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization">walking validation</a>.</p>
+<p>Sparse-selector actuation uses a guarded reduced holonomic solve for the same coupled left inverse of L=[S,J_h.transpose()]. Non-selector or poorly conditioned cases retain the full Gram solve. Projected dynamics uses leading coordinate rows only after current geometry and left-inverse consistency checks; the generic basis and invalid-map sentinel remain. Built-in joint position/velocity CBFs gather signed contact-projector rows and the same affine acceleration credit, while other barriers retain dense projection. Torque-smoothing cross blocks and three-row costs reuse symmetric contributions, contact-projector Gram assembly uses its lower self-adjoint triangle, and the force allocator uses one combined solver update. These are algebra/storage optimizations with the same task catalog, constraints, contact authority, torque policy and upstream solver algorithms. Bounded parity and timing evidence is recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md#2026-10-10-servo-assembly-optimization">walking validation</a>.</p>
 <ul>
 <li><code>robot_state.hpp</code></li>
 <li><code>feedback_controller.hpp</code></li>
@@ -2012,7 +2250,7 @@
 - <code>relaxation_stage</code> is k when stages 1..k were relaxed, otherwise 0.</p>
 <p><code>relaxation_attempts</code> counts the re-solves. <code>relaxation_solve_time_ms</code> is included in <code>solve_time_ms</code>. <code>solver_status</code>, iterations, objective and residuals describe the primary solve. <code>constraint_violation_max</code> measures the command against the unrelaxed rows.</p>
 <p>Telemetry carries <code>qp/relaxation_stage</code>, <code>qp/relaxation_attempts</code> and <code>qp/relaxation_solve_time_ms</code>, and names the stages in <code>relaxation/stage_names</code>. <code>qp/solved</code> excludes relaxed commands. Constraint channels log the unrelaxed bounds, so the relaxed rows' violation is visible. <code>record_applied_torque</code> still reconciles the controller's history when the composing app substitutes its own command.</p>
-<p>The experimental task-space realizations remain environment overrides for learning research: <code>CYBER_SUITE_TACQP_REALIZATION=beta_newton | cascade_split</code> replaces the Layer-2 solve on every tick. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/investigations/2026-10-01-task-space-action-learning.md">investigation</a>. They are no longer a fallback. <code>CYBER_SUITE_TACQP_HOLD_TICKS=N</code> (with optional <code>CYBER_SUITE_TACQP_HOLD_EVENTS=1</code> and <code>CYBER_SUITE_TACQP_HOLD_LAW=linear|zoh|pd</code>) is a rate-split experiment: it commands the QP solution every Nth tick and the anchor solution's first-order expansion in between, while the full QP still runs every tick as a shadow. Its 2026-10-12 campaign and limits are in the same investigation; it changes nothing when unset. <code>TACQPController::inequality_constraint_activity</code> (with <code>inequality_constraint_names</code>) is a read-only diagnostic: per inequality or box constraint, the rows at or beyond a bound of the unrelaxed problem under the last accepted solution, and the largest excess. Experiment 0 of the same investigation reads it.</p>
+<p>The experimental task-space realizations remain environment overrides for learning research: <code>CYBER_SUITE_TACQP_REALIZATION=beta_newton | cascade_split</code> replaces the Layer-2 solve on every tick. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/notes/investigations/2026-10-01-task-space-action-learning.md">investigation</a>. They are no longer a fallback. <code>CYBER_SUITE_TACQP_HOLD_TICKS=N</code> (with optional <code>CYBER_SUITE_TACQP_HOLD_EVENTS=1</code> and <code>CYBER_SUITE_TACQP_HOLD_LAW=linear|zoh|pd</code>) is a rate-split experiment: it commands the QP solution every Nth tick and the anchor solution's first-order expansion in between, while the full QP still runs every tick as a shadow. Its 2026-10-12 campaign and limits are in the same investigation; it changes nothing when unset. <code>TACQPController::inequality_constraint_activity</code> (with <code>inequality_constraint_names</code>) is a read-only diagnostic: per inequality or box constraint, the rows at or beyond a bound of the unrelaxed problem under the last accepted solution, and the largest excess. Experiment 0 of the same investigation reads it.</p>
 <h3 id="experimental-contact-centroid-acceleration-constraint">Experimental contact centroid acceleration constraint<a class="headerlink" href="#experimental-contact-centroid-acceleration-constraint" title="Permanent link">&para;</a></h3>
 <p><code>ContactGroupAccelerationConstraint</code> and <code>TACQPController::make_contact_group_acceleration_constraint</code> add three fixed world-frame rows on the authorized contact-point centroid. Geometry is the normalized structural point-weight average, including the same average of <code>J_contact_dot_v</code>. Group capacity is the maximum stored <code>contact_force_capacity_qp</code> over points selected by binary <code>A=1</code>, matching the existing contact-group task. It never reconstructs C or H, thresholds Q, or uses Q as a measured contact mask.</p>
 <p>For each axis, <code>abs(Q * (J * ddq + drift - acceleration_target)) &lt;= Q * tolerance + (1-Q) * release_acceleration</code>, with <code>acceleration_target = -velocity_damping .* velocity_centroid</code> in world coordinates. The centroid velocity uses the same authorized structural weights as the Jacobian/drift. The standalone typed config defaults its per-axis <code>velocity_damping</code> to zero for acceleration-only diagnostics. Nonzero gains must be finite and nonnegative, and require finite active contact velocities. Q=1 enforces the tolerance around that target; Q=0 leaves zero rows and unbounded row limits without reading contact velocity. Intermediate capacity opens the finite physical band to <code>tolerance + (1-Q)/Q * release_acceleration</code>. There are no slacks or new state transitions. Fixed declared ddq sparsity includes the rows even when setup occurs at zero capacity. Invalid active kinematics creates an infeasible row rather than silently releasing contact.</p>
@@ -2022,7 +2260,7 @@
 <h3 id="candidate-diagnostics">Candidate diagnostics<a class="headerlink" href="#candidate-diagnostics" title="Permanent link">&para;</a></h3>
 <p><code>diagnostics/braking_authority_observer.hpp</code> compares aligned predicted and observed planar acceleration over a bounded window without feeding a value back into the controller. <code>collision_safety_debug.hpp</code> resolves overlay shape data and selected capsule-pair measurements from a collision profile without a simulator or viewer dependency. Integrated apps own configuration, rendering, telemetry, and any interpretation of these diagnostic values.</p>
 <h2 id="retired-lateral-dcm-allocation">Retired lateral DCM allocation<a class="headerlink" href="#retired-lateral-dcm-allocation" title="Permanent link">&para;</a></h2>
-<p>The experimental <code>LateralDcmCommand</code>, <code>LateralDcmDiagnostics</code>, and <code>lateral_dcm</code> command/result fields were removed on 2026-09-19 after the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/journal/entries/2026-09-19-lateral-dcm-scenario-comparison.md">Digit scenario comparison</a>. Its three integrations completed 24/46, 19/46 and 20/46 scenarios versus baseline's 34/46, with poorer forward tracking and prolonged stopping.</p>
+<p>The experimental <code>LateralDcmCommand</code>, <code>LateralDcmDiagnostics</code>, and <code>lateral_dcm</code> command/result fields were removed on 2026-09-19 after the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/journal/entries/2026-09-19-lateral-dcm-scenario-comparison.md">Digit scenario comparison</a>. Its three integrations completed 24/46, 19/46 and 20/46 scenarios versus baseline's 34/46, with poorer forward tracking and prolonged stopping.</p>
 <p>The predictive objective, roll-momentum constraints, dedicated <code>set_projected_momentum_rate_target</code> handoff, and fifth <code>regulated_momentum_task_name</code> argument to <code>enable_force_allocation_cascade</code> are removed from the native and Python interfaces without compatibility shims. Rebuild native consumers after this source/ABI change. The ordinary centroidal command, force/moment tracking, optional planar feedforward and vertical-height feedback remain supported; the generic HDF5 allocation schema is unchanged.</p>
 <h2 id="retired-reference-charts">Retired reference charts<a class="headerlink" href="#retired-reference-charts" title="Permanent link">&para;</a></h2>
 <p><code>TaskBase::replace_inactive_vector_reference_trajectory</code> installs a complete future without an old-chart C2 splice only when the task is disabled and its activation has reached zero. It rejects enabled or retiring tasks. Callers own chart metadata; RHRS continues to own all sampling. Ordinary active retargeting still uses <code>set_vector_reference_trajectory</code> with a C2 join. TRON1 uses the guarded operation when reusing a swing task in a new captured yaw chart. The reference sampling suite verifies the retirement guard.</p>
@@ -2069,7 +2307,7 @@
 <p>For full-column-rank <code>L</code>, the fixed row count is <code>max(0, nv - na - nc)</code>. The runtime basis is formed from coordinate directions projected through <code>I - L L^+</code>, then re-orthogonalized without hot-path allocation. This retains every uncontrolled direction; selecting the first rows of the projector is invalid because those rows may be zero when the corresponding coordinates are actuated. Missing, nonfinite, rank-deficient, or dimensionally inconsistent coupled maps fail closed rather than silently omitting dynamics equations.</p>
 <h2 id="experimental-cbf-safety-contract">Experimental CBF Safety Contract<a class="headerlink" href="#experimental-cbf-safety-contract" title="Permanent link">&para;</a></h2>
 <p>The supported experimental CBF authoring path separates safe-set evaluation from QP assembly. A <code>BarrierEvaluator</code> owns fixed-size <code>h</code>, <code>h_dot</code>, derivative, drift, validity, and source-diagnostic data. It binds required model/cache resources before controller initialization and invalidates its preallocated output before every evaluation. <code>CbfConstraint</code> is the shared row assembler for first- and second-order barriers. All rows and any configured bounded slack are registered before <code>TACQPController::initialize()</code>; the controller never changes QP structure at runtime.</p>
-<p>Every <code>CbfConstraint</code> row is restricted to the accelerations the active contacts permit, for all barrier families. Barriers write <code>A_ddq</code> in free-space kinematics, but a planted foot holds its own frame, so the reachable set is the affine set <code>ddq = ddq_p + N_c z</code>. <code>CbfConstraint</code> post-multiplies each row by <code>SharedKinodynamicsCache::N_contact</code> and credits its drift with <code>A_ddq · contact_ddq_particular</code>; both halves are required, because projecting coefficients alone asks for the same <code>h_ddot</code> from a shrunken row. <code>h</code> and <code>h_dot</code> are measured and never modified. The projector is built once per tick by <code>TACQPController::update_contact_nullspace_projector</code>, after the front end publishes <code>contact_force_capacity</code> and before constraints read it, weighted so a row's projection strength equals that contact's <code>Q</code> — the same <code>Q = A C H</code> the friction cones and contact stabilization task are gated by, and continuous, so no threshold appears in the constraint matrix during load transfer. Do not confuse <code>N_contact</code> with the projected-dynamics <code>N</code> above: that one is a basis of <code>null(L^T)</code> for the dynamics equality, this one is a projector on <code>ddq</code> for barrier rows. With no contact carrying capacity, <code>N_contact_valid</code> is false, the projection is skipped, and row arithmetic is unchanged. A row that keeps less than a thousandth of its norm under the projection is reported <code>Uncommandable</code> and written vacuous rather than infeasible, because it is an ordinary condition — a foot-foot pair is uncommandable in every double-support tick — and must leave the solve without taking the solve down. The algorithm, its rejected alternatives, and the measured behaviour are recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/investigations/2026-08-07-contact-projected-cbf-rows.md"><code>notes/investigations/2026-08-07-contact-projected-cbf-rows.md</code></a>.</p>
+<p>Every <code>CbfConstraint</code> row is restricted to the accelerations the active contacts permit, for all barrier families. Barriers write <code>A_ddq</code> in free-space kinematics, but a planted foot holds its own frame, so the reachable set is the affine set <code>ddq = ddq_p + N_c z</code>. <code>CbfConstraint</code> post-multiplies each row by <code>SharedKinodynamicsCache::N_contact</code> and credits its drift with <code>A_ddq · contact_ddq_particular</code>; both halves are required, because projecting coefficients alone asks for the same <code>h_ddot</code> from a shrunken row. <code>h</code> and <code>h_dot</code> are measured and never modified. The projector is built once per tick by <code>TACQPController::update_contact_nullspace_projector</code>, after the front end publishes <code>contact_force_capacity</code> and before constraints read it, weighted so a row's projection strength equals that contact's <code>Q</code> — the same <code>Q = A C H</code> the friction cones and contact stabilization task are gated by, and continuous, so no threshold appears in the constraint matrix during load transfer. Do not confuse <code>N_contact</code> with the projected-dynamics <code>N</code> above: that one is a basis of <code>null(L^T)</code> for the dynamics equality, this one is a projector on <code>ddq</code> for barrier rows. With no contact carrying capacity, <code>N_contact_valid</code> is false, the projection is skipped, and row arithmetic is unchanged. A row that keeps less than a thousandth of its norm under the projection is reported <code>Uncommandable</code> and written vacuous rather than infeasible, because it is an ordinary condition — a foot-foot pair is uncommandable in every double-support tick — and must leave the solve without taking the solve down. The algorithm, its rejected alternatives, and the measured behaviour are recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/investigations/2026-08-07-contact-projected-cbf-rows.md"><code>notes/investigations/2026-08-07-contact-projected-cbf-rows.md</code></a>.</p>
 <p><code>JointPositionBarrier</code> and <code>JointVelocityBarrier</code> use explicit, independently validated configuration and velocity indices, so floating-base <code>nq != nv</code> mappings do not rely on an index-offset assumption. <code>CapsuleDistanceBarrier</code> loads only explicitly named capsule pairs from a strict, versioned <code>CollisionSafetyModel</code> profile. It recomputes the exact capsule distance and automatic closest-point witnesses once per pair per tick, then freezes those witness parameters for the local Jacobian. Freezing is exact for <code>h_dot</code> by Danskin's theorem, but not for the drift: the witness slides, so the frozen drift overstates <code>h_ddot</code> by the curvature energy of the witness velocity. That deficit is computed from the witness Hessian and removed, which makes the drift match the true second derivative on interior branches and leaves strict endpoint branches unchanged. A borderline endpoint is treated as sliding, which overstates the deficit and tightens the row. The deficit is dominated by the smallest witness-Hessian eigenvalue, because a low-curvature mode is one the witness slides along quickly and that eigenvalue sits in the denominator. Truncating it discards nearly the whole correction rather than a negligible part, so truncation, a sliding rate that leaves the branch within one control period, and the configured deficit ceiling are all reported as approximate. <code>drop_uncertified_rows</code> removes those rows from the safety solve, but that is fail-open rather than fail-closed: it grants the nominal controller more authority exactly where the model is least trustworthy, and it measurably deepened penetration on the Digit foot-approach diagnostic, so it defaults off. A kept approximate row is reported <code>Uncertified</code>: it remains a hard QP row, but the controller reports the command <code>Unprotected</code> and never sets the CBF-protected flag. Coincident witnesses remain degenerate because their separating normal is undefined.</p>
 <p><code>SmoothSupportGapBarrier</code> avoids that whole correction by not using a distance. For any direction <code>n</code>, <code>n' (c_B - c_A) - rho_A(n) - rho_B(n)</code> is at most the true clearance, so a nonnegative value certifies the pair apart. The directions come from explicit formulas of the configuration rather than an optimisation, and the proxies' support radii are smooth by construction, so both derivatives are exact with no envelope argument, no witness, and no branch to leave. A support radius is only twice differentiable where the body has strictly positive curvature, which is why exact boxes and capsules are disqualified and why the flat cylinder side is the same defect as the capsule barrier's feature switch; <code>SupportProxy</code> restores smoothness by padding each absolute value outward by a declared number of millimetres. Candidate directions are combined with a <em>normalised</em> smooth maximum, <code>(1/beta) log((1/K) sum_k exp(beta g_k))</code>, whose <code>1/K</code> is what keeps it a lower bound on the true maximum — an unnormalised log-sum-exp would exceed it and break the safety implication, which is the opposite of the convention a smooth minimum over sphere pairs needs. With <code>CenterAxesAndCrossProducts</code> and two <code>Box</code> proxies the direction set is the separating-axis theorem's complete one, so the zero level set is the true contact boundary and only the values away from it are understated. Each row publishes its whole conservatism budget — shape padding plus <code>log(K)/beta</code> — so the approximation can be compared against the clearance it is charged against; on Digit the seven configured pairs spend 5.4 to 6.0 mm against clearances of 10 to 30 mm and evaluate in about 10 us together. The aggregation contributes <code>beta * Var_w(g_dot)</code> to the drift, which is nonnegative and therefore relaxes the row; a sharp <code>beta</code> costs less than its curvature alone suggests. Every row is Valid or Invalid, never Degenerate: coincident centres and parallel axes fall out as small, smooth, heavily negative candidates rather than as undefined normals. Each row publishes named surface/centerline distances, witness parameters and features, centerline sine, closest points, separating direction, the witness drift deficit, its minimum relative eigenvalue, its slide horizon, and its status through the generic source-diagnostic channel. Consumers must resolve those columns through <code>cbf_source_diagnostic_names</code> rather than assuming a fixed stride. Invalid or degenerate rows fail the safety solve instead of reusing stale or zero-filled coefficients.</p>
 <p>TAC-QP owns exactly one automatically generated joint-position family and one joint-velocity family. Their stable IDs are <code>joint_position_limit_cbf</code> and <code>joint_velocity_limit_cbf</code>. Each is 2n hard rows -- upper then lower -- at the raw robot-model limits, and there is no inward operational band nested inside them. <code>TACQPControllerOptions</code> exposes two knobs per family: <code>enforce_model_limits</code> and <code>model_limit_response_time_s</code>.</p>
@@ -2078,7 +2316,7 @@
 <p>The controller performs one solve per tick. For a family with <code>EmergencyRelaxation::bounded(...)</code>, bounded slack is available in that same QP; it is not opened by a second solve. Families configured with <code>EmergencyRelaxation::disabled()</code> stay hard. An accepted solution is reported <code>Strict</code> only when independent residual checks pass, measured <code>h</code> and (for relative degree two) <code>psi1</code> are admissible, and all rows are certified and commandable. A solution that requires configured slack is reported <code>EmergencyRelaxed</code>; invalid data, inadmissible measured states, uncommandable rows or failed acceptance checks withhold the protection claim. Initial admissibility gates priming; after priming an inadmissible measured state revokes protection without withholding an otherwise accepted recovery command. <code>SolvedInaccurate</code> requires finite primal and dual residuals within the configured limits.</p>
 <p><code>Strict</code> and the current <code>command_is_cbf_protected</code> flag describe the accepted QP result and measured barrier admissibility. The implementation does not revoke that flag when velocity feedback, effort clipping or torque filtering changes the inverse-dynamics torque. Consumers must therefore not interpret it as certification of the applied command; physical enforcement must be validated separately.</p>
 <p>This is a conditional sampled-data QP contract, not a proof of continuous-time, intersample, model, geometry, solver, actuator, environment-collision, or hardware safety. A consumer must separately validate its initial safe set, geometry, rates, feasibility, timing, stop behavior, and command application. In particular, the capsule drift is corrected for witness sliding only within the active branch. Capsule distance is piecewise twice differentiable, so its second derivative still jumps where the closest-feature branch changes, and the correction does not address that jump. Rows whose deficit is truncated, rate limited, or capped are reported approximate. With the default <code>drop_uncertified_rows=false</code>, they remain hard rows but are marked <code>Uncertified</code>, which withholds the protected-command claim. Opting into row dropping marks them <code>Degenerate</code> and removes them from the safety solve; that policy is fail-open. <code>SmoothSupportGapBarrier</code> removes that failure mode but replaces it with a conservatism the caller must budget for: it under-states clearance by its published padding and aggregation margin, plus however loosely each proxy wraps its link and, outside the box-box complete direction set, however far the chosen directions fall from the true separating one. Neither of those last two is knowable from the evaluator, so a profile has to justify its proxies against the robot's real collision geometry rather than against the capsules it replaces. The deprecated inheritance API was removed on 2026-09-12: <code>FirstOrderCBFConstraint</code>, <code>SecondOrderCBFConstraint</code>, <code>JointPositionLimitCBF</code>, <code>JointVelocityLimitCBF</code>, <code>SelfCollisionAvoidanceCBF</code>, <code>CentroidalMomentumCBF</code>, the legacy-only <code>CollisionManager</code>/narrowphase cache, and the C++/Python <code>make_centroidal_momentum_cbf</code> factory. Author barriers with <code>BarrierEvaluator</code> and register them through <code>add_cbf()</code>; <code>BarrierDescriptor::required_frames</code> automatically registers cache frames. Joint-limit convenience factories remain and already construct the shared implementation. Historical semantic enum/log IDs and plot readers remain so recorded runs can still be inspected.</p>
-<p>Digit walking uses this same path for its torso tilt envelope: degree-two position and degree-one velocity instances of <code>FrameTiltEnvelopeBarrier</code>, with hard rows and app-owned reference selection and bounds. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#torso-tilt-envelope">app contract</a>.</p>
+<p>Digit walking uses this same path for its torso tilt envelope: degree-two position and degree-one velocity instances of <code>FrameTiltEnvelopeBarrier</code>, with hard rows and app-owned reference selection and bounds. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#torso-tilt-envelope">app contract</a>.</p>
 <h3 id="experimental-tracking-envelope-evaluators">Experimental tracking-envelope evaluators<a class="headerlink" href="#experimental-tracking-envelope-evaluators" title="Permanent link">&para;</a></h3>
 <p><code>JointTrackingConstraint</code> (kind <code>joint_tracking</code>) imposes a task's sampled joint reference as a hard acceleration equality, one row per joint: <code>ddq_j = a_ref + kp (q_ref - q) + kd (v_ref - v)</code>. Unlike the weighted <code>PostureTask</code>, no other task can trade against these joints, and the dynamics constraint supplies their torque. The rows are never softened. A reference whose size does not match, or that is not finite, holds the joints by damping alone (<code>ddq_j = -kd v_j</code>), so the rows never vanish. The reference task must outlive the constraint and be ticked before assembly, as <code>TACQPController</code> does. A focused contract test covers the rows, the damping fallback and the argument checks. Digit walking's <code>controller.arm_posture.mode: constraint</code> is the first consumer. In flight, when no contact can supply momentum, these rows can leave the joint-limit barriers no solution; see the walking validation.</p>
 <p>The reusable tracking-envelope API is <code>FrameTiltEnvelopeBarrier</code> in <code>tracking_envelope_barriers.hpp</code>. It supplies reference-relative safe sets to <code>CbfConstraint</code> and does not register operational limits automatically. Dependencies are RobotModel, TaskBase's sampled references and SharedKinodynamicsCache. Digit walking is the first consumer; its app owns selection, bounds, gains and enablement. No additional example framework is needed.</p>
@@ -2187,7 +2425,7 @@
 
                 
 
-<div class="document-origin">Source: <code>modules/control/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>modules/control/MODULE.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

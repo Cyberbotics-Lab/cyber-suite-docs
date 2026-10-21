@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://cyberbotics-lab.github.io/cyber-suite-docs/docs/handbook/chapters/index.html">
       
       
-        <link rel="prev" href="../../design/system-architecture.html">
+        <link rel="prev" href="../../guided-labs/mentors.html">
       
       
         <link rel="next" href="../../setup/first-run.html">
@@ -215,8 +215,17 @@
   
     
     
+      
+  
+  
+  
+    
+  
+  
+    
+    
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="index.html" class="md-tabs__link">
+        <a href="../../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -224,6 +233,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -523,6 +535,237 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -2000,7 +2243,7 @@
 <p>The <strong>app</strong> assembles this particular robot behavior. Shared <strong>modules</strong> provide reusable algorithms and infrastructure. A <strong>scenario</strong> selects the planner, world and motion schedule; profiles supply calibration. An <strong>artifact</strong> records what happened in one run. These four ideas help you navigate before learning individual classes.</p>
 <h2 id="follow-one-walking-command">Follow one walking command<a class="headerlink" href="#follow-one-walking-command" title="Permanent link">&para;</a></h2>
 <h3 id="1-express-the-motion-you-want">1. Express the motion you want<a class="headerlink" href="#1-express-the-motion-you-want" title="Permanent link">&para;</a></h3>
-<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/config/scenarios/alip_walking.yaml">ALIP scenario</a> requests forward velocity <code>[0.3, 0.0]</code> m/s with zero yaw rate on flat ground. It also selects the planner and simulation settings. The app combines that scenario with its profiles and command-line overrides to produce the resolved configuration.</p>
+<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/config/scenarios/alip_walking.yaml">ALIP scenario</a> requests forward velocity <code>[0.3, 0.0]</code> m/s with zero yaw rate on flat ground. It also selects the planner and simulation settings. The app combines that scenario with its profiles and command-line overrides to produce the resolved configuration.</p>
 <p>A velocity request describes desired travel. Startup, step planning, actuator limits and the robot's actual state determine the resulting motion. An operator's keyboard or joystick can provide the command instead of a fixed schedule; that changes the command source while preserving the downstream ownership boundaries.</p>
 <h3 id="2-estimate-what-the-robot-is-doing">2. Estimate what the robot is doing<a class="headerlink" href="#2-estimate-what-the-robot-is-doing" title="Permanent link">&para;</a></h3>
 <p>The Plant supplies encoder readings and measurements from the IMU (inertial measurement unit). In the usual closed-loop simulation composition, the estimator reconstructs the floating base's orientation, velocity and position in its qualified local frame. The dynamics support gate estimates support and contact capacity. The Servo combines these with robot-model queries to prepare the state used by planning and control.</p>
@@ -2058,7 +2301,7 @@
 </tr>
 </tbody>
 </table>
-<p>CORTA provides the runtime graph, timing declarations and bounded message exchange. The planner executes as deferred work; Servo runs inline with the Plant exchange. Copied values cross these boundaries rather than shared mutable planner/controller objects. The graph wiring is visible in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/main.cpp">application entry point</a>.</p>
+<p>CORTA provides the runtime graph, timing declarations and bounded message exchange. The planner executes as deferred work; Servo runs inline with the Plant exchange. Copied values cross these boundaries rather than shared mutable planner/controller objects. The graph wiring is visible in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/main.cpp">application entry point</a>.</p>
 <div class="callout">
 <p><strong>A configured rate is not a measured deadline guarantee.</strong> Running a simulation with 1 ms ticks does not prove every tick finishes within 1 ms on a real robot. Timing evidence and physical behavior evidence answer separate questions.</p>
 </div>
@@ -2066,14 +2309,14 @@
 <p>Selecting <code>planner: policy</code> replaces both the model-based planner and its Servo with a policy inference worker and <code>PolicyServo</code>. The Plant, scenario machinery and CORTA execution framework remain shared. The normal learned path does not send its actions through the model-based whole-body controller.</p>
 <div class="policy-flow">
 <p><strong>Training → exported bundle → inference → joint targets → joint PD → Plant</strong></p>
-<p>Training is owned by <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/APP.md">Digit learning</a>. The exported bundle specifies how observations are packed and actions are decoded. Deferred inference runs at the bundle's declared rate; the shipped walking policies use 50 Hz. <code>PolicyServo</code> adopts actions and realizes joint proportional-derivative (PD) control at 1 kHz, with damping placed according to the contract and Plant.</p>
+<p>Training is owned by <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/learning/APP.md">Digit learning</a>. The exported bundle specifies how observations are packed and actions are decoded. Deferred inference runs at the bundle's declared rate; the shipped walking policies use 50 Hz. <code>PolicyServo</code> adopts actions and realizes joint proportional-derivative (PD) control at 1 kHz, with damping placed according to the contract and Plant.</p>
 </div>
 <p>This gives you two useful research paths. You can investigate footstep planning and whole-body objectives in the model-based composition, or investigate observations, rewards and learned behavior in the learning composition. Compare them on matched scenarios while recording the model, state source, actuation assumptions and policy bundle.</p>
 <p>Policy parity checks whether exported inference and action realization reproduce the trainer's recorded contract. Physical evaluation then asks whether the resulting robot tracks commands, respects limits and handles the tested scenarios. Passing one does not substitute for the other. See the <a href="../../design/learned-policy-deployment.html">policy deployment reference</a> for the complete chain.</p>
 <h2 id="where-simulation-meets-deployment">Where simulation meets deployment<a class="headerlink" href="#where-simulation-meets-deployment" title="Permanent link">&para;</a></h2>
 <p>The MuJoCo Plant owns the simulated world, sensors and actuation. The LLAPI Plant connects the app to Agility's low-level API. A common observation/command boundary lets the control composition reach both, but the state source, timing, command acceptance and drive behavior must still be handled explicitly.</p>
 <p>With the default LLAPI base-state selection, the app uses Agility's base estimate. The integration also handles operation-mode handover and drive damping. These details explain why a controller can behave differently after moving from the local simulator to Agility's simulator even when its planning algorithm is unchanged.</p>
-<p>Digit has recorded model-based and learned-policy operation through LLAPI against Agility's simulator, plus model and drive-alignment investigations. Those results establish specific simulation and interface evidence. They do not establish complete simulator equivalence or qualify this application for physical-hardware operation. Use the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">current validation</a> to identify the model revision, controller, conditions and remaining limitations behind any deployment claim.</p>
+<p>Digit has recorded model-based and learned-policy operation through LLAPI against Agility's simulator, plus model and drive-alignment investigations. Those results establish specific simulation and interface evidence. They do not establish complete simulator equivalence or qualify this application for physical-hardware operation. Use the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md">current validation</a> to identify the model revision, controller, conditions and remaining limitations behind any deployment claim.</p>
 <h2 id="read-a-real-result">Read a real result<a class="headerlink" href="#read-a-real-result" title="Permanent link">&para;</a></h2>
 <p><strong>Question: if a run completes, did the robot do what we asked?</strong> Here is a small example from the recorded October 1 Arena campaign. Digit was asked to move sideways at 0.200 m/s on flat ground with nominal sensor noise. The cadence policy, ALIP and DCM each ran with seeds 0, 1 and 2. All nine selected runs completed.</p>
 <figure class="teaching-figure evidence-figure">
@@ -2131,7 +2374,7 @@
 </tr>
 </tbody>
 </table>
-<p>The <a href="../../assets/handbook/lateral-tracking.csv">published CSV</a> contains exactly the nine runs shown above, selected from the complete Arena dataset using <code>campaign=grid</code>, <code>condition=nominal</code>, <code>terrain=flat</code>, <code>motion=left_0.2</code> and <code>config=policy|alip|dcm</code>. No failed runs are removed from this selection. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-10-01-arena-one-gait/README.md">original capsule</a> and its <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-10-01-arena-one-gait/manifest.yaml">manifest</a> record the historical experiment and its source patch. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/README.md">teaching-figure capsule</a>, <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/data/inputs.json">input specification</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/scripts/render.py">renderer</a> record the selection and presentation. No simulation was rerun to make this plot.</p>
+<p>The <a href="../../assets/handbook/lateral-tracking.csv">published CSV</a> contains exactly the nine runs shown above, selected from the complete Arena dataset using <code>campaign=grid</code>, <code>condition=nominal</code>, <code>terrain=flat</code>, <code>motion=left_0.2</code> and <code>config=policy|alip|dcm</code>. No failed runs are removed from this selection. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/notes/evidence/2026-10-01-arena-one-gait/README.md">original capsule</a> and its <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/notes/evidence/2026-10-01-arena-one-gait/manifest.yaml">manifest</a> record the historical experiment and its source patch. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/evidence/2026-10-18-handbook-walking/README.md">teaching-figure capsule</a>, <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/evidence/2026-10-18-handbook-walking/data/inputs.json">input specification</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/evidence/2026-10-18-handbook-walking/scripts/render.py">renderer</a> record the selection and presentation. No simulation was rerun to make this plot.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># From the repository root; reads the retained compact data.</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>notes/evidence/2026-10-18-handbook-walking/scripts/render.py
 </code></pre></div>
@@ -2202,13 +2445,13 @@
 <details>
 <summary>Open the implementation when you need the details</summary>
 <ul>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/main.cpp">Graph composition</a>: the actual systems and their connections.</li>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/servo.cpp">Servo</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/servo_control.cpp">control transaction</a>: the fast model-based path.</li>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/alip_planner.cpp">ALIP adapter</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/cpp_dcm.cpp">DCM adapter</a>: planner-owned behavior.</li>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/reference_binding.cpp">Reference binding</a>: installing previews into controller tasks.</li>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/policy_controller.cpp">Policy controller</a>: inference and policy realization.</li>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/plant.cpp">MuJoCo Plant</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/systems/llapi_plant.cpp">LLAPI Plant</a>: the two world boundaries.</li>
-<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md">App contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">validation</a>: implemented behavior and its demonstrated limits.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/main.cpp">Graph composition</a>: the actual systems and their connections.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/servo.cpp">Servo</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/servo_control.cpp">control transaction</a>: the fast model-based path.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/alip_planner.cpp">ALIP adapter</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/cpp_dcm.cpp">DCM adapter</a>: planner-owned behavior.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/reference_binding.cpp">Reference binding</a>: installing previews into controller tasks.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/policy_controller.cpp">Policy controller</a>: inference and policy realization.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/plant.cpp">MuJoCo Plant</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/systems/llapi_plant.cpp">LLAPI Plant</a>: the two world boundaries.</li>
+<li><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md">App contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md">validation</a>: implemented behavior and its demonstrated limits.</li>
 </ul>
 </details>
 <h2 id="turn-your-question-into-an-agent-task">Turn your question into an agent task<a class="headerlink" href="#turn-your-question-into-an-agent-task" title="Permanent link">&para;</a></h2>
@@ -2218,7 +2461,7 @@
 </blockquote>
 <p>Before accepting a result, ask yourself: did the agent change the component that owns the behavior, preserve the comparison, and show physical evidence for its conclusion?</p>
 <div class="next-step">
-<p><strong>Start a project with G1.</strong> Use the <a href="../../setup/student-projects.html">student-project guide</a> to create a pinned, independent project. Digit supplies the integrated example; your G1 project owns its experiments, configuration and validation. Its <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/unitree-g1/learning/APP.md">learning contract</a> is a starting point for learning work. Carry over the ownership and evaluation habits, and check which capabilities the G1 app actually implements before reusing a Digit workflow.</p>
+<p><strong>Start a project with G1.</strong> Use the <a href="../../setup/student-projects.html">student-project guide</a> to create a pinned, independent project. Digit supplies the integrated example; your G1 project owns its experiments, configuration and validation. Its <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/unitree-g1/learning/APP.md">learning contract</a> is a starting point for learning work. Carry over the ownership and evaluation habits, and check which capabilities the G1 app actually implements before reusing a Digit workflow.</p>
 </div>
 
 
@@ -2237,7 +2480,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/handbook/chapters/index.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/handbook/chapters/index.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>
@@ -2262,7 +2505,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../design/system-architecture.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: System architecture">
+          <a href="../../guided-labs/mentors.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mentor preparation">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2272,7 +2515,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                System architecture
+                Mentor preparation
               </div>
             </div>
           </a>

@@ -1,0 +1,91 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-19
+Code anchors: docs/handbook/chapters/index.md, notes/evidence/2026-10-18-handbook-walking/manifest.yaml
+---
+
+# Lab 1 · Did the robot do what we asked?
+
+**Question:** If every run completes, did every controller track the requested speed? **Time:** about 30–45 minutes. **Setup:** browser and calculator; no robot environment required.
+
+<div class="learning-goals" markdown="1">
+
+By the end, you should be able to distinguish a request from a measured response, calculate a tracking shortfall and write a claim with an explicit evidence boundary.
+
+</div>
+
+## Predict before inspecting the result
+
+A simulated robot receives a command to move left at 0.200 m/s. Three controller configurations each run on three seeds. All nine runs complete. Write down whether you expect their measured velocities to be the same, and whether completion is enough to conclude that they tracked the command.
+
+## Follow the request
+
+<figure class="teaching-figure" markdown="1">
+
+![Digit model-based walking loop: desired motion passes through planning and reference tracking to the Plant, with state and sensor feedback returning.](../assets/handbook/control-loop.svg)
+
+<figcaption>The handbook's simplified Digit model-based loop. A motion request, a foot reference and a motor command describe different quantities. The learned-policy path uses a different controller, described in the handbook.</figcaption>
+
+</figure>
+
+Label three boundaries in your own words: where the requested travel speed enters, where a foot trajectory is produced and where the robot's response becomes an observation. Read [the handbook's walking-command explanation](../handbook/chapters/index.md#follow-one-walking-command) if you need a hint. You do not need to understand the planner equations for this lab.
+
+## Read the recorded experiment
+
+<figure class="teaching-figure evidence-figure" markdown="1">
+
+![Historical Digit lateral tracking: all runs completed, with different measured plateau velocities for policy, ALIP and DCM configurations.](../assets/handbook/lateral-tracking.svg)
+
+<figcaption>Historical October 1, 2026 Digit simulation: nominal flat-ground motion, a 0.200 m/s lateral command and seeds 0–2. Circles show individual runs and squares show medians. This predates the current drive model and does not rank today's controllers.</figcaption>
+
+[Open full-size figure](../assets/handbook/lateral-tracking.svg) · [Download the nine-row CSV](../assets/handbook/lateral-tracking.csv)
+
+</figure>
+
+The CSV's `cmd_vy` is the requested lateral velocity in m/s; `vy` is a retained plateau mean for that run. Positive lateral motion is left in this selected example. Each row is a run summary, not a time sample. `seed` identifies the experiment's random seed, and `completed` records scenario completion.
+
+| Configuration | Seed 0, m/s | Seed 1, m/s | Seed 2, m/s |
+| --- | --- | --- | --- |
+| Policy | 0.129616 | 0.136660 | 0.136238 |
+| ALIP | 0.197065 | 0.200260 | 0.197787 |
+| DCM | 0.197195 | 0.208508 | 0.205089 |
+
+Sort the three policy velocities and select the middle value. Then calculate:
+
+$$
+\text{relative shortfall} = \frac{\text{command} - \text{median measured velocity}}{\text{command}}\times 100\%.
+$$
+
+<details class="checkpoint" markdown="1">
+<summary>Worked calculation · open after trying it</summary>
+
+The median policy velocity is 0.136238 m/s. Its shortfall is 0.063762 m/s, or approximately 31.9% of the 0.200 m/s command. The three runs completed, while their median plateau speed remained below the request. The ALIP and DCM medians are 0.197787 and 0.205089 m/s respectively. These are historical scenario measurements.
+
+</details>
+
+## Investigate the evidence boundary
+
+Answer these questions using the figure and CSV:
+
+1. Which configuration has the smallest absolute difference between its median velocity and the command?
+2. What variation is visible across the three seeds? Does three seeds on one motion establish general reliability?
+3. Can a plateau mean tell you the peak velocity, stopping time or instantaneous tracking error?
+4. Can these data explain *why* the policy was slower? What additional signal would help investigate one possible explanation?
+
+<details class="checkpoint" markdown="1">
+<summary>Check your interpretation</summary>
+
+ALIP has the closest median in this selection. Neither the medians nor scenario completion establish the time history, stopping quality, actuator margin or a causal explanation. For example, investigating actuator limitation would need time-aligned command, actual motion and actuator-use data. The result applies to these historical configurations and selected conditions.
+
+</details>
+
+The [source capsule](../../notes/evidence/2026-10-18-handbook-walking/README.md) records provenance and extraction. Its reduced data support this reading exercise even when the original simulation environment is unavailable. The current app's validation remains the source for current behavior.
+
+## Submit and explain
+
+Use the [short report outline](index.md#lab-report). Submit an annotation identifying the command, one measured result and the historical conditions; show your shortfall calculation; and write two sentences separating what you observed from what remains unknown.
+
+You have completed the lab when you can reproduce the calculation, explain why all nine completions do not settle the tracking question and name one additional measurement you would request. An optional extension is to calculate the median absolute tracking error for each configuration from the three per-run errors and explain how it differs from the absolute error of the median.
+
+[Next: observe G1 standing →](02-g1-standing.md)

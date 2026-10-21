@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -653,6 +663,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1896,7 +2134,7 @@
 </div>
 </div>
 <h2 id="how-you-use-the-package">How you use the package<a class="headerlink" href="#how-you-use-the-package" title="Permanent link">&para;</a></h2>
-<p>The C++ interface exposes <code>cyber_suite::&lt;module&gt;</code> targets through <code>find_package(cyber_suite)</code>. Python exposes supported bindings and native tools through <code>cyber_suite</code>; learning integrations also use the separate <code>cyber_suite_mjlab</code> adapter. Robot models and other packaged data are found through the package's data resolver. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/README.md">package consumption boundary</a> for the current installation and build contract.</p>
+<p>The C++ interface exposes <code>cyber_suite::&lt;module&gt;</code> targets through <code>find_package(cyber_suite)</code>. Python exposes supported bindings and native tools through <code>cyber_suite</code>; learning integrations also use the separate <code>cyber_suite_mjlab</code> adapter. Robot models and other packaged data are found through the package's data resolver. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/README.md">package consumption boundary</a> for the current installation and build contract.</p>
 <p>Hard real-time control belongs in C++20. Python supports training, research and analysis, as well as components without hard real-time constraints. Module lifecycle and available bindings vary; each block's owner contract identifies its supported surface.</p>
 <div class="package-boundary">
 <p><strong>Modules provide reusable mechanisms. Projects choose behavior.</strong></p>
@@ -1905,8 +2143,8 @@
 <h2 id="see-the-pieces-in-an-experiment">See the pieces in an experiment<a class="headerlink" href="#see-the-pieces-in-an-experiment" title="Permanent link">&para;</a></h2>
 <p><strong>Digit</strong> is the most complete integration example, spanning model-based control, learned policies, CORTA and the Agility low-level interface. <strong>Unitree G1</strong> is the focused starting point for a student project. Their guides distinguish implementation from demonstrated simulation and hardware behavior.</p>
 <p><a href="apps/digit/docs/overview.html">Explore Digit</a> · <a href="docs/setup/student-projects.html">Start a G1 project</a> · <a href="apps/tron1/docs/overview.html">TRON1</a> · <a href="apps/perception/mapping/docs/overview.html">Terrain mapping</a></p>
-<p>New to robotics software? The <a href="docs/handbook/chapters/index.html">illustrated handbook</a> follows one command through the feedback loop, connects it to a recorded result and proposes a first exercise. The <a href="docs/setup/first-run.html">first simulation guide</a> then takes you into a viewer.</p>
-<p>These guides explain design and use. Owner contracts describe implemented behavior; validation records describe demonstrated limits. Consult <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/status/CURRENT.md">repository status</a> for the current project-wide summary.</p>
+<p>New to robotics software? Start with the <a href="docs/guided-labs/index.html">guided labs</a>: read a recorded experiment in your browser, observe G1 standing, then measure and compare walking behavior. Each lab supplies a question, a worked example and a small deliverable. The <a href="docs/handbook/chapters/index.html">illustrated handbook</a> explains the feedback loop, and the <a href="docs/setup/first-run.html">first simulation guide</a> introduces the execution workflow.</p>
+<p>These guides explain design and use. Owner contracts describe implemented behavior; validation records describe demonstrated limits. Consult <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/docs/status/CURRENT.md">repository status</a> for the current project-wide summary.</p>
 
 
 
@@ -1926,7 +2164,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/index.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/index.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

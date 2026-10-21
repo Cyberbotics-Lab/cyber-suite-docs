@@ -111,6 +111,6 @@ A robot project selects modules, connects them, supplies calibration and scenari
 
 [Explore Digit](../apps/digit/docs/overview.md) · [Start a G1 project](setup/student-projects.md) · [TRON1](../apps/tron1/docs/overview.md) · [Terrain mapping](../apps/perception/mapping/docs/overview.md)
 
-New to robotics software? The [illustrated handbook](handbook/chapters/index.md) follows one command through the feedback loop, connects it to a recorded result and proposes a first exercise. The [first simulation guide](setup/first-run.md) then takes you into a viewer.
+New to robotics software? Start with the [guided labs](guided-labs/index.md): read a recorded experiment in your browser, observe G1 standing, then measure and compare walking behavior. Each lab supplies a question, a worked example and a small deliverable. The [illustrated handbook](handbook/chapters/index.md) explains the feedback loop, and the [first simulation guide](setup/first-run.md) introduces the execution workflow.
 
 These guides explain design and use. Owner contracts describe implemented behavior; validation records describe demonstrated limits. Consult [repository status](status/CURRENT.md) for the current project-wide summary.

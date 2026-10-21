@@ -209,8 +209,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../../docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -218,6 +225,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -514,6 +524,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1709,8 +1947,8 @@
 </ul>
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
 <p>Contract tests live in <code>modules/solvers/tests</code> and cover the backend-independent API, OSQP, ProxQP, Eiquadprog, sparse update paths, Python bindings, and cross-backend parity.</p>
-<p>On 2026-10-12 the focused contracts added Eiquadprog warm-start parity: certified points match the cold optimum across a drifting sequence that exercises updates, dependent rows and the cold fallback; <code>Verify</code> returns the cold result exactly; a contradictory row is never certified. Removing the multiplier-sign check makes the parity tests fail. The allocation regression adds certified warm solves and cold fallbacks with zero allocations. Closed-loop Digit evidence is in the walking <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-12-warm-started-eiquadprog-for-tac-qp">validation</a>.</p>
-<p>The 2026-10-10 combined-update contracts cover all three dense backends, matrix/vector changes, finite-bound transitions and an unprepared reduced-rank refusal followed by recovery. Retained healthy Digit QPs compare the original separate preparation and combined preparation with identical solve status/primal results. A warmed Linux malloc/calloc/realloc probe with an allocating positive control exercises the installed Digit shapes; this bounded result does not qualify arbitrary shapes or complete Servo allocation behavior. Evidence and timings live under <code>artifacts/servo_computation_20261010/</code> and the composing <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization">walking validation</a>.</p>
+<p>On 2026-10-12 the focused contracts added Eiquadprog warm-start parity: certified points match the cold optimum across a drifting sequence that exercises updates, dependent rows and the cold fallback; <code>Verify</code> returns the cold result exactly; a contradictory row is never certified. Removing the multiplier-sign check makes the parity tests fail. The allocation regression adds certified warm solves and cold fallbacks with zero allocations. Closed-loop Digit evidence is in the walking <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md#2026-10-12-warm-started-eiquadprog-for-tac-qp">validation</a>.</p>
+<p>The 2026-10-10 combined-update contracts cover all three dense backends, matrix/vector changes, finite-bound transitions and an unprepared reduced-rank refusal followed by recovery. Retained healthy Digit QPs compare the original separate preparation and combined preparation with identical solve status/primal results. A warmed Linux malloc/calloc/realloc probe with an allocating positive control exercises the installed Digit shapes; this bounded result does not qualify arbitrary shapes or complete Servo allocation behavior. Evidence and timings live under <code>artifacts/servo_computation_20261010/</code> and the composing <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md#2026-10-10-servo-computation-optimization">walking validation</a>.</p>
 <p>On 2026-09-24 the focused solver contracts and macOS allocation regression passed on the RelWithDebInfo build:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w"> </span>--target<span class="w"> </span>test_cyber_suite_solvers<span class="w"> </span>test_cyber_suite_solver_allocation
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-R<span class="w"> </span><span class="s1">'^cyber_suite_solvers\.(tests|allocation)$'</span><span class="w"> </span>--output-on-failure
@@ -1759,7 +1997,7 @@
 
                 
 
-<div class="document-origin">Source: <code>modules/solvers/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>modules/solvers/MODULE.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

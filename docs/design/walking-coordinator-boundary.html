@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1859,7 +2097,7 @@
 
 <h1 id="walking-coordinator-and-plannerservo-boundary">Walking coordinator and planner–Servo boundary<a class="headerlink" href="#walking-coordinator-and-plannerservo-boundary" title="Permanent link">&para;</a></h1>
 <p>Digit and TRON1 use <code>locomotion::walking::Coordinator</code> with both ALIP and DCM. The former <code>WalkCoordinator</code> is retired. The shared coordinator owns walking lifecycle and contact-event decisions on the planner side; Servo publishes evidence and executes authored references. This deep reference explains that division, the implemented event/clock behavior, and the differences between robot profiles.</p>
-<p>Read <a href="model-based-walking.html">model-based walking</a> first for the complete loop. The <a href="../../modules/locomotion/MODULE.html">locomotion contract</a> owns the reusable API. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md">Digit</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/tron1/walking/APP.md">TRON1</a> own their compositions; their validation records determine demonstrated behavior. Sharing a coordinator does not qualify either robot's gait or hardware operation.</p>
+<p>Read <a href="model-based-walking.html">model-based walking</a> first for the complete loop. The <a href="../../modules/locomotion/MODULE.html">locomotion contract</a> owns the reusable API. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md">Digit</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/tron1/walking/APP.md">TRON1</a> own their compositions; their validation records determine demonstrated behavior. Sharing a coordinator does not qualify either robot's gait or hardware operation.</p>
 <h2 id="why-the-planner-owns-walking-decisions">Why the planner owns walking decisions<a class="headerlink" href="#why-the-planner-owns-walking-decisions" title="Permanent link">&para;</a></h2>
 <p>A numerical planner chooses a landing and its timing; a reference author turns that choice into continuous task trajectories. Contact admission and support exchange must use the same step identity and clock. Splitting those decisions between a deferred planner and an independent Servo gait machine creates competing transition rules and makes delayed preview delivery difficult to interpret.</p>
 <p>The implemented boundary places lifecycle, step timing, support roles and admission in the planner system. Servo remains responsible for full-rate measurements, controller realization and safety faults. The boundary is ownership, not a requirement that every calculation run at one rate.</p>
@@ -1907,7 +2145,7 @@
 <p>A Servo must not advance gait phase, select a stance from step labels, or infer a walking transition from planned timing. It receives time-indexed references and activation commands. Delivery acknowledgement is different: it reports which opaque preview/activation identity actually arrived, without interpreting the gait.</p>
 <p>Contact force authority is also distinct from the planner's swing/support-height roles. DSG capacity and TAC-QP's contact model determine available force and release behavior at the control rate. A planner role does not certify contact or grant force authority.</p>
 <h2 id="full-rate-contact-evidence">Full-rate contact evidence<a class="headerlink" href="#full-rate-contact-evidence" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/locomotion/include/cyber_suite/locomotion/walking/contact_history.hpp">ContactHistory</a> is a fixed-capacity ring of 64 samples. Servo appends each tick. The planner consumes unseen samples in order, preserving the timing needed for release detection and dwell rather than receiving only a minimum, maximum or average.</p>
+<p><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/locomotion/include/cyber_suite/locomotion/walking/contact_history.hpp">ContactHistory</a> is a fixed-capacity ring of 64 samples. Servo appends each tick. The planner consumes unseen samples in order, preserving the timing needed for release detection and dwell rather than receiving only a minimum, maximum or average.</p>
 <p>Each sample includes tick/time, estimated yaw, requested vertical force, per-foot capacity/support/load and allocated force, force-bound and reference-retention information, estimated foot position/velocity, and installed activation/preview acknowledgement. These are measurements or delivery facts. Thresholding, filtering and gait decisions remain on the planner side.</p>
 <p>At a configured 1 kHz Servo and 50 Hz planner, roughly 20 samples arrive per planner period. The 64-sample capacity provides bounded slack for delayed consumption, not unlimited history. The cursor detects a gap in newly consumed tick indices, non-increasing new-sample time, malformed storage and an epoch change without reset. A missing interval is an explicit failure rather than silent interpolation.</p>
 <h2 id="one-gait-event-per-step">One gait event per step<a class="headerlink" href="#one-gait-event-per-step" title="Permanent link">&para;</a></h2>
@@ -1953,7 +2191,7 @@
 <p><code>record_preview(generation)</code> retains planner-owned timing for a published preview. With delivery-aware admission enabled, an evidence sample's installed preview identity selects that timing. A newer solve must not retroactively change the landing window for samples gathered before its preview arrived. An unmapped identity fails explicitly.</p>
 <p>For example, if the planner has solved a shorter duration but Servo is still executing the previous preview, admission replays those samples using the previous duration. This preserves the distinction between solving a plan, publishing it and executing it. The acknowledgement does not move gait logic into Servo.</p>
 <h2 id="robot-owned-settings">Robot-owned settings<a class="headerlink" href="#robot-owned-settings" title="Permanent link">&para;</a></h2>
-<p>The same mechanism uses different calibration. The following values are read from the current <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/config/profiles/coordinator.yaml">Digit profile</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/tron1/walking/config/profiles/coordinator.yaml">TRON1 profile</a>; they are not universal defaults.</p>
+<p>The same mechanism uses different calibration. The following values are read from the current <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/config/profiles/coordinator.yaml">Digit profile</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/tron1/walking/config/profiles/coordinator.yaml">TRON1 profile</a>; they are not universal defaults.</p>
 <table>
 <thead>
 <tr>
@@ -2007,12 +2245,12 @@
 <p>Returning from Walk requires the configured number of touchdowns from steps that began neutral, capture inside the standing region, and fore-aft foot alignment. The planner owns any aligned final landing request. TRON1's point feet do not certify the same standing polygon; its continuous-stepping behavior must be understood through its own app contract, not copied from Digit's Stand acceptance.</p>
 <p>Coordinator Stand is not the same as successful experiment completion. Digit continues updating standing references and permitting recovery until its app-owned measured settling gate passes. The profile currently requires planar speed at most 0.08 m/s, at least 0.15 body weight on each foot, held for one second. Physical completion and termination reasons belong to app validation.</p>
 <h2 id="planner-and-reference-author-integration">Planner and reference-author integration<a class="headerlink" href="#planner-and-reference-author-integration" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/locomotion/include/cyber_suite/locomotion/walking/coordinator.hpp">coordinator interface</a> exposes <code>update</code>, <code>plan_required</code>, <code>accept_timing</code>, <code>record_preview</code>, <code>elapsed</code> and a read-only view. A consumer answers each requested solve with valid or failed timing. It owns the numerical state, geometry, model height, command interpretation and reference futures; the coordinator owns the lifecycle and clock.</p>
+<p>The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/locomotion/include/cyber_suite/locomotion/walking/coordinator.hpp">coordinator interface</a> exposes <code>update</code>, <code>plan_required</code>, <code>accept_timing</code>, <code>record_preview</code>, <code>elapsed</code> and a read-only view. A consumer answers each requested solve with valid or failed timing. It owns the numerical state, geometry, model height, command interpretation and reference futures; the coordinator owns the lifecycle and clock.</p>
 <p>DCM composes this mechanism through <code>dcm::DcmWalkingPlanner</code>. ALIP supplies its own numerical solve and delivered-state prediction. The shared mechanism does not make their optimization or swing-reference policy identical. App authors map coordinator roles to robot tasks and seed replacement references from the commanded jets appropriate to their delivery/join contract.</p>
 <p>The library remains independent of robot models, numerical solver selection, task names, perception and CORTA graph composition. It covers supported biped stepping; flight, hand contacts and arbitrary contact schedules are outside its contract.</p>
 <h2 id="evidence-and-design-rationale">Evidence and design rationale<a class="headerlink" href="#evidence-and-design-rationale" title="Permanent link">&para;</a></h2>
 <p>The migration removed parallel Servo-side admission/gait logic and retired the old <code>WalkCoordinator</code>. Its enduring decisions are planner-owned lifecycle, ordered full-rate evidence, one touchdown event per step, explicit delivery timing and no planner-owned contact-force authority. Reintroducing a transfer timer or Servo phase branch would change that boundary and needs an owner-level design review.</p>
-<p>Use the <a href="../../modules/locomotion/MODULE.html#validation">locomotion validation section</a> for mechanism checks. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">Digit validation</a> records shared-coordinator adoption and subsequent walking changes; <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/tron1/walking/VALIDATION.md">TRON1 validation</a> records its point-foot regressions and limits. Matching software transitions, an upright interval, or a shared profile does not establish physical recovery, a qualified gait or real-time deadlines.</p>
+<p>Use the <a href="../../modules/locomotion/MODULE.html#validation">locomotion validation section</a> for mechanism checks. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md">Digit validation</a> records shared-coordinator adoption and subsequent walking changes; <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/tron1/walking/VALIDATION.md">TRON1 validation</a> records its point-foot regressions and limits. Matching software transitions, an upright interval, or a shared profile does not establish physical recovery, a qualified gait or real-time deadlines.</p>
 
 
 
@@ -2030,7 +2268,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/design/walking-coordinator-boundary.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/design/walking-coordinator-boundary.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

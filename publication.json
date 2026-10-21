@@ -1,5 +1,5 @@
 {
-  "revision": "9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd",
+  "revision": "e457e56307014662843f489603a60eac24b6b696",
   "includes_working_tree": true,
   "public_site": true,
   "site_url": "https://cyberbotics-lab.github.io/cyber-suite-docs/",
@@ -9,7 +9,7 @@
       "source": "docs/index.md",
       "status": "working",
       "kind": "guide",
-      "sha256": "a6f9ccdd95aab3ab108c936a132e466d4eaba971c4a0f5e375f54ceb18b4d4b6",
+      "sha256": "6afe3ec466e1ce957aea67a3c42943fa16ac155f3cca474094069475ed03009d",
       "download": "markdown/docs/index.md.txt"
     },
     {
@@ -19,6 +19,54 @@
       "kind": "guide",
       "sha256": "27ef04c9ea1c2bc01063dd903bf6159d568cb7a15404c667e26d2991bb587f5e",
       "download": "markdown/docs/design/system-architecture.md.txt"
+    },
+    {
+      "uri": "docs/guided-labs/index.md",
+      "source": "docs/guided-labs/index.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "5a17f959abc3d09b8f36516fde3365da06549fb14b23547f0f3e4b8b71831caf",
+      "download": "markdown/docs/guided-labs/index.md.txt"
+    },
+    {
+      "uri": "docs/guided-labs/01-read-an-experiment.md",
+      "source": "docs/guided-labs/01-read-an-experiment.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "4674ae7d6e80e11252eb544211536ddb67f73a9f2ba91e82bd8a161a77dc3a2a",
+      "download": "markdown/docs/guided-labs/01-read-an-experiment.md.txt"
+    },
+    {
+      "uri": "docs/guided-labs/02-g1-standing.md",
+      "source": "docs/guided-labs/02-g1-standing.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "7937c84a7c7dbc46dd8775784540c7e791ab6f65e8eba19a8005de50c0a68ad3",
+      "download": "markdown/docs/guided-labs/02-g1-standing.md.txt"
+    },
+    {
+      "uri": "docs/guided-labs/03-speed-tracking.md",
+      "source": "docs/guided-labs/03-speed-tracking.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "0315dfb3bf51f40bc203cb8188dffc56ea5cc70496532025fba4f712220ee945",
+      "download": "markdown/docs/guided-labs/03-speed-tracking.md.txt"
+    },
+    {
+      "uri": "docs/guided-labs/04-compare-planners.md",
+      "source": "docs/guided-labs/04-compare-planners.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "05b0633eed7113b17c86e5a0eb6d1cd60489da9ea7377e86314285a82d531255",
+      "download": "markdown/docs/guided-labs/04-compare-planners.md.txt"
+    },
+    {
+      "uri": "docs/guided-labs/mentors.md",
+      "source": "docs/guided-labs/mentors.md",
+      "status": "working",
+      "kind": "guide",
+      "sha256": "1bc20db6b472a52038d895dd9aef26275ba5dc86971a2d24426f3f9ef9c55393",
+      "download": "markdown/docs/guided-labs/mentors.md.txt"
     },
     {
       "uri": "docs/handbook/chapters/index.md",

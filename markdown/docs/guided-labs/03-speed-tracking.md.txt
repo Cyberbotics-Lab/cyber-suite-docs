@@ -1,0 +1,87 @@
+---
+Status: working
+Owner: repo, apps/unitree-g1/walking
+Last reviewed: 2026-10-19
+Code anchors: apps/unitree-g1/walking/src/config.cpp, apps/unitree-g1/walking/src/walk.cpp, apps/unitree-g1/walking/tools/walk.py
+---
+
+# Lab 3 · Does twice the command mean twice the speed?
+
+**Question:** How does G1's measured motion change when the requested forward speed doubles? **Time:** about 60–90 minutes. **Prerequisite:** Lab 2 and the same prepared checkout.
+
+<div class="learning-goals" markdown="1">
+
+Design a controlled two-run comparison, distinguish average tracking from oscillation and inspect whether completion, stopping and actuator use tell the same story.
+
+</div>
+
+## Predict and hold the scenario fixed
+
+Predict the mean forward velocity when the command changes from 0.10 to 0.20 m/s. Also predict what might happen to velocity oscillation and actuator use. Write these predictions before running.
+
+Both runs below use ALIP, the same generated flat terrain, zero lateral command, five seconds of requested motion and twelve seconds of total simulation. The selected profile supplies the same model, estimator, actuator bounds, gains and gait settings. Change only the forward command and output path. The total duration includes startup and stopping; the nonzero command begins after the estimator/preview release and configured startup interval.
+
+## Run two experiments
+
+Open a terminal in `apps/unitree-g1`. Run the baseline first:
+
+```bash
+pixi run --locked walk --planner alip --terrain flat \
+  --vx 0.10 --vy 0.0 --walk-duration 5 --duration 12 \
+  --rerun-web --out artifacts/guided-labs/lab-03-alip-010
+```
+
+Open the printed browser Rerun URL, normally `http://localhost:9090`; forward port 9090 for a remote browser. Inspect the velocity-versus-command and contact/actuator panels. After the simulation finishes, use the retained timeline to inspect startup, motion and stopping. Close the launch with Ctrl+C before the second run:
+
+```bash
+pixi run --locked walk --planner alip --terrain flat \
+  --vx 0.20 --vy 0.0 --walk-duration 5 --duration 12 \
+  --rerun-web --out artifacts/guided-labs/lab-03-alip-020
+```
+
+Use fresh output directories for repeats. If a port is occupied, use the alternatives in the [G1 viewer guide](../../apps/unitree-g1/walking/RUNNING.md#rerun). Browser Rerun runs on the execution host, while its page can be opened on the forwarded client port. Its `.rrd` recording remains in the run directory; the saved scene can also be reopened through the Viser command from Lab 2.
+
+A walking acceptance failure returns code 2 after the viewer closes. Keep the result: the 0.20 m/s arm is an experiment, and acceptance is a measurement. A missing viewer or missing report is a setup/runtime problem to investigate with the mentor. Do not treat every nonzero result as the same outcome.
+
+## Read the report alongside the plots
+
+Open both runs' `summary.yaml` and `resolved_config.yaml`. Check the applied planner, terrain and motion before comparing outcomes. Use this table; fill it with your actual values:
+
+| Quantity | ALIP, 0.10 m/s command | ALIP, 0.20 m/s command |
+| --- | --- | --- |
+| `completed` / `fell` / `fault` | | |
+| `mean_velocity_mps[0]`, forward mean in m/s | | |
+| `velocity_rmse_mps`, planar tracking error in m/s | | |
+| `stopped` / `settled_dwell_s` | | |
+| `saturated_motor_ticks` | | |
+| `peak_foot_load_bw` | | |
+| `passed` | | |
+
+Here `[0]` means the first item in the YAML list; the second item is lateral velocity. If the run terminates before tracking begins, a mean or RMSE field can be absent: record “not available” and retain the failure outcome.
+
+The app evaluates tracking after the first second of each nonzero motion segment and excludes zero-command intervals. `velocity_rmse_mps` combines instantaneous forward and lateral errors; it is not the difference between commanded and mean forward speed. `stopped` is a coordinator outcome, while `settled_dwell_s` adds measured low motion and support conditions. The [current acceptance code and criteria](../../apps/unitree-g1/walking/VALIDATION.md#commands-and-gates) explain the full gate.
+
+`metrics.csv` retains full-rate commanded planar velocity and simulated center-of-mass velocity. These physical measurements are offline diagnostics; the controller uses its sensor-based estimates. Viewer scene samples are recorded at 50 Hz, while the CSV metrics are at 1 kHz. Use the full-rate report/metrics for peak loads, rather than estimating a peak from a viewer frame.
+
+## Explain an average and an error
+
+Suppose a hypothetical robot commanded to move at 0.10 m/s alternates equally between 0.00 and 0.20 m/s, with zero lateral motion. Calculate its mean speed and forward RMSE. This illustration is an arithmetic example, not a Cyber Suite result.
+
+<details class="checkpoint" markdown="1">
+<summary>Worked calculation · open after trying it</summary>
+
+Its mean forward velocity is 0.10 m/s, exactly the command. Each instantaneous error has magnitude 0.10 m/s, so the RMSE is also 0.10 m/s. A correct mean can coexist with strong oscillation. Lateral error can additionally increase the app's planar RMSE.
+
+</details>
+
+Compare the ratio of your two measured forward means with the commanded ratio of two. If either mean is missing or close to zero, explain why that ratio is not a useful statistic. Then ask whether better average tracking came with more actuator-limit use or poorer stopping.
+
+`saturated_motor_ticks` counts motor/sample pairs at or above 99% of an actuator limit. Several motors can contribute in the same millisecond; the count is not an elapsed duration. A completed run with saturation still fails the unchanged walking gate.
+
+## Submit and explain
+
+Submit the [short report](index.md#lab-report), the completed comparison table and an annotated velocity-versus-command screenshot from each run. Describe what changed, which conditions you held fixed, whether your prediction matched and one question the result cannot answer.
+
+You have completed the lab when you can explain a discrepancy between command and measured motion, interpret mean versus RMSE and distinguish a completed experiment from accepted walking. One scenario and one run per arm describe this comparison; they do not establish a general speed envelope or identify a causal mechanism.
+
+[Next: compare two planners →](04-compare-planners.md)

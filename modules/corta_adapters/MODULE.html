@@ -209,8 +209,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../../docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -218,6 +225,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -514,6 +524,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1708,7 +1946,7 @@
 <p>The kernel depends on C++20, the standard library, Threads, and <code>cyber_suite_corta</code>. The concrete keyboard header additionally depends on POSIX file-descriptor, <code>poll</code>, and terminal APIs. CORTA never depends on this module.</p>
 <p>The compiled <code>corta::rerun</code> target adds the Rerun 0.36 C++ SDK and Arrow. Its public header uses a private implementation and does not include Rerun headers, so those dependencies do not reach CORTA core, producer telemetry, the generic adapter kernel, or keyboard/loopback consumers.</p>
 <h2 id="consumers">Consumers<a class="headerlink" href="#consumers" title="Permanent link">&para;</a></h2>
-<p>Implemented consumers are the loopback conformance application, the POSIX keyboard, Linux joystick and POSIX datagram operator-input examples, the CORTA/Rerun telemetry example, and the maintained Digit CORTA walking app. Digit is the first integrated robot consumer: it uses the exact allowlist for its 1 kHz servo-state, 50 Hz planner-command, and 50 Hz Plant-scene streams and exposes only a CLI observation endpoint. Its app-owned encoder maps the exact scene schema to MuJoCo visual geometry, terrain, body transforms, and contact forces. Its Python tool owns the viewer blueprint/process, never the data path. Digit walking's <code>--operator keyboard|joystick|viser</code> is the first integrated consumer of all three input adapters, the last for its browser page over loopback UDP: each maps its device onto the same app-owned axes and request types, and an inline app supervisor holds all command authority (walking <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#live-operator-input">APP.md</a>). A two-CORTA-app UDP bridge and ROS 2 topic pub/sub are deferred until a concrete need reopens them. No hardware, network, or middleware consumer exists yet.</p>
+<p>Implemented consumers are the loopback conformance application, the POSIX keyboard, Linux joystick and POSIX datagram operator-input examples, the CORTA/Rerun telemetry example, and the maintained Digit CORTA walking app. Digit is the first integrated robot consumer: it uses the exact allowlist for its 1 kHz servo-state, 50 Hz planner-command, and 50 Hz Plant-scene streams and exposes only a CLI observation endpoint. Its app-owned encoder maps the exact scene schema to MuJoCo visual geometry, terrain, body transforms, and contact forces. Its Python tool owns the viewer blueprint/process, never the data path. Digit walking's <code>--operator keyboard|joystick|viser</code> is the first integrated consumer of all three input adapters, the last for its browser page over loopback UDP: each maps its device onto the same app-owned axes and request types, and an inline app supervisor holds all command authority (walking <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#live-operator-input">APP.md</a>). A two-CORTA-app UDP bridge and ROS 2 topic pub/sub are deferred until a concrete need reopens them. No hardware, network, or middleware consumer exists yet.</p>
 <h2 id="owned-examples">Owned Examples<a class="headerlink" href="#owned-examples" title="Permanent link">&para;</a></h2>
 <p><code>examples/cpp/corta/adapter_loopback.cpp</code> teaches one adapter thread carrying two deterministic arithmetic Value egress-to-ingress bindings. It owns no robot workflow, application behavior, transport framework, or private helper library.</p>
 <p><code>examples/cpp/corta/adapter_keyboard.cpp</code> teaches application-owned mapping of <code>w</code>/<code>s</code> state requests and <code>x</code>/<code>q</code> events. Its default path uses a deterministic pipe for CI; <code>--interactive</code> borrows standard input and temporarily selects raw terminal mode. It does not make the adapter a controller or safety authority.</p>
@@ -1776,7 +2014,7 @@
 
                 
 
-<div class="document-origin">Source: <code>modules/corta_adapters/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>modules/corta_adapters/MODULE.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

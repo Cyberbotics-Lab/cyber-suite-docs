@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../../docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../../../docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1841,14 +2079,14 @@
 </code></pre></div>
 <p><code>--run</code> reopens the full scene recording in Viser, including recorded forces; it can also attach while the producer runs. Existing <code>--trace</code> CSV playback and kinematic inspection without either flag remain available. A live Rerun launch also saves a unique <code>view-*.rrd</code> in the run directory. <code>--no-keep-open</code> drains the recording and closes the viewers automatically for bounded checks. Headless/native-only launches preserve their previous behavior; add <code>--record-scene</code> to record the full scene without a live viewer.</p>
 <p>The optional recording consists of <code>scene.mjb</code>, <code>scene.yaml</code> and <code>scene.bin</code>: an exact compiled model, a versioned little-endian float64 layout, and append-only records. It contains reset/final poses plus 50 Hz qpos, generalized velocity, actuator effort/joint velocity, eight contact positions/forces, the planar command and primary-QP status. Completed launches write <code>viewer_result.json</code>; <code>viewer_report.json</code> checks received versus produced frame counts. An interrupted recording retains its complete records and an interruption marker. These display samples do not replace the 1 kHz walking metrics or establish peak impact loads.</p>
-<p>Walking uses the sensor-only CORTA runtime described in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/unitree-g1/walking/APP.md">APP.md</a>. A run exits with code 2 when physical acceptance fails, including a fall, fault, torque saturation or insufficient tracking/stopping. The launcher preserves that result and keeps the viewer available. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/unitree-g1/walking/VALIDATION.md">VALIDATION.md</a> for current evidence.</p>
+<p>Walking uses the sensor-only CORTA runtime described in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/unitree-g1/walking/APP.md">APP.md</a>. A run exits with code 2 when physical acceptance fails, including a fall, fault, torque saturation or insufficient tracking/stopping. The launcher preserves that result and keeps the viewer available. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/unitree-g1/walking/VALIDATION.md">VALIDATION.md</a> for current evidence.</p>
 <h2 id="walking-acceptance-and-sensor-replay">Walking acceptance and sensor replay<a class="headerlink" href="#walking-acceptance-and-sensor-replay" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>check
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk-check
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>./build/walking/g1_sensor_replay<span class="w"> </span>artifacts/unitree-g1/headless-alip<span class="w"> </span>artifacts/unitree-g1/replay-alip<span class="w"> </span>--planner<span class="w"> </span>alip
 </code></pre></div>
 <p><code>check</code> retains the model/standing boundary; <code>walk-check</code> evaluates both planners with fresh artifacts and does not relax walking thresholds. Build before calling the replay executable directly. Supply the original <code>--config</code> when replaying a custom profile; the complete resolved configuration must agree. Replay requires a fresh output directory and exact sensor/command row counts. It compares every torque, release/fault decision and preview/activation/step identity within 1e-10 Nm. A replay pass can reproduce a failed physical run and is not walking acceptance.</p>
-<p>The default is ALIP with a conservative 0.1 m/s forward command. That bounded flat-ground scenario passes; DCM still fails saturation acceptance. For a faster ALIP experiment, run <code>pixi run walk --planner alip --vx 0.3 --walk-duration 6 --duration 16 --viser</code>. It completes and stops in the recorded trial but still saturates actuators, so this is not a qualified speed setting. See the current contact-quality results in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/unitree-g1/walking/VALIDATION.md#contact-quality-correction-2026-10-18">VALIDATION.md</a>. Startup time is measured after the estimator and first preview release the simulation harness. The total duration includes estimation startup. <code>summary.yaml</code> records both milestones, run completion and physical acceptance separately. <code>sensors.csv</code> and <code>commands.csv</code> are the full-rate replay inputs; <code>estimates.csv</code> is offline diagnostic output and is never consumed by control.</p>
+<p>The default is ALIP with a conservative 0.1 m/s forward command. That bounded flat-ground scenario passes; DCM still fails saturation acceptance. For a faster ALIP experiment, run <code>pixi run walk --planner alip --vx 0.3 --walk-duration 6 --duration 16 --viser</code>. It completes and stops in the recorded trial but still saturates actuators, so this is not a qualified speed setting. See the current contact-quality results in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/unitree-g1/walking/VALIDATION.md#contact-quality-correction-2026-10-18">VALIDATION.md</a>. Startup time is measured after the estimator and first preview release the simulation harness. The total duration includes estimation startup. <code>summary.yaml</code> records both milestones, run completion and physical acceptance separately. <code>sensors.csv</code> and <code>commands.csv</code> are the full-rate replay inputs; <code>estimates.csv</code> is offline diagnostic output and is never consumed by control.</p>
 <h2 id="terrain-and-motion-scenarios">Terrain and motion scenarios<a class="headerlink" href="#terrain-and-motion-scenarios" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--list-terrains
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--planner<span class="w"> </span>dcm<span class="w"> </span>--terrain<span class="w"> </span>flat<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.10<span class="w"> </span>--vy<span class="w"> </span><span class="m">0</span>.0<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">5</span><span class="w"> </span>--viser
@@ -1857,7 +2095,7 @@
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--planner<span class="w"> </span>alip<span class="w"> </span>--motion<span class="w"> </span>walking/config/motion-example.yaml<span class="w"> </span>--duration<span class="w"> </span><span class="m">20</span><span class="w"> </span>--viser
 </code></pre></div>
 <p>These select experiments; they do not establish that a planner can traverse the terrain or track the requested speed. Non-flat walking is currently <strong>blind</strong>: terrain geometry stays in Plant for physics, initialization, scoring and recording. Landing heights, foot orientation and contact normals retain the flat-ground planner/controller assumptions. Terrain-aware footholds and yaw-rate commands are not implemented. Start both feet on a common horizontal pad; missing corner support or more than 2 mm of corner-height spread rejects startup.</p>
-<p><code>--terrain NAME</code> selects from the shared <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/sim/terrains/README.md">terrain catalog</a>, including flat, slopes, stairs, platform, square steps, waves, Perlin and multi-sine. The <code>terrain</code> block in <code>config/walking.yaml</code> supplies <code>catalog</code> and <code>source</code> paths; a separate catalog directory can hold fully specified experimental scene files using the shared schema. The default <code>name: source</code> keeps the original G1 scene. Selecting <code>flat</code> and a non-flat scene generates both through the same composer, avoiding source-versus-generated model differences in matched comparisons. Generated MJCF/heightfield files stay under the run's <code>terrain/</code> directory. Viser and Rerun display the recorded planes, boxes and heightfield triangles using flat colors; the native MuJoCo viewer also shows catalog textures.</p>
+<p><code>--terrain NAME</code> selects from the shared <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/sim/terrains/README.md">terrain catalog</a>, including flat, slopes, stairs, platform, square steps, waves, Perlin and multi-sine. The <code>terrain</code> block in <code>config/walking.yaml</code> supplies <code>catalog</code> and <code>source</code> paths; a separate catalog directory can hold fully specified experimental scene files using the shared schema. The default <code>name: source</code> keeps the original G1 scene. Selecting <code>flat</code> and a non-flat scene generates both through the same composer, avoiding source-versus-generated model differences in matched comparisons. Generated MJCF/heightfield files stay under the run's <code>terrain/</code> directory. Viser and Rerun display the recorded planes, boxes and heightfield triangles using flat colors; the native MuJoCo viewer also shows catalog textures.</p>
 <p><code>--vx</code> and <code>--vy</code> require <code>--walk-duration</code>; supplying either creates one complete planar command, with an omitted component set to zero. A duration alone retains the first configured velocity. <code>--duration</code> changes total simulation time; it must include post-release startup, all motion segments and at least two seconds for stopping, with additional room for estimator initialization and capture. Commands use the fixed initial heading frame. Negative components are accepted as experimental commands; turning is unsupported.</p>
 <p><code>--motion PATH</code> reads a YAML sequence such as <code>config/motion-example.yaml</code>. It cannot be combined with single-segment command overrides. Each item states positive <code>duration_s</code> and finite <code>velocity_mps: [vx, vy]</code>. Segments are contiguous after <code>startup_s</code>, measured from harness release, and intervals include their start and exclude their end. Zero velocity requests capture/standing; later nonzero segments request relaunch. After the final segment the command remains zero. A profile can contain this sequence under <code>motion:</code> instead of the legacy <code>motion_s</code>/<code>velocity_mps</code> pair; combining both forms is rejected.</p>
 <p>Gait timing/step bounds, swing height, command acceleration/stopping ramps, normal touchdown braking, startup duration, centroidal/height gains, controller weights, friction assumption and estimation settings remain in the selected <code>--config PATH</code>. Terrain contact friction comes from the source MJCF/catalog; <code>controller.friction</code> is the controller's assumed coefficient and must be chosen deliberately for the experiment. Resolved configuration records the applied motion and selected terrain YAML. Replay uses the same scenario options, for example:</p>
@@ -1883,7 +2121,7 @@
 
                 
 
-<div class="document-origin">Source: <code>apps/unitree-g1/walking/RUNNING.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>apps/unitree-g1/walking/RUNNING.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

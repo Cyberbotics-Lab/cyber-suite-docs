@@ -215,8 +215,17 @@
   
     
     
+      
+  
+  
+  
+    
+  
+  
+    
+    
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -224,6 +233,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -523,6 +535,237 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1939,7 +2182,7 @@
 <li>the rewards that shape the gait;</li>
 <li>what training produced.</li>
 </ul>
-<p>It explains; it does not define. The contract is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/APP.md">the app's APP.md</a> and the code it names, and the latest demonstrated result is in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md">VALIDATION.md</a>. Where they disagree with this page, they win.</p>
+<p>It explains; it does not define. The contract is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/learning/APP.md">the app's APP.md</a> and the code it names, and the latest demonstrated result is in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/learning/VALIDATION.md">VALIDATION.md</a>. Where they disagree with this page, they win.</p>
 <p>The task is <code>Digit-Velocity-Flat-1ms</code>. It starts from mjlab's <code>make_velocity_env_cfg()</code> recipe, the one mjlab's Unitree G1 uses, and changes only what Digit needs:</p>
 <ul>
 <li>joint reads through compiled-model addresses, because of Digit's ball-jointed rods;</li>
@@ -2036,7 +2279,7 @@
     M--&gt;&gt;A: q, q̇
   end
   M--&gt;&gt;P: next observation and reward</code></pre>
-<p>The PD law runs inside MuJoCo at every 1 ms physics step, as position actuators. The policy only moves the setpoint. The training timestep of 1 ms is a separate decision from the plant's 0.5 ms step; the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/roadmaps/learning-roadmap.md">learning roadmap</a> records why.</p>
+<p>The PD law runs inside MuJoCo at every 1 ms physics step, as position actuators. The policy only moves the setpoint. The training timestep of 1 ms is a separate decision from the plant's 0.5 ms step; the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/docs/roadmaps/learning-roadmap.md">learning roadmap</a> records why.</p>
 <h2 id="observations">Observations<a class="headerlink" href="#observations" title="Permanent link">&para;</a></h2>
 <p>The actor sees 92 values, concatenated in this order. The noise is uniform, added during training only.</p>
 <table>
@@ -2095,7 +2338,7 @@
 </table>
 <ul>
 <li><strong>Passive joints.</strong> They are the ten the LLAPI measures: shin, tarsus, heel spring, toe pitch and toe roll on each side. The ball-jointed rods are not observed.</li>
-<li><strong>Joint reads.</strong> All joint terms read each hinge at its compiled qpos and dof address (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/digit_learning/mdp.py">mdp.py</a>). mjlab 1.6's name-based joint terms misread 17 of Digit's 20 motors.</li>
+<li><strong>Joint reads.</strong> All joint terms read each hinge at its compiled qpos and dof address (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/learning/digit_learning/mdp.py">mdp.py</a>). mjlab 1.6's name-based joint terms misread 17 of Digit's 20 motors.</li>
 <li><strong>No memory.</strong> There is no observation history, no gait clock and no phase variable. Rhythm comes from the dynamics and the rewards; the last action is the only memory.</li>
 <li><strong>No estimator in training.</strong> The base velocity is simulator truth, and the ±0.5 m/s noise is the only stand-in for estimation error. M1b has since run the policy on InEKF estimates in the C++ plant; see <a href="#what-m0-does-not-cover">What M0 Does Not Cover</a>.</li>
 <li><strong>Critic extras (12).</strong> Foot height above the ground, current air time, contact flags, and contact force (signed <span class="arithmatex">\(\log(1+|F|)\)</span>, 3 per foot), for both feet.</li>
@@ -2486,11 +2729,11 @@ r_t = \Delta t \sum_k w_k\, f_k(s_t, a_t)
 <li>0.10–0.13 m/s under lateral commands;</li>
 <li>up to 0.15 rad/s when turning in place.</li>
 </ul>
-<p>The resulting gait takes about three steps per second, with no flight phase, and the foot apex reaches 85–111 mm at 0.5–1 m/s. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/learning/VALIDATION.md">VALIDATION.md</a> holds the gate criteria and the gait table.</p>
-<p>The capsule behind these figures is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/README.md">2026-09-27-digit-m0-velocity-policy</a>.</p>
+<p>The resulting gait takes about three steps per second, with no flight phase, and the foot apex reaches 85–111 mm at 0.5–1 m/s. <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/learning/VALIDATION.md">VALIDATION.md</a> holds the gate criteria and the gait table.</p>
+<p>The capsule behind these figures is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/README.md">2026-09-27-digit-m0-velocity-policy</a>.</p>
 <h2 id="what-m0-does-not-cover">What M0 Does Not Cover<a class="headerlink" href="#what-m0-does-not-cover" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Transfer.</strong> Everything on this page is inside mjlab. M1 has since run the same policy in the C++ plant: the five flat scenarios complete on truth (M1a) and on InEKF estimates (M1b). The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/roadmaps/learning-roadmap.md">learning roadmap</a> records that gate.</li>
+<li><strong>Transfer.</strong> Everything on this page is inside mjlab. M1 has since run the same policy in the C++ plant: the five flat scenarios complete on truth (M1a) and on InEKF estimates (M1b). The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/docs/roadmaps/learning-roadmap.md">learning roadmap</a> records that gate.</li>
 <li><strong>Estimation.</strong> Training sees true base velocity. In M1b, the policy's tracking on estimates was within 0.01 m/s of its truth runs. The simulated IMU is noiseless, so this says nothing about hardware estimation.</li>
 <li><strong>Small commands.</strong> In mjlab and in the plant, the policy barely responds to small lateral and yaw commands. The gate's grid tests only 0 and ±0.5 on those axes, so M0 could not see this; M1 found it.</li>
 <li><strong>Hardware realism.</strong> Training has no latency, actuator-dynamics, gain or mass randomization, and no terrain. The plant adds one 1 ms tick of action latency.</li>
@@ -2499,7 +2742,7 @@ r_t = \Delta t \sum_k w_k\, f_k(s_t, a_t)
 <li><strong>Reward interpretation.</strong> Tracking accuracy comes from the gate, not the training reward, because the tracking kernels barely distinguish 0 from 0.2 m/s of error.</li>
 </ul>
 <h2 id="reproduce">Reproduce<a class="headerlink" href="#reproduce" title="Permanent link">&para;</a></h2>
-<p>The commands below use the current Digit project entry points. Training today runs the current task definition; it does not automatically reproduce the September baseline. For a historical comparison, use the revision, configuration and reduced data recorded in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/README.md">M0 evidence capsule</a>, and keep a new run distinct from the recorded results.</p>
+<p>The commands below use the current Digit project entry points. Training today runs the current task definition; it does not automatically reproduce the September baseline. For a historical comparison, use the revision, configuration and reduced data recorded in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/notes/evidence/2026-09-27-digit-m0-velocity-policy/README.md">M0 evidence capsule</a>, and keep a new run distinct from the recorded results.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Train (CUDA workstation), evaluate, export: in the Digit project.</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>apps/digit
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>learn<span class="w"> </span>train<span class="w"> </span>Digit-Velocity-Flat-1ms<span class="w"> </span>--env.scene.num-envs<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="se">\</span>
@@ -2528,7 +2771,7 @@ r_t = \Delta t \sum_k w_k\, f_k(s_t, a_t)
 
                 
 
-<div class="document-origin">Source: <code>docs/roadmaps/learning-m0-digit-velocity.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/roadmaps/learning-m0-digit-velocity.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1768,7 +2006,7 @@
 
 
 <h1 id="deploying-a-learned-policy">Deploying A Learned Policy<a class="headerlink" href="#deploying-a-learned-policy" title="Permanent link">&para;</a></h1>
-<p>Any project, for any robot, can train a policy its own way and deploy it with the controller it chooses. The repository holds every project to two things: the robot's plant command boundary, and replay parity between what training computed and what deployment computes. Everything else here is a library a project may use, never a framework it must fit. The module contract is <a href="../../modules/policy/MODULE.html"><code>modules/policy/MODULE.md</code></a>; the plan that produced this design is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/plans/2026-10-15-policy-deployment-layer.md">the deployment-layer plan</a>.</p>
+<p>Any project, for any robot, can train a policy its own way and deploy it with the controller it chooses. The repository holds every project to two things: the robot's plant command boundary, and replay parity between what training computed and what deployment computes. Everything else here is a library a project may use, never a framework it must fit. The module contract is <a href="../../modules/policy/MODULE.html"><code>modules/policy/MODULE.md</code></a>; the plan that produced this design is <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/plans/2026-10-15-policy-deployment-layer.md">the deployment-layer plan</a>.</p>
 <h2 id="the-chain">The Chain<a class="headerlink" href="#the-chain" title="Permanent link">&para;</a></h2>
 <p>A deployed learned controller is a chain of links. Each link has a kind, and the kind's owner implements it in both training and deployment.</p>
 <table>
@@ -1930,7 +2168,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/design/learned-policy-deployment.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/design/learned-policy-deployment.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

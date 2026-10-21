@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -3352,7 +3590,7 @@
 
 
 <h1 id="corta-design-document">CORTA Design Document<a class="headerlink" href="#corta-design-document" title="Permanent link">&para;</a></h1>
-<p>This is the deep reference for CORTA's execution semantics and design requirements. Start with <a href="runtime-execution.html">Runtime and execution</a> for the conceptual overview and <a href="corta_adapter.html">Adapters and external boundaries</a> for device integration. The <a href="../../modules/corta/MODULE.html">module contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/corta/CONFORMANCE.md">conformance index</a> distinguish implemented behavior, application obligations and remaining qualification gaps.</p>
+<p>This is the deep reference for CORTA's execution semantics and design requirements. Start with <a href="runtime-execution.html">Runtime and execution</a> for the conceptual overview and <a href="corta_adapter.html">Adapters and external boundaries</a> for device integration. The <a href="../../modules/corta/MODULE.html">module contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/corta/CONFORMANCE.md">conformance index</a> distinguish implemented behavior, application obligations and remaining qualification gaps.</p>
 <h2 id="implementation-map">Implementation map<a class="headerlink" href="#implementation-map" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -3394,7 +3632,7 @@
 <p>Revision 3.6 introduced the three-plane boundary, Egress, S-28 and the adapter/observer slices. Revision 3.5 made due-set feasibility advisory while retaining hard errors for malformed cost declarations. Revisions 3.1–3.4 established typed storage, boundary transactions, replay cuts, Plant lifecycle, shutdown and Python ownership. Their rule identifiers remain stable below; chronology does not imply current conformance.</p>
 </details>
 <p><strong>Audience:</strong> human reviewers and coding agents.</p>
-<p><strong>Design requirements.</strong> The numbered rules <code>[S-n]</code> state the intended semantic contract. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/corta/CONFORMANCE.md">conformance index</a> maps them to current executable or obligation evidence; a rule in this working document is not, by itself, a demonstrated guarantee. Resolve a disagreement through the owning module rather than presenting an unverified requirement as implemented behavior. Rule numbers are stable identifiers and are not renumbered between revisions; <code>[S-31]</code>–<code>[S-37]</code> were added in Rev 3, <code>[S-38]</code>–<code>[S-43]</code> in Rev 3.1, <code>[S-44]</code> in Rev 3.2, and <code>[S-45]</code>–<code>[S-49]</code> in Rev 3.3.</p>
+<p><strong>Design requirements.</strong> The numbered rules <code>[S-n]</code> state the intended semantic contract. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/corta/CONFORMANCE.md">conformance index</a> maps them to current executable or obligation evidence; a rule in this working document is not, by itself, a demonstrated guarantee. Resolve a disagreement through the owning module rather than presenting an unverified requirement as implemented behavior. Rule numbers are stable identifiers and are not renumbered between revisions; <code>[S-31]</code>–<code>[S-37]</code> were added in Rev 3, <code>[S-38]</code>–<code>[S-43]</code> in Rev 3.1, <code>[S-44]</code> in Rev 3.2, and <code>[S-45]</code>–<code>[S-49]</code> in Rev 3.3.</p>
 <p><strong>Rule classes.</strong> (a) Most rules are <strong>runtime-enforced guarantees</strong>. (b) Some are <strong>application obligations</strong> the runtime cannot fully verify for arbitrary user code: honesty of declared <code>MessageTraits</code> and budgets (<code>[S-5]</code>, <code>[S-35]</code>), callback purity and boundedness (<code>[S-17]</code>, <code>[S-19]</code>, <code>[S-21]</code>), determinism of system and Test Plant implementations (precondition of <code>[S-20]</code>, <code>[S-49]</code>), absence of hidden cross-system state or algorithms (<code>[S-3]</code>, <code>[S-48]</code>), external-lease budgets, Plant timing/liveness claims, and the honesty of <code>Deterministic</code> replay-class declarations (<code>[S-38]</code>, <code>[S-40]</code>, <code>[S-45]</code>, <code>[S-47]</code>). (c) Some are <strong>validation goals</strong> established experimentally on the reference application (<code>[S-20]</code>'s byte-identical demonstrations, the <code>[S-6]</code> allocation probes). Runtime-visible guarantees require executable witnesses; obligations require review or measurement evidence and a negative control only where CORTA can observe a violation. Code sketches show intent, not final signatures; agents may adjust syntax but not semantics.</p>
 <hr />
 <h2 id="1-purpose-and-scope">1. Purpose and scope<a class="headerlink" href="#1-purpose-and-scope" title="Permanent link">&para;</a></h2>
@@ -4366,7 +4604,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/design/corta-design-specs.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/design/corta-design-specs.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

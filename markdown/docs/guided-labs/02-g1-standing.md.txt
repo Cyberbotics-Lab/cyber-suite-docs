@@ -1,0 +1,99 @@
+---
+Status: working
+Owner: repo, apps/unitree-g1/walking
+Last reviewed: 2026-10-19
+Code anchors: apps/unitree-g1/pixi.toml, apps/unitree-g1/walking/src/stand.cpp, apps/unitree-g1/walking/tools/walk.py, apps/unitree-g1/walking/tools/view.py
+---
+
+# Lab 2 · What counts as standing?
+
+**Question:** What would convince you that the robot stood successfully? **Time:** about 45–60 minutes after environment preparation. **Prerequisite:** Lab 1 and a [mentor-prepared execution host](mentors.md#prepare-one-working-environment).
+
+<div class="learning-goals" markdown="1">
+
+Run one simulation, reconnect its visible behavior to a numerical report and preserve enough context for another person to reproduce your observation.
+
+</div>
+
+## Predict and locate the execution host
+
+Before launching, predict how much each foot should support when a symmetric robot stands still on level ground. Express the answer as a fraction of its total bodyweight. Also write down one failure that a wide-angle animation might hide.
+
+Open the terminal your mentor prepared on Ubuntu. Confirm the checkout and record its revision from the repository root:
+
+```bash
+hostname
+pwd
+git status --short --branch
+git rev-parse HEAD
+```
+
+Tell your mentor where the simulation will run and where you will open the browser. When using VS Code Remote - SSH, the terminal runs on Ubuntu and the browser can run on your own laptop. The [remote-development guide](../setup/remote-development.md) describes forwarding and display checks for different viewers.
+
+## Run and observe
+
+From the repository root:
+
+```bash
+cd apps/unitree-g1
+pixi run --locked stand --duration 10 --viser \
+  --out artifacts/guided-labs/lab-02-standing
+```
+
+Open the printed URL, normally `http://localhost:8080`. For a remote browser, forward port 8080 in VS Code's **Ports** panel first, then open its forwarded address. If the port is occupied, append `--viser-port 8081` and forward that port. A new attempt needs a new output path, such as `lab-02-standing-repeat`; existing results are preserved.
+
+Observe both feet and the body from two camera angles. After the ten-second simulation finishes, the viewer retains playback. Turn **Follow live** off, scrub **Time (s)** and toggle **Contacts and forces**. Identify a settling interval and a later interval. These controls affect observation; they do not pause or change the physical run.
+
+The viewer's foot-load readout is in newtons. Divide a foot's load by `mass_kg × 9.81` from your summary to express it in bodyweights. For example, a 34.13 kg model weighs approximately 335 N, so a symmetric static prediction is about 167 N per foot. Check your own report's mass and measured loads.
+
+Close this launch with Ctrl+C after inspecting it. To reopen the saved scene later, run from the same G1 project:
+
+```bash
+pixi run --locked python walking/tools/view.py \
+  --run artifacts/guided-labs/lab-02-standing
+```
+
+This standing app uses joint PD and static support-force feedforward. It has no fixture or online base/contact feedback; it does not run the walking planner and estimated-state walking controller described in the Digit handbook. Read the [G1 app's standing boundary](../../apps/unitree-g1/walking/APP.md#standing-and-observation) to connect the exercise to its owner.
+
+```mermaid
+flowchart TB
+    P[Standing pose and joint gains] --> C[Joint PD plus fixed support feedforward]
+    C -->|Actuator effort| S[Simulated G1]
+    S -->|Joint position and velocity| C
+    S --> O[Recorded scene and acceptance measurements]
+    O --> V[Browser and summary report]
+```
+
+The joint feedback closes the standing loop. The scene and report help you evaluate its response; the browser does not control it.
+
+## Inspect the result files
+
+Open `artifacts/guided-labs/lab-02-standing/summary.yaml` and `resolved_config.yaml` in your editor. Paths here are relative to `apps/unitree-g1`. The resolved configuration records the applied standing pose, gains and limits. Read the result alongside the scene recording:
+
+| Field | What to explain |
+| --- | --- |
+| `completed`, `duration_s` | Whether the requested simulation duration was executed |
+| `finite`, `fell`, `interrupted` | Whether the state remained finite, the robot fell or the run was interrupted |
+| `peak_tilt_rad`, `peak_drift_m`, `peak_speed_mps` | Post-settling body motion; units matter |
+| `minimum_foot_load_bw` | Lowest per-foot support after settling, normalized by total bodyweight |
+| `saturated_motor_ticks`, `unexpected_contact_ticks` | Actuator-limit use and unexpected loaded contact |
+| `final_settled_dwell_s`, `passed` | Sustained final settling and the full standing acceptance decision |
+
+The standing gate excludes the configured initial settling interval from its main motion/support statistics. The default two-second settling interval is part of the ten-second run. `maximum_observed_tilt_rad` additionally includes the initial transient. The standing report's `source_revision` describes an upstream robot asset; keep the Cyber Suite Git revision you recorded separately.
+
+<details class="checkpoint" markdown="1">
+<summary>Worked interpretation · support and acceptance</summary>
+
+A static symmetric stance suggests approximately 0.5 bodyweight on each foot, giving about one bodyweight in total. This is a prediction, not a required equality at every instant. The default standing gate requires each foot to retain at least 0.15 bodyweight after settling, together with motion, actuator, contact and completion conditions. A visually upright robot can still fail one of those conditions. The exact criteria and previous results live in [G1 validation](../../apps/unitree-g1/walking/VALIDATION.md#commands-and-gates).
+
+</details>
+
+## Submit and explain
+
+Complete the [short report](index.md#lab-report) with the launch command, Cyber Suite revision, resolved configuration path and actual outcome. Include a screenshot that identifies both feet and a small table containing `passed`, `peak_tilt_rad`, `peak_drift_m`, `minimum_foot_load_bw` and `saturated_motor_ticks`.
+
+Explain whether the load observation agrees with your prediction and identify one acceptance condition you could not judge confidently from the animation. If the run fails, preserve the report and explain which condition appears responsible; ask your mentor before changing a setting.
+
+You have completed the lab when you can reopen the recorded run, locate its configuration and explain how its acceptance decision relates to what you saw. Passing standing is evidence for this standing scenario. The next lab evaluates a different controller composition.
+
+[Next: measure speed tracking →](03-speed-tracking.md)

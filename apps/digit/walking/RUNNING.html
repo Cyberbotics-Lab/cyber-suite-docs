@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../../docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../../../docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -2041,7 +2279,7 @@
 
 
 <h1 id="running-the-digit-walking-simulation">Running the Digit Walking Simulation<a class="headerlink" href="#running-the-digit-walking-simulation" title="Permanent link">&para;</a></h1>
-<p>This page explains how to run the Digit walking simulation: choosing a scenario, overriding it from the command line, turning on live Rerun, the browser 3D viewer and virtual perception, and reading the results. The composition and its guarantees are described in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md">APP.md</a>, and what has been demonstrated is recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">VALIDATION.md</a>.</p>
+<p>This page explains how to run the Digit walking simulation: choosing a scenario, overriding it from the command line, turning on live Rerun, the browser 3D viewer and virtual perception, and reading the results. The composition and its guarantees are described in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md">APP.md</a>, and what has been demonstrated is recorded in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md">VALIDATION.md</a>.</p>
 <p>Run every command from the Digit project (<code>apps/digit</code>), which builds against the installed cyber-suite package; paths below are relative to it. From elsewhere, <code>pixi run --manifest-path apps/digit/pixi.toml walk</code> runs the same task. A module edit you want here takes <code>pixi install</code> in <code>apps/digit</code> first, which rebuilds the package incrementally; for an edit that changes a module and Digit together, the repository's root build also compiles Digit (in-tree), and its binary is passed with <code>--binary ../../build/default/apps/digit/walking/digit_corta_walking</code>.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>build<span class="w">                                   </span><span class="c1"># after every pull or C++ edit</span>
@@ -2112,7 +2350,7 @@
 </tbody>
 </table>
 <p>The viewer plays back in real time; <code>-</code> and <code>=</code> halve and double the rate (1/16× to 16×), and Space pauses. Headless runs go as fast as the stack allows.</p>
-<p>The shared DCM/ALIP profiles enable the constant-acceleration joint observer. Controller joint position/velocity and base angular velocity use 20 Hz filters; InEKF base linear velocity has no additional controller filter. These settings are adopted defaults with remaining sustained combined-noise limits; see <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-04-independent-filtering-and-constant-acceleration-observer">filtering validation</a>. To disable observation, set <code>state_estimation.joint_state_observer.enabled</code> to <code>false</code> in an estimation profile selected by the scenario. This is also required when selecting an estimator mode other than <code>group-velocity</code>.</p>
+<p>The shared DCM/ALIP profiles enable the constant-acceleration joint observer. Controller joint position/velocity and base angular velocity use 20 Hz filters; InEKF base linear velocity has no additional controller filter. These settings are adopted defaults with remaining sustained combined-noise limits; see <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md#2026-10-04-independent-filtering-and-constant-acceleration-observer">filtering validation</a>. To disable observation, set <code>state_estimation.joint_state_observer.enabled</code> to <code>false</code> in an estimation profile selected by the scenario. This is also required when selecting an estimator mode other than <code>group-velocity</code>.</p>
 <p>Options combine freely, for example:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>alip_walking<span class="w"> </span>--terrain<span class="w"> </span>up-slope<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--vx<span class="w"> </span><span class="m">0</span>.4<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">8</span><span class="w"> </span>--rerun<span class="w"> </span>--perception<span class="w"> </span>--log<span class="w"> </span>artifacts/alip_slope.h5
@@ -2126,7 +2364,7 @@
 </ol>
 <p>The executable then builds its configuration in two layers:</p>
 <ol>
-<li><strong>The scenario YAML</strong> states the planner (<code>dcm</code> or <code>alip</code>), the terrain, the motion sequence, the simulation settings and logging. All tuning comes from the shared profiles in <code>config/profiles/</code>. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#configuration">Configuration</a>.</li>
+<li><strong>The scenario YAML</strong> states the planner (<code>dcm</code> or <code>alip</code>), the terrain, the motion sequence, the simulation settings and logging. All tuning comes from the shared profiles in <code>config/profiles/</code>. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#configuration">Configuration</a>.</li>
 <li><strong>Command-line flags</strong> override a small set of run choices on top of the scenario. The resolved config records each override separately.</li>
 </ol>
 <p>The scenario selects the planner by default. <code>--planner dcm</code>, <code>--planner alip</code> or <code>--planner policy</code> overrides that choice. For a planner comparison, retain the same scenario and shared settings, and record the planner-specific profile and reference contract that deliberately change.</p>
@@ -2198,7 +2436,7 @@
 </tr>
 </tbody>
 </table>
-<p>Any scenario runs a trained policy instead with <code>--planner policy --policy-bundle DIR</code>; see <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#learned-policy-planner-policy">APP.md</a>:</p>
+<p>Any scenario runs a trained policy instead with <code>--planner policy --policy-bundle DIR</code>; see <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#learned-policy-planner-policy">APP.md</a>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>gate_cruise<span class="w"> </span>--planner<span class="w"> </span>policy<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--policy-bundle<span class="w"> </span>learning/checkpoints/policies/RUN-model_N<span class="w"> </span>--viewer
 </code></pre></div>
@@ -2361,12 +2599,12 @@
 <tr>
 <td></td>
 <td><code>--seed &lt;n&gt;</code></td>
-<td>Replace <code>simulation.seed</code>, which draws <code>simulation.sensor_noise</code>. It changes nothing when noise is off; the Arena runner varies it (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#arena">APP.md</a>)</td>
+<td>Replace <code>simulation.seed</code>, which draws <code>simulation.sensor_noise</code>. It changes nothing when noise is off; the Arena runner varies it (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#arena">APP.md</a>)</td>
 </tr>
 <tr>
 <td></td>
 <td><code>--actuation &lt;llapi\|ideal&gt;</code></td>
-<td>How MuJoCo turns commands into joint torque, replacing <code>simulation.actuation</code>. <code>llapi</code>, the default, acts as Agility's low-level API: each command 5 ms late, drive damping at <code>--llapi-min-damping</code> toward <code>--llapi-drive-target</code>, the robot's torque limits (<code>assets/robots/digit/config/drives.yaml</code>). <code>ideal</code> applies each command's torque at once; with the undamped shins the legs then ring harder than on the robot (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#plant-and-terrain">APP.md</a>)</td>
+<td>How MuJoCo turns commands into joint torque, replacing <code>simulation.actuation</code>. <code>llapi</code>, the default, acts as Agility's low-level API: each command 5 ms late, drive damping at <code>--llapi-min-damping</code> toward <code>--llapi-drive-target</code>, the robot's torque limits (<code>assets/robots/digit/config/drives.yaml</code>). <code>ideal</code> applies each command's torque at once; with the undamped shins the legs then ring harder than on the robot (<a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#plant-and-terrain">APP.md</a>)</td>
 </tr>
 <tr>
 <td>Motion</td>
@@ -2703,7 +2941,7 @@
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># edit simulation.terrain_perception to oracle, then:</span>
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>pixi<span class="w"> </span>run<span class="w"> </span>walk<span class="w"> </span>--config<span class="w"> </span>artifacts/dcm_oracle.yaml<span class="w"> </span>--terrain<span class="w"> </span>up-stairs<span class="w"> </span>--vx<span class="w"> </span><span class="m">0</span>.3<span class="w"> </span>--walk-duration<span class="w"> </span><span class="m">6</span>
 </code></pre></div>
-<p>The flag and the YAML key are independent. To watch the maps while the planner uses oracle terrain, pass <code>--rerun --perception</code> with that scenario. Oracle terrain is experimental, and the perception maps are an inspection tool, not a sensor model of the real robot. Their limits are in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#experimental-oracle-terrain-perception">APP.md</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/perception/TELEMETRY.md">the perception telemetry contract</a>.</p>
+<p>The flag and the YAML key are independent. To watch the maps while the planner uses oracle terrain, pass <code>--rerun --perception</code> with that scenario. Oracle terrain is experimental, and the perception maps are an inspection tool, not a sensor model of the real robot. Their limits are in <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#experimental-oracle-terrain-perception">APP.md</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/perception/TELEMETRY.md">the perception telemetry contract</a>.</p>
 <h2 id="logs-and-after-the-run">Logs and after the run<a class="headerlink" href="#logs-and-after-the-run" title="Permanent link">&para;</a></h2>
 <p>Each scenario sets its log path. The canonical DCM run writes <code>logs/digit_corta_walking.h5</code> and ALIP writes <code>logs/digit_alip_walking.h5</code>. <code>--log PATH</code> redirects the log; use <code>artifacts/</code> for anything you want to keep apart. Both folders are ignored by Git.</p>
 <p>The summary printed at the end reports <code>run_complete=</code>, <code>boundary_pass=</code> and an <code>outcome</code> line. The exit code is 0 when the run passes. A passing run proves only that the run executed cleanly, not that the gait was good. For gait quality, read the log:</p>
@@ -2843,7 +3081,7 @@
 
                 
 
-<div class="document-origin">Source: <code>apps/digit/walking/RUNNING.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>apps/digit/walking/RUNNING.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

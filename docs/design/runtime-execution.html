@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1771,7 +2009,7 @@
 <p>CORTA coordinates a robotics computation around a Plant observation/command exchange. It separates work that must participate in a tick from work that can finish on a deferred worker. Understanding this distinction explains how a planner, policy inference, fast controller and viewer can coexist without making every component run at the same rate.</p>
 <h2 id="the-plant-sets-the-world-boundary">The Plant sets the world boundary<a class="headerlink" href="#the-plant-sets-the-world-boundary" title="Permanent link">&para;</a></h2>
 <p>A Plant supplies observations and receives commands. In a simulator it advances the simulated world; an external Plant exchanges data through the device interface. The app supplies the observation and command types and chooses the Plant implementation. That boundary lets the computation remain recognizable across execution environments, but it does not prove their timing, sensors or actuators are equivalent.</p>
-<p>For Digit, the composition is visible in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/src/main.cpp">application entry point</a>. Its model-based graph contains two message pairs: Plant ↔ Servo and Servo ↔ planner. The policy composition replaces the latter with Servo ↔ inference and uses a policy-specific Servo.</p>
+<p>For Digit, the composition is visible in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/src/main.cpp">application entry point</a>. Its model-based graph contains two message pairs: Plant ↔ Servo and Servo ↔ planner. The policy composition replaces the latter with Servo ↔ inference and uses a policy-specific Servo.</p>
 <h2 id="inline-and-deferred-work">Inline and deferred work<a class="headerlink" href="#inline-and-deferred-work" title="Permanent link">&para;</a></h2>
 <p><strong>Inline work</strong> participates directly in the tick's execution order. <strong>Deferred work</strong> runs on a named worker and publishes results that become visible at a defined runtime boundary. A scheduled release is not the same event as completed work or an adopted result.</p>
 <figure class="teaching-figure">
@@ -1805,7 +2043,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/design/runtime-execution.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/design/runtime-execution.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

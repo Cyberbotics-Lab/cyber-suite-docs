@@ -1,0 +1,107 @@
+---
+Status: working
+Owner: repo, apps/unitree-g1/walking
+Last reviewed: 2026-10-19
+Code anchors: apps/unitree-g1/walking/APP.md, apps/unitree-g1/walking/src/walk.cpp, apps/unitree-g1/walking/src/planner.cpp
+---
+
+# Lab 4 · What changes when we change the planner?
+
+**Question:** How do ALIP and DCM differ on one matched G1 walking scenario? **Time:** about 60–90 minutes. **Prerequisite:** Lab 3. **Optional extension:** basic Python.
+
+<div class="learning-goals" markdown="1">
+
+Make a matched comparison, connect a behavior difference to the responsible software boundary and prepare a small contribution that another person can review.
+
+</div>
+
+## Identify the changed boundary
+
+Both planner selections use the same G1 app, robot, estimator, whole-body controller, terrain and motion schedule. Their planner adapters author different reference geometry and behavior. ALIP uses an angular-momentum linear inverted-pendulum model; DCM uses a divergent-component-of-motion model. You can compare the resulting behavior before deriving either model.
+
+```mermaid
+flowchart TB
+    M[Same motion command] --> P[Selected planner and adapter: ALIP or DCM]
+    P -->|Authored references| C[Shared Servo and TAC-QP]
+    C -->|Actuator commands| G[Same simulated G1 and flat terrain]
+    classDef selected fill:#faf0ed,stroke:#a43b3b,stroke-width:3px
+    class P selected
+```
+
+The highlighted block changes with planner selection. This sketch follows the commanded-motion path; the app contract describes state feedback and the actual runtime composition.
+
+Read the [G1 app contract](../../apps/unitree-g1/walking/APP.md) and find the planner/reference discussion. Sketch a box around the part changed by `--planner`. Keep the rest of the shared composition visible. The [system architecture](../design/system-architecture.md) and [model-based walking guide](../design/model-based-walking.md) can help locate its modules.
+
+Write a prediction about one outcome, such as actuator use, velocity oscillation or foot load. State which measurements would challenge it. The question concerns these two app configurations on this scenario; it does not isolate the mathematical planner kernel from its adapter/reference choices.
+
+## Run the matched pair
+
+Run one command at a time from `apps/unitree-g1`, inspecting and closing each viewer before starting the next:
+
+```bash
+pixi run --locked walk --planner alip --terrain flat \
+  --vx 0.10 --vy 0.0 --walk-duration 5 --duration 12 \
+  --viser --out artifacts/guided-labs/lab-04-alip
+```
+
+```bash
+pixi run --locked walk --planner dcm --terrain flat \
+  --vx 0.10 --vy 0.0 --walk-duration 5 --duration 12 \
+  --viser --out artifacts/guided-labs/lab-04-dcm
+```
+
+Open the printed Viser address, forwarding its port for a remote browser. These are the same scenario settings as Lab 3's baseline. You may reuse that ALIP run if its recorded revision, applied configuration and scenario match; state the reuse in your report. A fresh pair makes it easier to practice independent reproduction.
+
+Keep failures and use a fresh path for any repeat. The [current G1 validation](../../apps/unitree-g1/walking/VALIDATION.md#contact-quality-correction-2026-10-18) documents a bounded slow ALIP pass and a DCM saturation failure. Treat those as prior evidence to compare against your actual run, not values to copy into your outcome table.
+
+## Compare several outcomes
+
+Reuse Lab 3's table with ALIP and DCM as its columns. Add `touchdowns`, `qp_failures`, `force_allocator_failures` and `max_constraint_violation`. Identify one time interval worth inspecting in each recorded scene. A solver success or small constraint residual describes one computational boundary; it does not establish tracking, comfortable contact or accepted physical motion.
+
+<details class="checkpoint" markdown="1">
+<summary>Worked interpretation · two different outcomes</summary>
+
+If both runs complete and stop, while one has nonzero saturated motor-ticks, you have evidence that completion and actuator margin differ. You have not shown that changing only a planner equation caused saturation: the planner selection includes adapter/reference behavior. Explain this bounded result before proposing an intervention. Avoid a single “winner” score that hides failed criteria.
+
+</details>
+
+## Optional first Python analysis
+
+The CSV is a useful place to begin coding because the controller and recorded experiment remain fixed. From `apps/unitree-g1`, run this read-only analysis in the project's existing environment:
+
+```bash
+pixi run --locked python - <<'PY'
+import csv
+from pathlib import Path
+import yaml
+
+for planner in ("alip", "dcm"):
+    run = Path(f"artifacts/guided-labs/lab-04-{planner}")
+    summary = yaml.safe_load((run / "summary.yaml").read_text())
+    with (run / "metrics.csv").open() as stream:
+        rows = list(csv.DictReader(stream))
+    if not rows:
+        raise ValueError(f"No metrics in {run}")
+    peak = max(max(float(row["left_load_bw"]),
+                   float(row["right_load_bw"])) for row in rows)
+    print(planner, "completed:", summary["completed"],
+          "passed:", summary["passed"], "peak single-foot load:", peak)
+PY
+```
+
+This computes peak single-foot load over all available metric rows, including startup and stopping. Both foot loads are normalized by total robot bodyweight. Check the value against `peak_foot_load_bw` in the corresponding summary and explain any difference before trusting it. A failed/truncated run covers only its recorded interval; a smaller peak over a shorter run does not by itself demonstrate better behavior.
+
+For your first edit, find the timestamp of the peak and print which foot produced it. Use that timestamp to inspect the scene, remembering that the viewer's 50 Hz frames can miss a 1 kHz peak. Save your analysis and output under ignored `artifacts/guided-labs/` while investigating. Ask an agent to explain the CSV fields or review your calculation, then verify one row yourself.
+
+## Turn one observation into a contribution
+
+Choose one of these deliverables with your mentor:
+
+- An annotated comparison explaining a discrepancy between completion, tracking and acceptance.
+- A short Python analysis that locates an event and checks its statistic against the existing report.
+- An illustrated explanation of the planner boundary, linked to the owning contract.
+- A reproducible issue report if the actual result differs from the recorded baseline.
+
+Use the [short report](index.md#lab-report), retain all selected outcomes and cite the exact revision and commands. Submit your proposed contribution for review. A selected G1 investigation can become a `working` note under `apps/unitree-g1/notes/investigations/`; a mentor helps decide whether it belongs in a maintained example or app change. The [mentor guide](mentors.md#choose-a-first-contribution) explains that review path.
+
+You have completed the lab when another person can reproduce your comparison, you can locate the changed boundary and you can explain one observation plus one limitation without reading an agent's answer. Continue to the [G1 student-project guide](../setup/student-projects.md) when you are ready to maintain an independent project.

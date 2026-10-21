@@ -209,8 +209,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../docs/handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../../docs/guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -218,6 +225,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -514,6 +524,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1770,7 +2008,7 @@
 <p>Last verified:</p>
 <ul>
 <li>
-<p>2026-10-08 Ubuntu terrain merge: the affected sim, binding, API smoke, example, Digit and mapping targets build. All five focused CTest entries pass (92 sim, 16 phase/swing, four scene and 64 config/safety cases, plus the scene artifact check); six sim Python tests pass. All 16 mapping catalog scenes pass, but the stepping-stone placement gate fails identically with the pre-merge generator. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/perception/mapping/VALIDATION.md#2026-10-08-ubuntu-terrain-merge-verification">mapping validation</a> and <code>artifacts/terrain_merge_20261008/</code>. No walking qualification follows.</p>
+<p>2026-10-08 Ubuntu terrain merge: the affected sim, binding, API smoke, example, Digit and mapping targets build. All five focused CTest entries pass (92 sim, 16 phase/swing, four scene and 64 config/safety cases, plus the scene artifact check); six sim Python tests pass. All 16 mapping catalog scenes pass, but the stepping-stone placement gate fails identically with the pre-merge generator. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/perception/mapping/VALIDATION.md#2026-10-08-ubuntu-terrain-merge-verification">mapping validation</a> and <code>artifacts/terrain_merge_20261008/</code>. No walking qualification follows.</p>
 </li>
 <li>
 <p>2026-10-07 terrain representation migration, on this Mac host with MuJoCo 3.13: the sim library, Python extension, API smoke, C++ terrain demo, Digit walking executable/config/scene tests and mapping executable build. Focused sim contracts pass 92/92; Python sim tests pass 6/6; both terrain examples run. Geometry checks include all 16 catalog scenes, four cardinal and one oblique heading with both slope signs/caps, signed treads, partial tiles, immutable box-oracle versus vertical-ray parity, and unknown finite gaps. Digit's phase/swing reference consumer contracts also pass. Requested slope heights allow 20 micrometres for the MJCF writer's six significant digits; oracle-versus-compiled-ray parity uses 1e-10 metres in that fixture. The Rerun scene and artifact gates pass for box terrain. Digit's 62 remaining config/safety cases pass, including profile materialization and summary fields; two inventory cases require the shipped envelope to be enabled and are excluded because that Mac checkout had an unrelated local override. The full config gate was therefore not green in that checkout.</p>
@@ -1819,7 +2057,7 @@
 <p>Composition goes through MuJoCo's <code>mjSpec</code> API: the source model is parsed, mutated structurally, compiled, and written. Compiling before writing means a malformed composition fails at generation rather than at load. The cost is that the generated model is a re-serialization of the source robot at the XML writer's six significant digits, not the source text verbatim -- body masses drift by order 1e-5 kg. <code>GeneratedModelPreservesTheSourceRobot</code> bounds that drift. Anything comparing a terrain run against a flat run should generate both through this path rather than loading the source model directly for one of them.</p>
 <p><code>terrain_catalog.hpp</code> owns the terrain scene schema and the catalog layout: <code>modules/sim/terrains/</code> is a directory of scene files, one per scene, named by filename stem, and <code>kTerrainCatalogDirectory</code> publishes that repository-relative location so applications do not restate it. Every path the module opens (the catalog, an MJCF, a mesh directory) goes through <code>cyber_suite::data::resolve</code> (foundation), so the same relative path names the file in this repository and in an installed package. Applications name a scene and inherit this module's validation and error messages; they do not carry the list or restate the schema. The catalog validates profile-specific YAML directly into the metric <code>TerrainConfig</code> shared with <code>TerrainGenerator</code>; it does not own a second profile enum or duplicate parameter structs. Every field a profile takes is required, and a key that profile does not use is an error rather than a value silently ignored.</p>
 <p>The supported named-scene vocabulary is intentionally smaller than the set of terrain algorithms that once accumulated in the generator: flat, platform, signed slope, signed-riser stairs, box square steps, waves, Perlin, and the seeded three-sinusoid surface named multi-sine. Custom height functions remain programmatic-only. Stepping stones and tiling are not catalog surfaces until their placement/count and seam contracts are repaired. Uncorrelated per-cell random terrain, localized hills, and redundant legacy stair formulations are not supported aliases.</p>
-<p><code>terrain_generator.hpp</code> emits geometry and never MJCF. Continuous profiles are pure world-position height functions, rasterized onto a world-anchored grid with <code>TerrainPlacement</code> fading. Heights remain signed metres because MuJoCo normalizes <code>.hf</code> data at compile time; the composer restores elevation size and geom z offset. Structured profiles emit exact finite boxes without grid resolution or fading. Their origin is the leading top-surface point; local u follows heading, v is centred across width, and positive grade/riser rises along u. Explicit approach/exit boxes supply finite level sections. Slope height caps create a plateau. Stair tread i is at origin.z + i*step_height; partial final treads and boundary checker tiles are clipped to the extent. Thickness is measured normal to the top face, including on tilted boxes. Dimensions must be finite/positive, grade magnitude below 89 degrees, and the total count no more than 10,000 boxes. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/sim/terrains/README.md">the catalog contract</a> for each profile's schema and approach/exit restrictions.</p>
+<p><code>terrain_generator.hpp</code> emits geometry and never MJCF. Continuous profiles are pure world-position height functions, rasterized onto a world-anchored grid with <code>TerrainPlacement</code> fading. Heights remain signed metres because MuJoCo normalizes <code>.hf</code> data at compile time; the composer restores elevation size and geom z offset. Structured profiles emit exact finite boxes without grid resolution or fading. Their origin is the leading top-surface point; local u follows heading, v is centred across width, and positive grade/riser rises along u. Explicit approach/exit boxes supply finite level sections. Slope height caps create a plateau. Stair tread i is at origin.z + i*step_height; partial final treads and boundary checker tiles are clipped to the extent. Thickness is measured normal to the top face, including on tilted boxes. Dimensions must be finite/positive, grade magnitude below 89 degrees, and the total count no more than 10,000 boxes. See <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/sim/terrains/README.md">the catalog contract</a> for each profile's schema and approach/exit restrictions.</p>
 <p>The catalog includes signed slope presets at headings 0, 90, 180 and 270, with arbitrary headings supported by the public configuration. Existing forward scene names remain; <code>-backward</code>, <code>-left</code> and <code>-right</code> identify the other headings. Structured YAML must migrate to primitive placement and thickness, and stairs must supply signed step height instead of grade/height cap. Obsolete fields are rejected. Continuous scene YAML keeps its prior schema.</p>
 <p>Every scene, including flat, passes through the same <code>mjSpec</code> parse, mutation, compile, and save path. The saved MJCF and any <code>.hf</code> heightfield are written to a private temporary and renamed into place. Concurrent processes that generate the same scene therefore never read a partial file: each sees one complete generation or another, with identical bytes. Scene-owned ground policy retains the source plane as colliding or visual-only, or removes it. A colliding plane is rejected when a heightfield has negative height or a box top is coplanar with or below the plane. Heightfields retain their existing 1 mm lift; boxes have no offset. A visual-only plane is lowered below the generated solid so it cannot hide descending surfaces and contributes no collision support. Outside finite boxes/fields, support depends on an explicitly retained colliding plane; otherwise the oracle returns unknown. Scene appearance owns metric grid/checker/dirt patterns in a lighter matte blue-gray family, an optional fixed MuJoCo Menagerie blue-to-black skybox with blue-gray haze, and bounded reflectance. <code>dirt</code> remains the compatibility spelling for a deterministic blue-gray speckled pattern; it is not an earth-tone material. Visual-only planes use a separate, darker Menagerie blue-black checker backdrop with moderate reflectance so their role remains distinguishable from the colliding terrain. The schema does not expose texture resolution, backdrop styling, palette, or robot-specific material names.</p>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
@@ -1846,7 +2084,7 @@
 
                 
 
-<div class="document-origin">Source: <code>modules/sim/MODULE.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>modules/sim/MODULE.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

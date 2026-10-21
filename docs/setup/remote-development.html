@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1873,7 +2111,7 @@
 <p>Evidence is stated for each viewer path below. Browser/tunnel recipes are independent of owning a MacBook; a successful SSH connection alone does not establish GPU setup or working display access. This guide covers project execution and viewing, not personal laptop or operating-system provisioning.</p>
 <h2 id="code-and-agent-sessions">Code And Agent Sessions<a class="headerlink" href="#code-and-agent-sessions" title="Permanent link">&para;</a></h2>
 <p>Open the Ubuntu checkout through VS Code's <strong>Remote-SSH: Connect to Host</strong>. Use the remote integrated terminal for agents and Pixi commands; verify <code>hostname</code>, <code>pwd</code> and <code>git status --short</code> there. Install/authenticate agent CLIs on Ubuntu. For extensions, check their documented remote support and actual execution location rather than assuming every extension runs remotely. <a href="https://code.visualstudio.com/docs/remote/ssh">VS Code documents remote terminals and extension placement</a>.</p>
-<p>Use the same Ubuntu user and checkout when working at the desktop. For a CLI session that must survive a client disconnect, run it inside <code>tmux</code> and reattach from the next terminal. Native agent resume can continue a saved session on that host; cross-agent continuity uses the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/handoffs/README.md">task handoff</a>. Reconnecting to Ubuntu does not require synchronizing source to a client-side clone.</p>
+<p>Use the same Ubuntu user and checkout when working at the desktop. For a CLI session that must survive a client disconnect, run it inside <code>tmux</code> and reattach from the next terminal. Native agent resume can continue a saved session on that host; cross-agent continuity uses the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/handoffs/README.md">task handoff</a>. Reconnecting to Ubuntu does not require synchronizing source to a client-side clone.</p>
 <p>Follow the <a href="development-workflow.html">development workflow</a> to choose the command owner. Keep each root or project <code>pixi.toml</code> with its own <code>pixi.lock</code> in Git. On a new checkout, install the root environment with <code>pixi install --locked</code> and run root <code>pixi run --locked orient</code>; then use the owning robot project's manifest for its build, viewer and standalone <code>check</code>. Learning uses that project's <code>learn</code> environment. The root and robot default environments target macOS ARM64 and Linux x86-64; learning platform requirements remain in each project's manifest and validation.</p>
 <p>Each host owns its environments, builds, credentials and local agent state. Project <code>.pixi/config.toml</code> files are tracked configuration that place environments in Pixi's cache; transfer that configuration, not the generated environments or CMake build trees. Retain essential instructions, skills and decisions in repository-owned files. Do not make correct continuation depend on plugins installed only on the other computer.</p>
 <p>For occasional development on another supported host, transfer the task branch and handoff together using the handoff protocol. Store source references relative to the repository; record host plus path for artifacts outside Git. Keep long-run artifacts on Ubuntu or explicit artifact storage, with producing commit, command and checksums where needed for replay.</p>
@@ -1924,7 +2162,7 @@
 <p>Then open <code>http://localhost:9090</code> on the client, the same link every time. As with the viser page, one TCP port carries everything: forward 9090 with VS Code's Ports view or <code>ssh -N -L 9090:127.0.0.1:9090 ubuntu-workstation</code>. To use Tailscale or a private LAN directly instead, add <code>--web-bind 0.0.0.0</code> (or Ubuntu's Tailscale address) and open <code>http://&lt;ubuntu-tailscale-name&gt;:9090</code>. The Ubuntu process serves its bundled Rerun web viewer and installs the current walking dashboard, including robot meshes, textured terrain, sky-blue background, base-following camera and telemetry plots. The client needs no repository checkout or local Rerun/Pixi installation; the first visit downloads the 50 MB viewer, which the browser caches.</p>
 <p>The Rerun server listens only on Ubuntu loopback. A launcher-owned relay on port 9090 (<code>--web-port</code>) serves the page and forwards the viewer's gRPC-web telemetry from the server's loopback port 9876 (<code>--port</code>), so both share one origin. Its <code>/</code> redirects to the viewer pointed back at whatever address the browser used. Its default bind is loopback. After simulation completion, keep the launch terminal open to inspect or scrub the recording; Ctrl+C closes the server it started. If a launch reports its port in use, an earlier launch is usually still serving playback: stop it with Ctrl+C rather than choosing new ports, and the link stays the same. The app still logs HDF5 on Ubuntu. The native workflow below remains available when preferred.</p>
 <p>The browser's plot channels are sampled at up to 50 Hz to keep ingestion manageable; its robot scene is also 50 Hz. HDF5 retains the full 1 kHz Servo telemetry. The native modes below retain full scalar drill-down; use those or the stored artifact to investigate faster signals.</p>
-<p>Verified 2026-10-12 on Ubuntu Chrome over the workstation's private Tailscale address: the ALIP run completes and the web viewer renders the robot, terrain, background and dashboard plots. Rendering on other client platforms and network latency remain to be checked from the Mac; see the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md#2026-10-12-rerun-browser-launch">walking validation</a>.</p>
+<p>Verified 2026-10-12 on Ubuntu Chrome over the workstation's private Tailscale address: the ALIP run completes and the web viewer renders the robot, terrain, background and dashboard plots. Rendering on other client platforms and network latency remain to be checked from the Mac; see the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md#2026-10-12-rerun-browser-launch">walking validation</a>.</p>
 <p>The one-port relay was verified the same day on Ubuntu only, with headless Chrome on loopback. <code>http://127.0.0.1:&lt;web-port&gt;</code> redirected to the viewer, which rendered the robot, terrain and live dashboard through the relay. In the same browser it ingested about as fast as the server's own page, and the 50 MB viewer download took 0.12 s against 0.10 s direct. The relay path from another client, by forward or Tailscale, is untested.</p>
 <h3 id="native-digit-rerun-on-a-client">Native Digit Rerun On A Client<a class="headerlink" href="#native-digit-rerun-on-a-client" title="Permanent link">&para;</a></h3>
 <p>This uses the existing launcher and observer; it is observation-only and does not provide MuJoCo mouse perturbations or interactive control. Use matching Rerun versions from compatible lockfile revisions on both hosts. Replace <code>ubuntu-workstation</code> with your configured SSH alias. Run the following from the client's local checkout/terminal, not a VS Code remote terminal. It uses the repository's root environment, which has Rerun, so the client does not build the Digit project:</p>
@@ -1998,7 +2236,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/setup/remote-development.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/setup/remote-development.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

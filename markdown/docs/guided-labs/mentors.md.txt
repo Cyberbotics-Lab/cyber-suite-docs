@@ -1,0 +1,104 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-19
+Code anchors: apps/unitree-g1/pixi.toml, apps/unitree-g1/walking/APP.md, apps/unitree-g1/walking/VALIDATION.md, docs/setup/student-projects.md
+---
+
+# Prepare and mentor a guided lab
+
+The first goal is a student who can run, inspect and explain one bounded experiment. A useful contribution can be a reproduced result, an annotated figure or a precise failure report. Start with a small cohort and adjust these working exercises from observed student difficulties before expanding them.
+
+## Prepare one working environment
+
+Choose one Ubuntu execution host, an accessible Cyber Suite revision and a checkout assigned to the student or pair. Verify repository access in advance. For the first labs, use the maintained project inside Cyber Suite; exporting and maintaining an independent project can follow later. Environments, package builds and viewer connectivity should be ready before the teaching session.
+
+From the repository root, record the host, revision and dirty state, then prepare the standalone G1 boundary:
+
+```bash
+hostname
+git rev-parse HEAD
+git status --short --branch
+pixi run --locked orient
+pixi run --locked --manifest-path apps/unitree-g1/pixi.toml check
+```
+
+Read the current [app contract](../../apps/unitree-g1/walking/APP.md) and [validation](../../apps/unitree-g1/walking/VALIDATION.md). `check` covers the installed package, model parity and standing gate; it does not qualify walking. First installation can compile the reusable package. Resolve installation failures before assigning a student their first experiment.
+
+From `apps/unitree-g1`, test both browser paths using fresh preparation outputs:
+
+```bash
+pixi run --locked stand --duration 10 --viser \
+  --out artifacts/guided-labs/preparation-standing
+```
+
+```bash
+pixi run --locked walk --planner alip --terrain flat \
+  --vx 0.10 --vy 0.0 --walk-duration 5 --duration 12 \
+  --rerun-web --out artifacts/guided-labs/preparation-alip
+```
+
+Run these sequentially, inspect playback, close each launch and verify `summary.yaml` plus the scene recording. Test access from the student's actual browser. Simulation and viewer servers run on Ubuntu; clients forward port 8080 for Viser or 9090 for browser Rerun. See [remote development](../setup/remote-development.md) and the [G1 running guide](../../apps/unitree-g1/walking/RUNNING.md) for alternate ports. Agree on separate directories and viewer ports when students share a host.
+
+Give students the working checkout path, revision, exact first command, browser/forwarding address and a fresh artifact path. Have one reference report ready, including its failed criteria. The provided source contains the historical dataset for Lab 1, which can run independently while environment issues are resolved.
+
+## Teach one decision at a time
+
+| Lab | Mentor preparation | Student decision | Evidence of understanding |
+| --- | --- | --- | --- |
+| 1 · Read an experiment | Open figure and nine-row CSV | What can completion establish? | Recalculate shortfall and state a limitation |
+| 2 · Standing | Working Viser and standing baseline | What evidence supports standing? | Connect one visible observation to a report field |
+| 3 · Speed tracking | Working Rerun dashboard and fresh paths | Which variable changes? | Explain mean versus RMSE and report both outcomes |
+| 4 · Planner comparison | Matched scenario and accessible app contract | Which boundary changes? | Reproduce a comparison and propose one reviewable contribution |
+
+Ask for a prediction before a run and a brief explanation afterward. In pairs, alternate the operator and evidence reviewer. End with a five-minute demonstration in which each student explains a result and answers a follow-up question. Use discrepancies as teaching opportunities, including differences between the current run and prior validation.
+
+## Review the work
+
+Assess the investigation with four questions:
+
+1. **Reproducible:** Are the revision, applied configuration, commands and evidence location recorded?
+2. **Controlled:** Is the changed variable named, with the relevant conditions held fixed?
+3. **Supported:** Do the table and figure support the written claim, including failed or missing outcomes?
+4. **Understood:** Can the student explain a quantity, a surprising observation and a limitation in their own words?
+
+A failed physical run can satisfy these criteria. Requiring a passing robot outcome would encourage students to hide failures or tune acceptance thresholds before understanding them. Keep the existing gates fixed during these labs. Current ALIP/DCM results are scenario evidence, not a promise that every subsequent revision or machine reproduces the same numbers.
+
+AI assistance can help with explanations and small analysis edits. Ask the student what it produced, how they checked it and which claim remains uncertain. A well-written report needs a reproducible observation and an explanation the student can defend.
+
+## Author check of the supplied scenarios
+
+On October 19, 2026, the lab scenarios were exercised on Ubuntu at Cyber Suite revision `9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd`, with documentation-only local changes. The standalone project check passed compilation, 32-sample model parity and ten-second standing acceptance. The walking arms used the generated `flat` terrain, five seconds of commanded motion and twelve seconds total, as supplied in the labs.
+
+| Scenario | Outcome | Mean forward speed, m/s | Planar RMSE, m/s | Saturated motor-ticks | Acceptance |
+| --- | --- | --- | --- | --- | --- |
+| Standing, 10 s | Completed; no fall | Not a walking metric | Not a walking metric | 0 | Pass |
+| ALIP, 0.10 m/s | Completed; no fall or fault | 0.1032 | 0.1227 | 0 | Pass |
+| ALIP, 0.20 m/s | Completed; no fall or fault | 0.2072 | 0.1246 | 54 | Fail |
+| DCM, 0.10 m/s | Completed; no fall or fault | 0.1098 | 0.0604 | 55 | Fail |
+
+All three walking arms reported stopping and more than two seconds of measured settled dwell. The 0.20/0.10 ALIP mean-speed ratio was approximately 2.01, while the faster arm failed actuator acceptance. DCM had lower planar RMSE than ALIP on the slow scenario and still failed actuator acceptance. These observations supply discussion examples without qualifying a broader operating envelope.
+
+Standing with Viser and slow ALIP with browser Rerun completed bounded launcher checks using alternate ports and `--no-keep-open`; their viewer reports matched all 502 and 602 produced frames respectively. Faster ALIP and DCM were checked headlessly with scene recording. All walking recordings contained 12,000 metric rows, and the Lab 4 peak-load calculation agreed with each summary. This verifies local launch/recording paths, not a student's remote browser connection or a completed teaching pilot.
+
+The author checkout retains ignored commands, logs and summaries under root `artifacts/docs/lab-validation/` and G1-project `artifacts/guided-labs/author-check-*`. These are local reproduction hints, not website downloads or retained evidence capsules. Rerun the scenarios at the revision you assign and record your own outcomes before teaching.
+
+## Choose a first contribution
+
+| Interest | Bounded first contribution | Review before accepting |
+| --- | --- | --- |
+| Mechanics and modeling | Illustrate joint axes, support geometry or center of mass | Frame conventions and agreement with the robot model |
+| Experiments | Reproduce a named scenario or characterize one failure | Applied configuration, complete outcomes and reproducibility |
+| Data and Python | Add a small plot or event locator for an existing log | Units, timestamps, sampling/window definitions and an independent value check |
+| Communication | Explain a confusing workflow with one measured example | Agreement with current owner contracts and evidence limits |
+| Software | Make one bounded app/tool change after reproducing its baseline | Owning contract, affected consumers and appropriate validation |
+
+Keep the first task small enough to explain in one paragraph and demonstrate in one meeting. Give the student a named reviewer and a clear acceptance condition. Increase ownership when they can reproduce their baseline, explain the relevant boundary and evaluate their change. The [independent G1 project workflow](../setup/student-projects.md) then introduces dependency pinning and project maintenance.
+
+## Retain only useful conclusions
+
+Working logs, reports, plots and exploratory scripts stay under ignored `artifacts/`; agree how they will be shared and retained before cleaning a teaching machine. Keep all selected failed outcomes while reviewing a comparison. A chosen G1 investigation can become one concise `working` note under `apps/unitree-g1/notes/investigations/`; shared teaching investigations belong under root `notes/`. New Markdown notes need status frontmatter and must identify the producing revision and evidence limits.
+
+For a reviewed illustration that becomes maintained teaching material, retain the reduced data, renderer and provenance in a complete root or project `notes/evidence/` capsule. Publish only the used figure/data copies under `docs/assets/` and register them in its manifest. Follow the [evidence policy](../policies/evidence-policy.md). The labs reuse the handbook's existing capsule; they do not duplicate its dataset.
+
+Updating a note or publishing a teaching example does not promote robot behavior. Fold accepted behavior into the owning app/tool documentation and follow the [development workflow](../setup/development-workflow.md) for validation and integration. Authority and lifecycle changes retain their maintainer review requirements.

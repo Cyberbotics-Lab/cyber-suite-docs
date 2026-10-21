@@ -1,0 +1,129 @@
+---
+Status: working
+Owner: repo
+Last reviewed: 2026-10-19
+Code anchors: apps/unitree-g1/walking/APP.md, apps/unitree-g1/walking/VALIDATION.md, docs/handbook/chapters/index.md
+---
+
+# Guided labs
+
+<p class="eyebrow">Observe · Reproduce · Investigate · Contribute</p>
+
+<div class="lead" markdown="1">
+
+Join Cyber Suite by answering a small robotics question. Begin with a recorded result, then run a robot in simulation and explain what you measured. Your first contribution can be a useful experiment, visualization or explanation.
+
+</div>
+
+You need basic graphs, averages and an interest in robot behavior. Lab 1 needs only a browser and a calculator. Labs 2–4 use a mentor-prepared Ubuntu environment and a browser viewer. Basic Python is an optional extension in Lab 4. Allow roughly one supervised session per lab; installation is a separate mentor preparation step.
+
+## Choose your first question
+
+<div class="lab-grid" markdown="1">
+<div markdown="1">
+
+<p class="eyebrow">01 / Observe · 30–45 minutes</p>
+
+### Did the robot do what we asked?
+
+Read a diagram and a real nine-run Digit dataset. Calculate a tracking shortfall and identify what the evidence leaves unanswered.
+
+**You bring:** a browser and calculator. **You produce:** an annotated figure and a short claim.
+
+[Read an experiment →](01-read-an-experiment.md){ .md-button .md-button--primary }
+
+</div>
+<div markdown="1">
+
+<p class="eyebrow">02 / Reproduce · 45–60 minutes</p>
+
+### What counts as standing?
+
+Observe G1, inspect its support and compare the animation with a numerical acceptance report.
+
+**You bring:** a prepared execution host. **You produce:** a reproducible standing observation.
+
+[Observe G1 standing →](02-g1-standing.md){ .md-button }
+
+</div>
+<div markdown="1">
+
+<p class="eyebrow">03 / Investigate · 60–90 minutes</p>
+
+### Does twice the command mean twice the speed?
+
+Change one commanded speed, keep the scenario fixed and compare tracking, stopping and actuator use.
+
+**You bring:** Lab 2 experience. **You produce:** a two-run comparison with a stated limitation.
+
+[Measure speed tracking →](03-speed-tracking.md){ .md-button }
+
+</div>
+<div markdown="1">
+
+<p class="eyebrow">04 / Contribute · 60–90 minutes</p>
+
+### What changes when we change the planner?
+
+Compare ALIP and DCM on the same scenario, inspect full-rate data and prepare one small contribution for review.
+
+**You bring:** Lab 3 experience. **You produce:** an evidence-based explanation; optionally your first Python analysis.
+
+[Compare two planners →](04-compare-planners.md){ .md-button }
+
+</div>
+</div>
+
+The times are teaching estimates, excluding installation and troubleshooting. A pair can share an execution host: alternate who operates the experiment and who checks the interpretation. Each student should explain one observation in their own words.
+
+## One loop for every lab
+
+```mermaid
+flowchart TB
+    Q[Ask one question] --> P[Predict the result]
+    P --> O[Observe or run]
+    O --> E[Inspect the evidence]
+    E --> C[Explain the result and its limits]
+    C --> N[Choose the next small question]
+```
+
+Write your prediction before opening the worked answer or running the comparison. A disagreement with your prediction is useful: explain the observation before proposing a change. A failed run can complete the assignment when you preserve its outcome and explain the relevant evidence.
+
+Digit supplies the integrated conceptual example in Lab 1 and the [handbook](../handbook/chapters/index.md). G1 supplies the smaller simulation project for Labs 2–4. Its standalone standing controller and its walking runtime are different compositions; passing one does not qualify the other.
+
+## Prepare with your mentor
+
+Before Lab 2, agree on the execution host, checkout revision and viewer connection. Your mentor should complete the [preparation checklist](mentors.md#prepare-one-working-environment) first. The simulation and viewer server run on Ubuntu; your browser can run on your own computer. A working SSH terminal and a working viewer connection are separate checks.
+
+Follow commands from the stated folder. Keep one run per fresh output directory, close a viewer with Ctrl+C before starting the next, and retain failed results. Use the supplied scenario choices first. G1 walking remains experimental; these exercises evaluate simulation behavior under specified conditions.
+
+## Your short lab report { #lab-report }
+
+Use this outline for each submission. A table and one annotated figure or screenshot are usually enough; Lab 1 can use the supplied figure. Store drafts, generated figures and raw runs under ignored `artifacts/` in the agreed checkout. Share the report and evidence location with your mentor before that machine is cleaned or reassigned.
+
+```text
+Question:
+Prediction, written before the experiment:
+Source revision and any local changes:
+Execution host; exact commands or supplied dataset:
+What changed; what stayed fixed:
+Outcome table, including failures:
+Figure or screenshot and what its axes/channels mean:
+Conclusion supported by the observations:
+One limitation and one next question:
+Artifact paths; AI assistance used and how I checked it:
+```
+
+For Lab 1, name the historical dataset and selection instead of an execution host. For live labs, record both the Cyber Suite revision and the complete run directories. Do not substitute the robot asset's upstream `source_revision` field for the Cyber Suite Git revision.
+
+## Use an AI agent as a tutor
+
+Ask for help locating a file, explaining a plotted quantity or checking a calculation. Keep your prediction and interpretation your own. For example:
+
+> Explain the fields in this G1 summary using the current app code. Help me distinguish completion, tracking and acceptance. Do not change the controller, configuration or thresholds. Ask me to explain one plotted observation before suggesting a conclusion.
+
+Check every suggested command against the stated folder and current running guide. Report any AI-generated analysis you used and one thing you verified yourself. The completion checkpoint is a short explanation to your mentor, including how you would reproduce the result.
+
+## Continue into a project
+
+After these labs, choose a bounded task from the [contribution menu](mentors.md#choose-a-first-contribution). A mentor can help turn a useful observation into a reviewed example or a small implementation change. The [G1 student-project guide](../setup/student-projects.md) is the next step when you are ready to own an independent project and its environment.

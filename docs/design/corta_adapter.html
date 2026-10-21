@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1836,7 +2074,7 @@
 
 
 <h1 id="corta-adapters-and-external-boundaries">CORTA adapters and external boundaries<a class="headerlink" href="#corta-adapters-and-external-boundaries" title="Permanent link">&para;</a></h1>
-<p>CORTA connects computation to the outside world through three boundaries with different responsibilities: a Plant paces observation/command exchange, adapters carry asynchronous semantic input and output, and observers consume telemetry. This reference explains the implemented separation and how to choose a boundary for a new device. The <a href="runtime-execution.html">runtime overview</a> introduces the execution model; the <a href="corta-design-specs.html">CORTA design</a> specifies its rules. The current <a href="../../modules/corta/MODULE.html">core contract</a>, <a href="../../modules/corta_adapters/MODULE.html">adapter contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/corta/CONFORMANCE.md">conformance index</a> own implementation and evidence.</p>
+<p>CORTA connects computation to the outside world through three boundaries with different responsibilities: a Plant paces observation/command exchange, adapters carry asynchronous semantic input and output, and observers consume telemetry. This reference explains the implemented separation and how to choose a boundary for a new device. The <a href="runtime-execution.html">runtime overview</a> introduces the execution model; the <a href="corta-design-specs.html">CORTA design</a> specifies its rules. The current <a href="../../modules/corta/MODULE.html">core contract</a>, <a href="../../modules/corta_adapters/MODULE.html">adapter contract</a> and <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/corta/CONFORMANCE.md">conformance index</a> own implementation and evidence.</p>
 <h2 id="three-boundaries-three-responsibilities">Three boundaries, three responsibilities<a class="headerlink" href="#three-boundaries-three-responsibilities" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart TB
   peer["Simulator or robot"] &lt;--&gt; plant["Plant: clock and exchange"]
@@ -1883,7 +2121,7 @@
 </table>
 <p>A simulator behind a lockstep gateway is still a Plant. A joystick is an adapter input. A robot drawing in a viewer is an observation. Similar wire protocols do not make these responsibilities interchangeable.</p>
 <h2 id="what-is-implemented">What is implemented<a class="headerlink" href="#what-is-implemented" title="Permanent link">&para;</a></h2>
-<p>The original proposal's missing Egress and S-28 work is complete within the current software evidence boundary. <code>Egress&lt;T&gt;</code> is implemented, and S-28 is marked <code>pass</code> in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/corta/CONFORMANCE.md">conformance index</a>. This does not imply distributed clock synchronization, a qualified physical device or a general middleware bridge.</p>
+<p>The original proposal's missing Egress and S-28 work is complete within the current software evidence boundary. <code>Egress&lt;T&gt;</code> is implemented, and S-28 is marked <code>pass</code> in the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/corta/CONFORMANCE.md">conformance index</a>. This does not imply distributed clock synchronization, a qualified physical device or a general middleware bridge.</p>
 <table>
 <thead>
 <tr>
@@ -1896,32 +2134,32 @@
 <tr>
 <td>Adapter kernel</td>
 <td><code>AdapterSession</code>, one connection and SDK-owned thread, placement reporting, counters and bounded stop/join</td>
-<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/examples/cpp/corta/adapter_loopback.cpp">Loopback example</a></td>
+<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/examples/cpp/corta/adapter_loopback.cpp">Loopback example</a></td>
 </tr>
 <tr>
 <td>Typed egress</td>
 <td>Value and Block output, preallocated queue, drop-newest overflow and Block lease accounting</td>
-<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/corta/include/corta/egress.hpp">Core egress implementation</a></td>
+<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/corta/include/corta/egress.hpp">Core egress implementation</a></td>
 </tr>
 <tr>
 <td>Keyboard input</td>
 <td>POSIX descriptor, application byte mapping, state/events and terminal restoration</td>
-<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/examples/cpp/corta/adapter_keyboard.cpp">Keyboard example</a></td>
+<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/examples/cpp/corta/adapter_keyboard.cpp">Keyboard example</a></td>
 </tr>
 <tr>
 <td>Joystick input</td>
 <td>Linux joystick records, axis/button snapshot, application mapping and optional keepalive</td>
-<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/examples/cpp/corta/adapter_joystick.cpp">Joystick example</a></td>
+<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/examples/cpp/corta/adapter_joystick.cpp">Joystick example</a></td>
 </tr>
 <tr>
 <td>Datagram input</td>
 <td>Whole datagrams from a borrowed socket, application format, size bound and mapper rejection</td>
-<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/examples/cpp/corta/adapter_datagram.cpp">Datagram example</a>; Digit browser operator over loopback UDP</td>
+<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/examples/cpp/corta/adapter_datagram.cpp">Datagram example</a>; Digit browser operator over loopback UDP</td>
 </tr>
 <tr>
 <td>Rerun observation</td>
 <td>HDF5-first fan-out, bounded observer queues, exact stream selection and optional schema-specific encoder</td>
-<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/examples/cpp/corta/adapter_rerun.cpp">Rerun example</a>; Digit scene and telemetry</td>
+<td><a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/examples/cpp/corta/adapter_rerun.cpp">Rerun example</a>; Digit scene and telemetry</td>
 </tr>
 </tbody>
 </table>
@@ -1961,10 +2199,10 @@
 </tr>
 </tbody>
 </table>
-<p>For example, keyboard bytes can update a desired velocity and append a stop request during one read burst. Publishing only the last raw byte would lose the earlier request. The state/event helpers preserve their different meanings within explicit capacity limits; they do not promise lossless or exactly-once delivery. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/modules/corta_adapters/include/corta/adapters/delivery.hpp">delivery helpers</a>.</p>
+<p>For example, keyboard bytes can update a desired velocity and append a stop request during one read burst. Publishing only the last raw byte would lose the earlier request. The state/event helpers preserve their different meanings within explicit capacity limits; they do not promise lossless or exactly-once delivery. See the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/modules/corta_adapters/include/corta/adapters/delivery.hpp">delivery helpers</a>.</p>
 <h2 id="lifecycle-and-command-authority">Lifecycle and command authority<a class="headerlink" href="#lifecycle-and-command-authority" title="Permanent link">&para;</a></h2>
 <p><code>AdapterSession</code> exposes a <code>DeviceThread</code> so its stop/join participates in Runtime shutdown ordering. Adapters report placement and failures. Concrete input adapters borrow their descriptors; the owner creates the connection and remains responsible for its lifetime. Keyboard idle polling and join timeout must be configured consistently so an idle device cannot prevent bounded shutdown.</p>
-<p>In Digit, keyboard, joystick and browser input map onto the same app-owned axes and request messages. The inline operator supervisor owns command shaping, modes and link-loss behavior. A mapper or viewer is not a controller or safety authority. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/APP.md#live-operator-input">Digit operator contract</a> describes the integrated behavior.</p>
+<p>In Digit, keyboard, joystick and browser input map onto the same app-owned axes and request messages. The inline operator supervisor owns command shaping, modes and link-loss behavior. A mapper or viewer is not a controller or safety authority. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/APP.md#live-operator-input">Digit operator contract</a> describes the integrated behavior.</p>
 <h2 id="recording-and-visualization">Recording and visualization<a class="headerlink" href="#recording-and-visualization" title="Permanent link">&para;</a></h2>
 <p>The storage writer remains the sole consumer of each original telemetry ring. It appends HDF5 first, then copies selected rows into independent bounded Rerun queues. Viewer backpressure can drop visualization copies without changing stored rows or feeding commands into control. HDF5 retains exact declared types and metadata; a Rerun projection is an observation of them.</p>
 <p>The generic encoder produces numeric time series. An application may provide an exact-schema encoder for semantic objects such as the Plant scene. The implemented Digit observer selects servo state, planner command and Plant-scene streams. Its launcher selects native or browser viewing and the dashboard; the C++ path owns live telemetry delivery. No generic <code>VisualizationFrame</code> egress was needed for these views.</p>
@@ -1989,7 +2227,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/design/corta_adapter.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/design/corta_adapter.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

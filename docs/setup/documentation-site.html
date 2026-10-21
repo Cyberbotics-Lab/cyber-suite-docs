@@ -211,8 +211,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -220,6 +227,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -516,6 +526,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1994,7 +2232,7 @@
 <p>The older ALIP/DCM formulations, coordinator migration document and CORTA design chronology still need owner review before becoming primary implementation explanations. Keep proposals and retired behavior out of the default reading path; preserve their original records rather than rewriting history to fit the website.</p>
 <h2 id="write-explanations-around-a-question">Write explanations around a question<a class="headerlink" href="#write-explanations-around-a-question" title="Permanent link">&para;</a></h2>
 <p>A strong page states the question it answers, shows the relevant relationship, walks through a concrete example and names evidence the reader can inspect. Explain frames, timing, assumptions and ownership where they change the interpretation. Put symbol-level details behind source links. Keep ordinary prose paragraphs on one physical Markdown line.</p>
-<p>Use Markdown tables, code blocks, native disclosures and Mermaid for small relationship diagrams. The theme renders Mermaid diagrams and bundles its runtime locally. Use capsule-owned SVGs for durable technical illustrations and standard plots for measured results. Captions distinguish schematics from measurements and identify conditions, sample counts and limits. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/policies/evidence-policy.md">evidence policy</a> defines the capsule contract.</p>
+<p>Use Markdown tables, code blocks, native disclosures and Mermaid for small relationship diagrams. The theme renders Mermaid diagrams and bundles its runtime locally. Use capsule-owned SVGs for durable technical illustrations and standard plots for measured results. Captions distinguish schematics from measurements and identify conditions, sample counts and limits. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/docs/policies/evidence-policy.md">evidence policy</a> defines the capsule contract.</p>
 <h2 id="verify-a-change">Verify a change<a class="headerlink" href="#verify-a-change" title="Permanent link">&para;</a></h2>
 <p>Run the full-site <code>check</code>, the root audit and orientation, and <code>git diff --check</code>. If the chapter changes, rebuild the standalone handbook too. The site check walks generated links and anchors, confirms exact Markdown downloads, checks rendered sections for every module contract and checks that search contains the introductory guides rather than contracts or supporting sources. Inspect desktop and narrow layouts, search, section navigation and figures after presentation changes.</p>
 <p>Commands in a guide must agree with current owning scripts and manifests. A successful documentation build validates publication; it does not establish that a robot simulation, training run, hardware deployment or remote browser connection was exercised.</p>
@@ -2039,7 +2277,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/setup/documentation-site.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/setup/documentation-site.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>

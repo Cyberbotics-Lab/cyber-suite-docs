@@ -213,8 +213,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../handbook/chapters/index.html" class="md-tabs__link">
+        <a href="../guided-labs/index.html" class="md-tabs__link">
           
   
   
@@ -222,6 +229,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -518,6 +528,234 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guided labs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guided labs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Start here
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/01-read-an-experiment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Read an experiment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/02-g1-standing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Observe G1 standing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/03-speed-tracking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Measure speed tracking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/04-compare-planners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Compare two planners
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guided-labs/mentors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mentor preparation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
             
               
                 
@@ -1772,7 +2010,7 @@
 <figcaption>Recorded October 1 simulation. Hollow circles are per-run plateau velocities; squares are medians of three seeds. This predates the current drive model and teaches how to read evidence, rather than rank today's controllers.</figcaption>
 <p><a href="../assets/handbook/lateral-tracking.svg">Open full-size plot</a></p>
 </figure>
-<p>The policy's median shortfall is about 0.064 m/s, or 32% of the command, despite all three runs completing. That observation identifies a tracking question. It does not identify the cause, establish acceptable stopping or qualify the controller on other terrain. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/notes/evidence/2026-10-18-handbook-walking/README.md">figure capsule</a> and <a href="../assets/handbook/lateral-tracking.csv">retained source data</a> make the numbers inspectable.</p>
+<p>The policy's median shortfall is about 0.064 m/s, or 32% of the command, despite all three runs completing. That observation identifies a tracking question. It does not identify the cause, establish acceptable stopping or qualify the controller on other terrain. The <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/notes/evidence/2026-10-18-handbook-walking/README.md">figure capsule</a> and <a href="../assets/handbook/lateral-tracking.csv">retained source data</a> make the numbers inspectable.</p>
 <h2 id="write-the-comparison-before-running-it">Write the comparison before running it<a class="headerlink" href="#write-the-comparison-before-running-it" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1816,10 +2054,10 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pixi<span class="w"> </span>run<span class="w"> </span>--locked<span class="w"> </span>plot-walking<span class="w"> </span>artifacts/experiment/baseline.h5<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-o<span class="w"> </span>artifacts/experiment/baseline-plots
 </code></pre></div>
-<p>Use a separate output directory for the candidate. The <a href="../../apps/digit/walking/RUNNING.html">running guide</a> explains logging choices; the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/apps/digit/walking/VALIDATION.md">app validation</a> records acceptance criteria and prior evidence.</p>
+<p>Use a separate output directory for the candidate. The <a href="../../apps/digit/walking/RUNNING.html">running guide</a> explains logging choices; the <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/apps/digit/walking/VALIDATION.md">app validation</a> records acceptance criteria and prior evidence.</p>
 <h2 id="keep-evidence-proportional-to-the-claim">Keep evidence proportional to the claim<a class="headerlink" href="#keep-evidence-proportional-to-the-claim" title="Permanent link">&para;</a></h2>
 <p>A single run can demonstrate a failure or help diagnose a mechanism. It generally cannot establish a broad operating envelope. Preserve all selected outcomes, state the number of seeds and scenarios, and distinguish a measured improvement from an untested explanation.</p>
-<p>Working logs, plots and notebooks stay in ignored <code>artifacts/</code>. Promote a figure into a bounded <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/9dd3202a0e62b887d5221aa6a64c2b35ff67f3cd/docs/policies/evidence-policy.md">evidence capsule</a> when a maintained document needs it. Keep the reduced data, renderer, source revision and limitations together. A figure that survives without its conditions is easy to misuse.</p>
+<p>Working logs, plots and notebooks stay in ignored <code>artifacts/</code>. Promote a figure into a bounded <a href="https://github.com/Cyberbotics-Lab/cyber-suite/blob/e457e56307014662843f489603a60eac24b6b696/docs/policies/evidence-policy.md">evidence capsule</a> when a maintained document needs it. Keep the reduced data, renderer, source revision and limitations together. A figure that survives without its conditions is easy to misuse.</p>
 <h2 id="give-an-agent-a-bounded-task">Give an agent a bounded task<a class="headerlink" href="#give-an-agent-a-bounded-task" title="Permanent link">&para;</a></h2>
 <blockquote>
 <p>Reproduce this Digit baseline, then compare the candidate on the same scenario and seeds. Preserve the robot model, state source, actuation, command schedule and shared calibration. Inspect commanded versus measured velocity, installed references, saturation, stopping and failures. Keep each arm's artifacts separate and report what the evidence establishes before proposing another change.</p>
@@ -1842,7 +2080,7 @@
 
                 
 
-<div class="document-origin">Source: <code>docs/setup/evaluating-experiments.md</code><br>Built from <code>9dd3202a0e62</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
+<div class="document-origin">Source: <code>docs/setup/evaluating-experiments.md</code><br>Built from <code>e457e5630701</code> and this checkout's local edits. Owner contracts and validation determine implemented behavior and demonstrated limits.</div>
 
 
               </article>
